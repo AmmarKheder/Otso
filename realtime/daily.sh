@@ -29,7 +29,14 @@ unset PYTHONPATH; export PYTHONNOUSERSITE=1; export PYTHONPATH=$RT/pylib
 export XDG_CACHE_HOME=/projappl/project_462001140/envs/.cache MPLCONFIGDIR=/tmp/mpl-$USER-$$
 PY=/projappl/project_462001140/envs/world/bin/python
 export WORLD_DATA=/scratch/project_462001140/ammar/eccv/data/world
-$PY -u fetch.py $DATE --deadline 15:30 --every 10 || { echo "fetch failed $(date -u +%FT%TZ)"; exit 1; }
+# a failed fetch (a late or missing source, or a job started late) is retried 2 h later, 3 times at most, without deadline
+$PY -u fetch.py $DATE --deadline ${OTSO_DEADLINE:-15:30} --every 10 || {
+  echo "fetch failed $(date -u +%FT%TZ)"; N=${OTSO_RETRY:-0}
+  if [ "$N" -lt 3 ]; then
+    RJ=$(sbatch --parsable --begin=now+2hours --job-name otso_retry_$DATE --export=ALL,OTSO_NO_RESUBMIT=1,OTSO_RETRY=$((N+1)),OTSO_DEADLINE=23:59 $RT/daily.sh $DATE)
+    echo "retry $((N+1)) of $DATE submitted as job $RJ (in 2 h)"
+  fi
+  exit 1; }
 $PY -u build.py $DATE || { echo "build failed $(date -u +%FT%TZ)"; exit 1; }
 JOB=$(sbatch --parsable --job-name otso_$DATE $RT/otso_job.sh $DATE)
 echo "gpu job $JOB submitted $(date -u +%FT%TZ)"
