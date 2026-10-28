@@ -69,7 +69,7 @@
   .lnotes { display: flex; flex-direction: column; gap: 4px; }
   .lnotes span { display: flex; align-items: center; gap: 8px; }
   .dash { width: 26px; height: 0; border-top: 2px dashed var(--ink); opacity: .75; display: inline-block; }
-  .hatch { width: 26px; height: 12px; border-radius: 3px; display: inline-block; background-color: #4575b4; background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.4) 0 1px, transparent 1px 7px); }
+  .hatch { width: 26px; height: 12px; border-radius: 3px; display: inline-block; background-color: #4575b4; background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.35) 0 1px, transparent 1px 8px); }
   .modelline { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
   .maplibregl-popup-content { background: var(--card); color: var(--ink); border-radius: 12px; padding: 10px 12px; box-shadow: var(--shadow); font-size: 13.5px; min-width: 190px; }
   .maplibregl-popup-tip { border-top-color: var(--card) !important; border-bottom-color: var(--card) !important; }
@@ -302,7 +302,7 @@
       for (let u = 0; u < 256; u++) {
         const i = ix[rowN + cm[u]]; if (!i) continue;
         const o = (v * 256 + u) * 4, p = i * 4;
-        if (L.src[i] !== 0 && (x * 256 + u + Y) % 7 === 0) { out[o] = L.rgba[p] * 0.74 + 66; out[o + 1] = L.rgba[p + 1] * 0.74 + 66; out[o + 2] = L.rgba[p + 2] * 0.74 + 66; }
+        if (L.src[i] !== 0 && (x * 256 + u + Y) % 8 === 0) { out[o] = L.rgba[p] * 0.8 + 51; out[o + 1] = L.rgba[p + 1] * 0.8 + 51; out[o + 2] = L.rgba[p + 2] * 0.8 + 51; }
         else { out[o] = L.rgba[p]; out[o + 1] = L.rgba[p + 1]; out[o + 2] = L.rgba[p + 2]; }
         out[o + 3] = 255;
       }
@@ -345,18 +345,15 @@
   const tileUrl = (prod, L, z, x, y) => `${BASE}${S.meta.date}/${prod}/${L}/${z}/${x}/${y}.png`;
   async function rawTile(prod, L, z, x, y, signal) {
     const key = `${prod}/${L}/${z}/${x}/${y}`;
-    if (S.raw.has(key)) return S.raw.get(key).slice(0);
     const r = await fetch(tileUrl(prod, L, z, x, y), { signal }); if (!r.ok) throw new Error("tile " + r.status);
-    const buf = await r.arrayBuffer();
-    S.raw.set(key, buf); if (S.raw.size > 64) S.raw.delete(S.raw.keys().next().value);
-    return buf.slice(0);
+    return r.arrayBuffer();
   }
   // every displayed tile is drawn here from the native tile (zoom <= 7): class colours, hatching where it is not the 1 km
   // model, and 1 km squares kept sharp down to street level (the native tile is enlarged pixel by pixel)
   async function nativeIndices(prod, L, z, x, y, signal) {
-    const key = `${prod}/${L}/${z}/${x}/${y}`; let ix = S.dec.get(key);
-    if (!ix) { ix = await pngIndices(await rawTile(prod, L, z, x, y, signal)); S.dec.set(key, ix); if (S.dec.size > 96) S.dec.delete(S.dec.keys().next().value); }
-    return ix;
+    const key = `${prod}/${L}/${z}/${x}/${y}`; let p = S.dec.get(key);                     // one download per native tile, shared
+    if (!p) { p = rawTile(prod, L, z, x, y).then(pngIndices); S.dec.set(key, p); p.catch(() => S.dec.delete(key)); if (S.dec.size > 96) S.dec.delete(S.dec.keys().next().value); }
+    return p;
   }
   const blank = () => toImage(new Uint8ClampedArray(4), 1, 1);
   maplibregl.addProtocol("o1k", async (params, ac) => {

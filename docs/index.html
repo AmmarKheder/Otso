@@ -58,6 +58,12 @@
   table.scores td, table.scores th { text-align: right; } table.scores td:first-child, table.scores th:first-child { text-align: left; }
   .scores-notes { margin: 14px 0 0; padding-left: 20px; } .scores-notes li { font-size: 14px; margin-bottom: 8px; }
   body.app #scores { display: none !important; }
+  .k1card { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 20px 22px; border-radius: 22px; background: var(--card); color: var(--ink); text-decoration: none; box-shadow: 0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06); }
+  .k1card:hover { text-decoration: none; } :root[data-theme="dark"] .k1card { box-shadow: none; border: 1px solid var(--line); }
+  .k1card-text { display: flex; flex-direction: column; gap: 6px; min-width: 0; } .k1card-h { display: flex; align-items: center; gap: 10px; } .k1card-t { font-size: 24px; font-weight: 700; letter-spacing: -.01em; }
+  .k1card-sub { color: var(--muted); font-size: 15px; max-width: 720px; } .k1card-btn { flex: none; }
+  @media (max-width: 600px) { .k1card { flex-direction: column; align-items: stretch; padding: 16px; } .k1card-btn { text-align: center; } }
+  body.app #k1 { padding: 4px 0 12px; } body.app .k1card { padding: 12px 14px; border-radius: 16px; } body.app .k1card-sub { display: none; } body.app .k1card-t { font-size: 18px; } body.app #k1 .pill-beta { display: inline-block !important; }
   body.app #tablewrap:not(.all) table.ct tbody tr:nth-child(n+13) { display: none; } body.app .showall { display: block !important; width: 100%; margin-top: 10px; }
   body.app #tablewrap.all + .showall { display: none !important; }
   .otso-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
@@ -302,6 +308,7 @@
     <nav class="nav">
       <a href="#install" data-i18n="nav.install">Install</a>
       <a href="#map" data-i18n="nav.map">Map</a>
+      <a href="1km/" data-i18n="nav.k1">1 km map</a>
       <a href="#cities" data-i18n="nav.cities">Cities</a>
       <a href="#city" data-i18n="nav.city">Your city</a>
       <a href="#scores" data-i18n="nav.scores">Scores</a>
@@ -438,6 +445,18 @@
   </div>
 </section>
 
+<section class="band" id="k1">
+  <div class="wrap">
+    <a class="k1card" href="1km/">
+      <span class="k1card-text">
+        <span class="k1card-h"><span class="k1card-t" data-i18n="k1.h2">Otso 1 km</span><span class="pill pill-beta" data-i18n="hero.beta">beta</span></span>
+        <span class="k1card-sub" data-i18n="k1.sub">The same forecast, downscaled to 1 km by a generative model and drawn on a street map: zoom into your neighbourhood, five days ahead. North of 60° N, where the 1 km model has no data, the map shows the 0.4° forecast corrected towards GHAP.</span>
+      </span>
+      <span class="btn btn-primary k1card-btn" data-i18n="k1.btn">Open the 1 km map</span>
+    </a>
+  </div>
+</section>
+
 <section class="band band-soft" id="cities">
   <div class="wrap">
     <h2 data-i18n="cities.h2">Cities</h2>
@@ -529,7 +548,7 @@
 </main>
 <div class="toast" id="toast" hidden><span data-i18n="toast.updated">Otso was updated.</span><button type="button" id="toast-reload" data-i18n="toast.reload">Reload</button></div>
 <nav class="tabbar" id="tabbar" hidden aria-label="App navigation">
-  <a href="#city" id="tab-locate"><span>📍</span><b data-i18n="tab.locate">Locate</b></a><a href="#city" data-sec="city"><span>🏙️</span><b data-i18n="tab.city">City</b></a><a href="#map" data-sec="map"><span>🗺️</span><b data-i18n="tab.map">Map</b></a><a href="#cities" data-sec="cities"><span>📋</span><b data-i18n="tab.cities">Cities</b></a><a href="?full=1#about"><span>ℹ️</span><b data-i18n="tab.about">About</b></a>
+  <a href="#city" id="tab-locate"><span>📍</span><b data-i18n="tab.locate">Locate</b></a><a href="#city" data-sec="city"><span>🏙️</span><b data-i18n="tab.city">City</b></a><a href="#map" data-sec="map"><span>🗺️</span><b data-i18n="tab.map">Map</b></a><a href="#cities" data-sec="cities"><span>📋</span><b data-i18n="tab.cities">Cities</b></a><a href="1km/"><span>🛣️</span><b data-i18n="tab.k1">1 km</b></a><a href="?full=1#about"><span>ℹ️</span><b data-i18n="tab.about">About</b></a>
 </nav>
 <footer><div class="wrap">
   <div class="foot">

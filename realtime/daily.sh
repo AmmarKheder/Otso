@@ -1,18 +1,18 @@
 #!/bin/bash
 #SBATCH --job-name=otso_daily
-#SBATCH --account=project_462001140
+#SBATCH --account=project_462001804
 #SBATCH --partition=small
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=24G
 #SBATCH --time=05:00:00
-#SBATCH --output=/scratch/project_462001140/ammar/eccv/cran-pm/experiments/global1km/realtime/logs/daily_%j.out
+#SBATCH --output=/scratch/project_462001804/ammar/eccv/cran-pm/experiments/global1km/realtime/logs/daily_%j.out
 # Otso step 5b: the daily driver. Runs on a CPU node: fetch + build for today, submits the GPU job (otso_job.sh) and
 # waits for it, builds the products, publishes, prunes, and resubmits itself for tomorrow at the same hour
 # (scrontab is disabled on LUMI). Usage: sbatch --begin=11:00 daily.sh [yyyy-mm-dd]
 set -uo pipefail
-RT=/scratch/project_462001140/ammar/eccv/cran-pm/experiments/global1km/realtime
+RT=/scratch/project_462001804/ammar/eccv/cran-pm/experiments/global1km/realtime
 cd $RT
 DATE=${1:-$(date -u +%F)}
 HOUR=${OTSO_HOUR:-10:00}
@@ -26,9 +26,9 @@ if [ "${OTSO_NO_RESUBMIT:-0}" = 1 ]; then echo "no resubmission (test)"; else
 fi
 # the world venv is used directly (no `module load`: lmod hung on a Lustre RPC for minutes on 2026-10-10)
 unset PYTHONPATH; export PYTHONNOUSERSITE=1; export PYTHONPATH=$RT/pylib
-export XDG_CACHE_HOME=/projappl/project_462001140/envs/.cache MPLCONFIGDIR=/tmp/mpl-$USER-$$
-PY=/projappl/project_462001140/envs/world/bin/python
-export WORLD_DATA=/scratch/project_462001140/ammar/eccv/data/world
+export XDG_CACHE_HOME=/projappl/project_462001804/envs/.cache MPLCONFIGDIR=/tmp/mpl-$USER-$$
+PY=/projappl/project_462001804/envs/world/bin/python
+export WORLD_DATA=/scratch/project_462001804/ammar/eccv/data/world
 # a failed fetch (a late or missing source, or a job started late) is retried 2 h later, 3 times at most, without deadline
 $PY -u fetch.py $DATE --deadline ${OTSO_DEADLINE:-15:30} --every 10 || {
   echo "fetch failed $(date -u +%FT%TZ)"; N=${OTSO_RETRY:-0}
@@ -53,6 +53,10 @@ $PY -u products.py $DATE || { echo "products failed"; exit 1; }
 $PY -u fetch_camsfc.py $DATE || echo "CAMS forecast not fetched (the verification will lack it for $DATE)"
 $PY -u verify.py $DATE || echo "verification failed (published without it)"
 $PY -u publish.py $DATE || { echo "publish failed"; exit 1; }
+# Otso 1 km (since 2026-10-28): submits the 1 km run and its web tiles as two separate jobs and returns at once; whatever
+# happens there never touches the 0.4 deg products above (switch off: touch .../otso_1km/web/OFF)
+O1K_CHAIN=/scratch/project_462001804/ammar/global_model_forecasting_air_pollution/otso_1km/web/o1k_chain.sh
+if [ -f $O1K_CHAIN ]; then timeout 300 bash $O1K_CHAIN $DATE || echo "otso 1 km chain not submitted $(date -u +%FT%TZ)"; fi
 # housekeeping: the IFS GRIB files (2 GB/day) are only needed to build hres_B.npy; the FLEXGREEN stores (green/) and the
 # predictions are kept 10 days; the inputs (cams, hres_B, fires, journal, meta) are kept
 find $RT/data -mindepth 2 -maxdepth 2 -type d -name ifs -mtime +1 -exec rm -rf {} + 2>/dev/null

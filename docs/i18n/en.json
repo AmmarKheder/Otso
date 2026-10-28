@@ -166,5 +166,10 @@
 "usage.apptoday": "in the app today",
 "usage.note": "(unique devices, anonymous)",
 "day.latest": "Latest",
-"i18n.note": "Translated automatically; corrections are welcome."
+"i18n.note": "Translated automatically; corrections are welcome.",
+"nav.k1": "1 km map",
+"k1.h2": "Otso 1 km",
+"k1.sub": "The same forecast, downscaled to 1 km by a generative model and drawn on a street map: zoom into your neighbourhood, five days ahead. North of 60° N, where the 1 km model has no data, the map shows the 0.4° forecast corrected towards GHAP.",
+"k1.btn": "Open the 1 km map",
+"tab.k1": "1 km"
 }

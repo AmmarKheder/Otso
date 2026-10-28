@@ -2,8 +2,9 @@
    - the page itself (navigations) is fetched from the network first, so an online visitor always gets the latest version;
      the cached copy is the offline fallback
    - static assets (style, gazetteer, coastlines, icons) are served from the cache and refreshed in the background
-   - the live forecast (raw.githubusercontent.com) is network first; the last successful copy is kept for offline use */
-const VERSION = "otso-1.2-20261012split";
+   - the live forecast (raw.githubusercontent.com) is network first; the last successful copy is kept for offline use
+   - the 1 km map (1km/): its page like the main page; its tiles (live1km branch) are not stored by the worker */
+const VERSION = "otso-1.2-20261028k1";
 const SHELL = ["./", "./index.html", "./assets/style.css?v=20261012o", "./lines.json", "./gazetteer.json", "./manifest.webmanifest",
                "./icon-192.png", "./icon-512.png", "./assets/logo_mark.svg", "./assets/favicon.png", "./qr.svg", "./labels.json", "./i18n/en.json", "./assets/amc_logo_full.png", "./assets/lumi_logo.png", "./assets/csc_logo.svg"];
 self.addEventListener("install", (ev) => { ev.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())); });
@@ -21,7 +22,9 @@ self.addEventListener("fetch", (ev) => {
   if (ev.request.method !== "GET") return;
   const networkFirst = (cacheName) => fetch(ev.request).then((r) => { if (r.ok) { const cp = r.clone(); caches.open(cacheName).then((c) => c.put(ev.request, cp)); } return r; })
     .catch(() => caches.match(ev.request, { ignoreSearch: ev.request.mode === "navigate" }).then((r) => r || (ev.request.mode === "navigate" ? caches.match("./index.html") : null) || new Response("", { status: 503, statusText: "offline" })));
-  if (u.hostname === "raw.githubusercontent.com") { ev.respondWith(networkFirst(VERSION + "-data")); return; }
+  if (u.hostname === "raw.githubusercontent.com") {
+    if (u.pathname.includes("/live1km/") && u.pathname.endsWith(".png")) return;            // 1 km map tiles: thousands, new every day: browser cache only
+    ev.respondWith(networkFirst(VERSION + "-data")); return; }
   if (u.origin !== location.origin) return;                                                  // geocoders, counters: straight to the network
   if (ev.request.mode === "navigate" || u.pathname.endsWith("/") || u.pathname.endsWith("index.html")) {   // the page: always revalidated with the server
     ev.respondWith(fetch(u.href, { cache: "no-cache", credentials: "same-origin" }).then((r) => { if (r.ok) { const cp = r.clone(); caches.open(VERSION).then((c) => c.put(ev.request, cp)); } return r; })
