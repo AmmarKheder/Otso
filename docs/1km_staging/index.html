@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Otso 1 km — PM2.5 street map (beta)</title>
+<meta name="description" content="Otso 1 km: the daily Otso PM2.5 forecast downscaled to 1 km, on a street map, five days ahead. Research forecast, not an official alert." />
+<meta property="og:title" content="Otso 1 km — PM2.5 street map (beta)" />
+<meta property="og:description" content="The Otso forecast at 1 km on a street map. Research forecast, not an official alert." />
+<link rel="icon" type="image/png" href="../assets/favicon.png" />
+<link rel="manifest" href="../manifest.webmanifest" />
+<meta name="theme-color" content="#1F5AA6" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Otso" />
+<link rel="apple-touch-icon" href="../apple-touch-icon.png" />
+<link rel="stylesheet" href="../assets/style.css?v=20261012o" />
+<link rel="stylesheet" href="vendor/maplibre-gl.css" />
+<style>
+  :root { --card: #ffffff; --amber-bg: #FFF8E8; --amber-line: #F3D9A4; --amber-ink: #4a3b12; --amber: #D99A1E; --shadow: 0 8px 24px rgba(28,37,48,.12); color-scheme: light; }
+  :root[data-theme="dark"] { --bg: #0f1720; --bg-soft: #141d28; --card: #19232f; --ink: #e6edf3; --muted: #9aa7b4; --line: #27323e; --blue: #7fb0ff; --blue-dark: #5a8fe6; --blue-soft: #35507a;
+    --amber-bg: #2a2412; --amber-line: #5a4a1a; --amber-ink: #f3d9a4; --amber: #e0b04a; --shadow: 0 8px 24px rgba(0,0,0,.5); color-scheme: dark; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif; background: var(--bg); color: var(--ink); }
+  :root[data-theme="dark"] .topbar { background: rgba(15,23,32,.92); }
+  [hidden] { display: none !important; }
+  .theme-btn { width: 34px; height: 30px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font-size: 15px; line-height: 1; margin-left: 12px; color: var(--ink); }
+  .lang-wrap { position: relative; display: inline-flex; align-items: center; gap: 6px; margin-left: 10px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink); font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .lang-sel { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; font-size: 16px; }
+  .lang-code { display: none; }
+  .topright { display: flex; align-items: center; }
+  .pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: .04em; }
+  .pill-beta { background: #FFF1D6; color: #8A5A00; border: 1px solid #F3D9A4; }
+  :root[data-theme="dark"] .pill-beta { background: #3a2f10; color: #f3d9a4; border-color: #5a4a1a; }
+  .disclaimer { background: var(--amber-bg); border: 1px solid var(--amber-line); border-left: 4px solid var(--amber); border-radius: var(--radius); padding: 12px 16px; font-size: 14px; margin: 18px 0 0; color: var(--amber-ink); }
+  .k1head { padding: 22px 0 8px; }
+  .k1title { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .k1title h1 { margin: 0; font-size: 34px; }
+  .k1title h1 span { color: var(--blue); font-weight: 500; }
+  .status { color: var(--muted); font-size: 14px; margin: 6px 0 0; }
+  .back { font-size: 14px; }
+  .searchrow { display: flex; gap: 8px; margin: 14px 0 0; align-items: stretch; max-width: 620px; }
+  .sbox { position: relative; flex: 1; min-width: 0; }
+  .sbox input { width: 100%; height: 42px; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); font-size: 16px; }
+  .slist { position: absolute; z-index: 30; left: 0; right: 0; top: 46px; margin: 0; padding: 4px; list-style: none; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); max-height: 320px; overflow: auto; }
+  .slist li { padding: 9px 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; font-size: 15px; }
+  .slist li span { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .slist li.sel, .slist li:hover { background: var(--bg-soft); }
+  .geo { flex: none; height: 42px; padding: 0 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); font-size: 15px; cursor: pointer; }
+  .mapcard { background: var(--card); border-radius: 22px; padding: 14px; box-shadow: 0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06); margin: 12px 0 0; }
+  :root[data-theme="dark"] .mapcard { box-shadow: none; border: 1px solid var(--line); }
+  .k1bar { display: flex; gap: 10px 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin: 0 0 10px; }
+  .seg { display: inline-flex; flex-wrap: nowrap; gap: 2px; padding: 3px; border-radius: 11px; background: var(--bg-soft); border: 1px solid var(--line); max-width: 100%; overflow-x: auto; }
+  .seg button { border: 0; background: transparent; color: var(--ink); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; line-height: 1.25; }
+  .seg button.on { background: var(--card); font-weight: 600; box-shadow: 0 1px 3px rgba(16,24,40,.14), 0 1px 1px rgba(16,24,40,.06); }
+  :root[data-theme="dark"] .seg button.on { background: #2b3847; }
+  .seg button small { display: block; font-size: 11px; color: var(--muted); font-weight: 500; }
+  .opac { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .opac input { width: 120px; accent-color: var(--blue); }
+  .k1map { position: relative; height: 66vh; min-height: 420px; border-radius: 14px; overflow: hidden; background: var(--bg-soft); }
+  .k1map .note { position: absolute; z-index: 3; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--card); color: var(--ink); padding: 10px 14px; border-radius: 12px; box-shadow: var(--shadow); font-size: 14px; max-width: 80%; text-align: center; }
+  .badge { position: absolute; z-index: 2; left: 10px; top: 10px; background: rgba(255,248,232,.94); color: #4a3b12; border: 1px solid #F3D9A4; border-radius: 10px; padding: 5px 9px; font-size: 12px; max-width: calc(100% - 70px); pointer-events: none; }
+  :root[data-theme="dark"] .badge { background: rgba(42,36,18,.92); color: #f3d9a4; border-color: #5a4a1a; }
+  .legend { display: flex; gap: 8px 18px; flex-wrap: wrap; align-items: flex-start; margin: 10px 0 0; font-size: 12.5px; color: var(--muted); }
+  .lscale { display: flex; flex-wrap: wrap; gap: 0; align-items: flex-end; }
+  .lscale div { display: flex; flex-direction: column; align-items: center; min-width: 38px; }
+  .lscale i { display: block; width: 38px; height: 12px; }
+  .lscale div:first-child i { border-radius: 4px 0 0 4px; } .lscale div:last-child i { border-radius: 0 4px 4px 0; }
+  .lscale b { font-weight: 500; font-size: 11px; margin-top: 3px; color: var(--muted); white-space: nowrap; }
+  .lunit { align-self: center; color: var(--ink); font-weight: 600; }
+  .lnotes { display: flex; flex-direction: column; gap: 4px; }
+  .lnotes span { display: flex; align-items: center; gap: 8px; }
+  .dash { width: 26px; height: 0; border-top: 2px dashed var(--ink); opacity: .75; display: inline-block; }
+  .pale { width: 26px; height: 10px; border-radius: 3px; background: #4575b4; opacity: .5; display: inline-block; }
+  .modelline { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+  .maplibregl-popup-content { background: var(--card); color: var(--ink); border-radius: 12px; padding: 10px 12px; box-shadow: var(--shadow); font-size: 13.5px; min-width: 190px; }
+  .maplibregl-popup-tip { border-top-color: var(--card) !important; border-bottom-color: var(--card) !important; }
+  .maplibregl-popup-close-button { color: var(--muted); font-size: 18px; padding: 0 6px; }
+  .rv { font-size: 26px; font-weight: 300; line-height: 1.1; } .rv small { font-size: 13px; color: var(--muted); margin-left: 4px; }
+  .rc { display: flex; align-items: center; gap: 6px; font-weight: 600; margin: 2px 0 4px; } .rc i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .rs { color: var(--muted); font-size: 12.5px; }
+  .maplibregl-ctrl-attrib { font-size: 11px; }
+  :root[data-theme="dark"] .maplibregl-ctrl-group { background: var(--card); } :root[data-theme="dark"] .maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: invert(1); }
+  :root[data-theme="dark"] .maplibregl-ctrl-attrib { background: rgba(25,35,47,.8); color: var(--muted); } :root[data-theme="dark"] .maplibregl-ctrl-attrib a { color: var(--muted); }
+  .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .twocol ul { padding-left: 20px; } .twocol li { margin-bottom: 8px; font-size: 14.5px; }
+  footer .fine { font-size: 12px; }
+  /* app mode: the map first, no paperwork */
+  body.app .k1head { padding: 10px 0 0; } body.app .k1title h1 { font-size: 24px; } body.app .status, body.app .back-full, body.app #about, body.app .modelline .long { display: none; }
+  body.app .k1map { height: calc(100vh - 290px); height: calc(100dvh - 290px); min-height: 340px; } body.app .mapcard { padding: 10px; } body.app .disclaimer { font-size: 12px; padding: 7px 10px; margin: 10px 0 0; }
+  body.app .nav a:not(.back) { display: none; }
+  @media (max-width: 860px) { .twocol { grid-template-columns: 1fr; } .nav a.navx { display: none; } }
+  @media (max-width: 600px) {
+    .wrap { padding: 0 12px; } .k1title h1 { font-size: 26px; } .mapcard { padding: 10px; border-radius: 18px; }
+    .k1bar { flex-direction: column; align-items: stretch; } .seg { width: 100%; } .seg button { flex: 1; padding: 7px 6px; }
+    .opac input { flex: 1; width: auto; } .k1map { height: 62vh; min-height: 360px; } .lang-name { display: none; } .lang-code { display: inline; font-size: 13px; font-weight: 700; }
+    .lang-wrap { margin-left: 6px; padding: 6px 10px; } .lscale div, .lscale i { min-width: 0; width: 28px; } .lscale b { font-size: 10px; }
+    .geo .full { display: none; } .nav { gap: 10px; }
+  }
+  @media (max-width: 860px), (pointer: coarse) { input, select { font-size: 16px !important; } }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-row">
+    <a class="brand" href="../"><img src="../assets/logo_mark.svg" alt="" style="height:28px;width:28px" /><span>Otso</span><span style="color:var(--muted);font-weight:400">1 km</span></a>
+    <nav class="nav"><a class="back" href="../" data-k="back">← Otso 1.2</a><a class="navx" href="#about" data-k="nav_about">About this map</a><a class="navx" href="https://ammarkheder.com/Foehn/">Foehn paper ↗</a></nav>
+    <div class="topright">
+      <label class="lang-wrap" title="Language"><span aria-hidden="true">🌐</span><span class="lang-name" id="lang-name" aria-hidden="true">English</span><span class="lang-code" id="lang-code" aria-hidden="true">EN</span><select id="lang" class="lang-sel" aria-label="Language"></select></label>
+      <button type="button" class="theme-btn" id="theme" aria-label="Light / dark" title="Light / dark">🌙</button>
+    </div>
+  </div>
+</header>
+<main>
+<section class="k1head">
+  <div class="wrap">
+    <div class="k1title"><h1>Otso <span>1 km</span></h1><span class="pill pill-beta" data-k="beta">beta</span></div>
+    <p class="status" id="status">…</p>
+    <div class="searchrow">
+      <div class="sbox"><input type="search" id="q" autocomplete="off" placeholder="Search a city…" aria-label="Search a city" /><ul class="slist" id="qlist" hidden></ul></div>
+      <button type="button" class="geo" id="geo" aria-label="My location">📍<span class="full" data-k="geo"> My location</span></button>
+    </div>
+  </div>
+</section>
+<section>
+  <div class="wrap">
+    <div class="mapcard">
+      <div class="k1bar">
+        <div class="seg" id="prod"><button type="button" data-p="mean" class="on" data-k="mean">PM2.5, daily mean</button><button type="button" data-p="prob15" data-k="prob">Probability &gt; 15</button></div>
+        <div class="seg" id="days"></div>
+        <label class="opac"><span data-k="opacity">Opacity</span><input type="range" id="op" min="0.2" max="1" step="0.05" value="0.75" /></label>
+      </div>
+      <div class="k1map" id="map"><div class="badge" id="badge"></div><div class="note" id="note">…</div></div>
+      <div class="legend" id="legend"></div>
+      <p class="modelline"><span id="modelline"></span> <span class="long" id="caveat"></span></p>
+    </div>
+    <div class="disclaimer"><strong id="disc-title">Research forecast.</strong> <span id="disc-text"></span></div>
+  </div>
+</section>
+<section class="band band-soft" id="about" style="margin-top:30px">
+  <div class="wrap">
+    <h2 data-k="about_h2">About this map</h2>
+    <div class="twocol">
+      <div><h3 data-k="about_what">What it shows</h3><ul id="about-what"></ul></div>
+      <div><h3 data-k="about_not">What it is not</h3><ul id="about-not"></ul></div>
+    </div>
+    <p class="small" id="about-data"></p>
+  </div>
+</section>
+</main>
+<footer><div class="wrap">
+  <p><span data-k="dev">Developed by</span> <a href="https://ammarkheder.com/">Ammar Kheder</a> · <a href="https://www.amc-lahti.fi/">Atmospheric Modelling Centre Lahti</a> (AMC-Lahti) · University of Helsinki · LUT University</p>
+  <p class="fine" id="fine"></p>
+</div></footer>
+<script src="vendor/maplibre-gl.js"></script>
+<script>
+(() => {
+  const P = new URLSearchParams(location.search);
+  const OWN = "https://raw.githubusercontent.com/AmmarKheder/Otso/";                          // ?data= may only name another branch of the repository
+  const BASE = (P.get("data") || "").startsWith(OWN) && P.get("data").endsWith("/") ? P.get("data") : OWN + "live1km/";
+  const LANGS = [["en","English"],["fr","Français"],["ar","العربية"],["fi","Suomi"],["de","Deutsch"],["zh","中文"],["pt","Português"],["es","Español"],["it","Italiano"],["nl","Nederlands"],["pl","Polski"],["ro","Română"],["el","Ελληνικά"],["ru","Русский"],["uk","Українська"],["tr","Türkçe"],["fa","فارسی"],["ur","اردو"],["hi","हिन्दी"],["bn","বাংলা"],["pa","ਪੰਜਾਬੀ"],["gu","ગુજરાતી"],["mr","मराठी"],["ta","தமிழ்"],["te","తెలుగు"],["ne","नेपाली"],["ja","日本語"],["ko","한국어"],["vi","Tiếng Việt"],["th","ไทย"],["id","Bahasa Indonesia"],["ms","Bahasa Melayu"],["sw","Kiswahili"],["ha","Hausa"],["yo","Yorùbá"],["am","አማርኛ"],["sv","Svenska"]];
+  const RTL = new Set(["ar", "fa", "ur"]);
+  // page texts: English and French here; the other languages use English for these lines and the site's dictionaries
+  // (../i18n/<code>.json) for the shared ones (class names, the disclaimer)
+  const K = {
+    en: { beta: "beta", back: "← Otso 1.2", nav_about: "About this map", geo: " My location", search_ph: "Search a city…", mean: "PM2.5, daily mean", prob: "Probability > 15",
+      opacity: "Opacity", today: "today", tomorrow: "tomorrow", dplus: "D+{n}",
+      status: "Forecast issued {date} (00 UTC), daily means (00–24 UTC) · updated {upd}", stale: "This forecast is {n} days old: today's run is missing or late.",
+      loading: "Loading the 1 km forecast…", failed: "The 1 km forecast could not be loaded.", nogl: "This map needs WebGL, which this browser does not provide.",
+      badge: "Research forecast: it does not replace official alerts.",
+      unit: "µg m⁻³", legend_prob: "Members (of 8) above 15 µg m⁻³",
+      north: "North of 60° N: boreal climatology (no 1 km forecast)", holes: "Paler areas south of 60° N: Otso 0.4° (outside the 1 km model's mask)",
+      edge: "Edge of the 1 km domain (60° N)", noprob: "No probability north of 60° N",
+      src_1km: "Otso 1 km", src_04: "Otso 0.4° (no 1 km here)", src_clim: "climatology (no 1 km forecast)", sea: "Sea or no data", valid: "{day}, daily mean",
+      pbelow: "P(> 15 µg m⁻³): {k} of 8 members", pclim: "no probability here (climatology)",
+      model: "Otso 1.2 (0.4°) downscaled to 1 km by a generative model trained on LGHAP v2, a satellite–station PM2.5 product. At monitors, 1 km beats 40 km: 2023 hindcasts (ERA5 weather) −13 % RMSE against Otso 0.4°; 2024, −14 % against CAMS 0.4°.",
+      caveat: "LGHAP is itself fitted to monitors, so these station scores favour it; the forecast skill of each day is not known in advance.",
+      about_h2: "About this map", about_what: "What it shows", about_not: "What it is not",
+      what: ["<strong>Otso's forecast at 1 km.</strong> Every morning Otso 1.2 forecasts PM<sub>2.5</sub> at 0.4° (about 40 km) for five days; a generative model then draws 1 km fields conditioned on each of Otso's 8 members, on the weather forecast and on the transport computed by FLEXGREEN. The map shows the mean of the 8 members for each day (00–24 UTC), or the share of members above 15 µg m⁻³ (the WHO 24-hour guideline).",
+             "<strong>Classes</strong> of the Foehn paper: 0–5, 5–10, 10–15, 15–25, 25–37.5, 37.5–50, 50–75, 75–100, 100–150, 150–250 and above 250 µg m⁻³. Click or tap the map for the value.",
+             "<strong>Where there is no 1 km forecast.</strong> North of 60° N (the edge of the LGHAP product the model learnt from, dashed on the map) the map shows a boreal climatology of the month, paler. A few land areas south of 60° N lie outside the model's 1 km mask (for example parts of Bavaria, Czechia and Austria): there the map shows Otso's own 0.4° forecast, also paler. The value box says which source you are looking at."],
+      not: ["<strong>Not a street-by-street measurement.</strong> One value per square kilometre, from a model: streets, tunnels and chimneys are not resolved. The street map is there to find your way.",
+            "<strong>Not validated in real time yet.</strong> The station scores above come from past years (2023 and 2024); the daily 1 km forecast has no live verification yet.",
+            "<strong>Not an alert.</strong> Use your national or local air-quality service for health decisions."],
+      data: "Tiles: the <code>live1km</code> branch of the <a href=\"https://github.com/AmmarKheder/Otso\">Otso repository</a> (latest day only; <code>tiles.json</code> describes the encoding). Basemap: <a href=\"https://openfreemap.org\">OpenFreeMap</a>, © <a href=\"https://www.openmaptiles.org/\">OpenMapTiles</a>, data © <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap contributors</a>. Land and lakes: Natural Earth. City search: GeoNames (CC BY 4.0).",
+      fine: "Otso 1 km (beta) · research forecast, not an official alert. Contains modified Copernicus Atmosphere Monitoring Service information 2026; ECMWF open data (CC BY 4.0); LGHAP v2 (Bai et al.); © OpenStreetMap contributors. © 2026 Ammar Kheder.",
+      dev: "Developed by", nores: "No place found" },
+    fr: { beta: "bêta", back: "← Otso 1.2", nav_about: "À propos de cette carte", geo: " Ma position", search_ph: "Chercher une ville…", mean: "PM2,5, moyenne du jour", prob: "Probabilité > 15",
+      opacity: "Opacité", today: "aujourd'hui", tomorrow: "demain", dplus: "J+{n}",
+      status: "Prévision émise le {date} (00 UTC), moyennes journalières (00–24 UTC) · mise à jour {upd}", stale: "Cette prévision a {n} jours : le calcul du jour manque ou est en retard.",
+      loading: "Chargement de la prévision à 1 km…", failed: "La prévision à 1 km n'a pas pu être chargée.", nogl: "Cette carte demande WebGL, que ce navigateur ne fournit pas.",
+      badge: "Prévision de recherche, ne remplace pas les alertes officielles.",
+      unit: "µg m⁻³", legend_prob: "Membres (sur 8) au-dessus de 15 µg m⁻³",
+      north: "Au nord de 60° N : climatologie boréale (pas de prévision 1 km)", holes: "Zones pâles au sud de 60° N : Otso 0,4° (hors du masque du modèle 1 km)",
+      edge: "Limite du domaine 1 km (60° N)", noprob: "Pas de probabilité au nord de 60° N",
+      src_1km: "Otso 1 km", src_04: "Otso 0,4° (pas de 1 km ici)", src_clim: "climatologie (pas de prévision 1 km)", sea: "Mer ou pas de donnée", valid: "{day}, moyenne journalière",
+      pbelow: "P(> 15 µg m⁻³) : {k} membres sur 8", pclim: "pas de probabilité ici (climatologie)",
+      model: "Otso 1.2 (0,4°) affiné à 1 km par un modèle génératif entraîné sur LGHAP v2, un produit PM2,5 satellite–stations. Aux stations, le 1 km fait mieux que le 40 km : prévisions rétrospectives 2023 (météo ERA5) −13 % de RMSE par rapport à Otso 0,4° ; 2024, −14 % par rapport à CAMS 0,4°.",
+      caveat: "LGHAP est lui-même ajusté aux stations, ce qui l'avantage dans ces scores ; la qualité de chaque prévision n'est pas connue à l'avance.",
+      about_h2: "À propos de cette carte", about_what: "Ce qu'elle montre", about_not: "Ce qu'elle n'est pas",
+      what: ["<strong>La prévision d'Otso à 1 km.</strong> Chaque matin, Otso 1.2 prévoit les PM<sub>2,5</sub> à 0,4° (environ 40 km) pour cinq jours ; un modèle génératif tire ensuite des champs à 1 km conditionnés par chacun des 8 membres d'Otso, la prévision météo et le transport calculé par FLEXGREEN. La carte montre la moyenne des 8 membres pour chaque jour (00–24 UTC), ou la part des membres au-dessus de 15 µg m⁻³ (la valeur guide de l'OMS sur 24 heures).",
+             "<strong>Classes</strong> de l'article Foehn : 0–5, 5–10, 10–15, 15–25, 25–37,5, 37,5–50, 50–75, 75–100, 100–150, 150–250 et plus de 250 µg m⁻³. Cliquez ou touchez la carte pour la valeur.",
+             "<strong>Là où il n'y a pas de prévision à 1 km.</strong> Au nord de 60° N (la limite du produit LGHAP sur lequel le modèle a appris, en pointillés sur la carte), la carte montre une climatologie boréale du mois, plus pâle. Quelques zones terrestres au sud de 60° N sont hors du masque 1 km du modèle (par exemple une partie de la Bavière, de la Tchéquie et de l'Autriche) : la carte y montre la prévision 0,4° d'Otso, plus pâle aussi. La fenêtre de valeur indique la source."],
+      not: ["<strong>Pas une mesure rue par rue.</strong> Une valeur par kilomètre carré, issue d'un modèle : rues, tunnels et cheminées ne sont pas résolus. Le plan des rues sert à se repérer.",
+            "<strong>Pas encore validée en temps réel.</strong> Les scores aux stations ci-dessus portent sur des années passées (2023 et 2024) ; la prévision quotidienne à 1 km n'a pas encore de vérification en direct.",
+            "<strong>Pas une alerte.</strong> Pour votre santé, suivez le service national ou local de qualité de l'air."],
+      data: "Tuiles : la branche <code>live1km</code> du <a href=\"https://github.com/AmmarKheder/Otso\">dépôt Otso</a> (dernier jour seulement ; <code>tiles.json</code> décrit l'encodage). Fond de carte : <a href=\"https://openfreemap.org\">OpenFreeMap</a>, © <a href=\"https://www.openmaptiles.org/\">OpenMapTiles</a>, données © <a href=\"https://www.openstreetmap.org/copyright\">contributeurs OpenStreetMap</a>. Terres et lacs : Natural Earth. Recherche de villes : GeoNames (CC BY 4.0).",
+      fine: "Otso 1 km (bêta) · prévision de recherche, ne remplace pas les alertes officielles. Contient des informations modifiées du service Copernicus de surveillance de l'atmosphère 2026 ; données ouvertes de l'ECMWF (CC BY 4.0) ; LGHAP v2 (Bai et al.) ; © contributeurs OpenStreetMap. © 2026 Ammar Kheder.",
+      dev: "Développé par", nores: "Aucun lieu trouvé" } };
+  const PM_KEYS = ["very_clean", "clean", "good", "fair", "moderate", "moderate", "poor", "poor", "very_poor", "extremely_poor", "extremely_poor"];
+  let LANG = "en", DICT = {}, EN = {};
+  const k = (key, v) => { let x = (K[LANG] && K[LANG][key]) ?? K.en[key] ?? key; if (v) for (const [a, b] of Object.entries(v)) x = String(x).split("{" + a + "}").join(b); return x; };
+  const tr = (key) => DICT[key] ?? EN[key] ?? key;
+  const LOC = () => (LANG === "en" ? "en-GB" : LANG === "zh" ? "zh-CN" : LANG);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const num = (v, d) => v.toLocaleString(LOC(), { maximumFractionDigits: d, minimumFractionDigits: 0 });
+  const ls = { get: (a) => { try { return localStorage.getItem(a); } catch (e) { return null; } }, set: (a, b) => { try { localStorage.setItem(a, b); } catch (e) {} } };
+  const $ = (id) => document.getElementById(id);
+
+  // ---------------------------------------------------------------- state
+  const S = { meta: null, latest: null, prod: "mean", lead: 1, opacity: +(ls.get("otso-1km-op") || 0.75), map: null, popup: null, last: null, raw: new Map(), dec: new Map() };
+  $("op").value = S.opacity;
+
+  // ---------------------------------------------------------------- language
+  function detectLang() {
+    const codes = LANGS.map((x) => x[0]); const q = P.get("lang"); if (q && codes.includes(q)) return q;
+    const s0 = ls.get("otso-lang"); if (s0 && codes.includes(s0)) return s0;
+    for (const l of navigator.languages || [navigator.language || "en"]) { const b = String(l).toLowerCase().split("-")[0]; if (codes.includes(b)) return b; }
+    return "en";
+  }
+  const sel = $("lang"); sel.innerHTML = LANGS.map(([c, n]) => `<option value="${c}">${n}</option>`).join("");
+  async function setLang(code, save) {
+    LANG = code;
+    try { if (!Object.keys(EN).length) EN = await (await fetch("../i18n/en.json")).json(); } catch (e) {}
+    try { DICT = LANG === "en" ? {} : await (await fetch("../i18n/" + LANG + ".json")).json(); } catch (e) { DICT = {}; }
+    document.documentElement.lang = LANG; document.documentElement.dir = RTL.has(LANG) ? "rtl" : "ltr";
+    sel.value = LANG; $("lang-code").textContent = LANG.toUpperCase(); $("lang-name").textContent = (LANGS.find((x) => x[0] === LANG) || [0, "English"])[1];
+    if (save) ls.set("otso-lang", LANG);
+    texts();
+  }
+  sel.addEventListener("change", () => setLang(sel.value, true));
+  function texts() {
+    for (const el of document.querySelectorAll("[data-k]")) el.textContent = k(el.dataset.k);
+    $("q").placeholder = k("search_ph"); $("badge").textContent = k("badge");
+    $("disc-title").textContent = tr("disc.title"); $("disc-text").textContent = tr("disc.short");
+    $("modelline").textContent = k("model"); $("caveat").textContent = k("caveat");
+    $("about-what").innerHTML = k("what").map((x) => `<li>${x}</li>`).join(""); $("about-not").innerHTML = k("not").map((x) => `<li>${x}</li>`).join("");
+    $("about-data").innerHTML = k("data"); $("fine").textContent = k("fine");
+    document.title = LANG === "fr" ? "Otso 1 km — carte PM2,5 des rues (bêta)" : "Otso 1 km — PM2.5 street map (beta)";
+    if (S.meta) { status(); days(); legend(); }
+    if (S.last) readout(S.last.lng, S.last.lat, false);
+  }
+
+  // ---------------------------------------------------------------- theme
+  const dark = () => document.documentElement.dataset.theme === "dark";
+  const styleUrl = () => "https://tiles.openfreemap.org/styles/" + (dark() ? "dark" : "positron");
+  function applyTheme(t, save) {
+    const changed = document.documentElement.dataset.theme && document.documentElement.dataset.theme !== t;
+    document.documentElement.dataset.theme = t; $("theme").textContent = t === "dark" ? "☀️" : "🌙";
+    const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = t === "dark" ? "#0f1720" : "#1F5AA6";
+    if (save) ls.set("otso-theme", t);
+    if (changed && S.map) { S.styleReady = false; S.map.setStyle(styleUrl()); }
+  }
+  { let t = P.get("theme"); if (t !== "dark" && t !== "light") t = ls.get("otso-theme"); applyTheme(t || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"), false);
+    matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (ev) => { if (!ls.get("otso-theme")) applyTheme(ev.matches ? "dark" : "light", false); }); }
+  $("theme").addEventListener("click", () => applyTheme(dark() ? "light" : "dark", true));
+  // app mode: installed app, or ?source=pwa
+  const APP = !/[?&]full=1/.test(location.search) && (matchMedia("(display-mode: standalone)").matches || navigator.standalone === true || P.get("source") === "pwa");
+  if (APP) document.body.classList.add("app");
+
+  // ---------------------------------------------------------------- encoding (tiles.json): palette index -> value, class, source
+  const hexrgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  function classOf(v) { const b = S.meta.encoding.bounds; let c = 0; while (c < 10 && v >= b[c + 1]) c++; return c; }
+  function decodeMean(i) {
+    const e = S.meta.encoding, n = e.n, base = e.base, B = e.bounds.concat([e.top]);
+    if (!i) return null;
+    const s = i >= base[2] ? 2 : i >= base[1] ? 1 : 0, off = i - base[s], c = Math.floor(off / n[s]), sub = off % n[s];
+    const a = B[c], b = B[c + 1];
+    let lo, hi; if (c === 0) { lo = a + (b - a) * sub / n[s]; hi = a + (b - a) * (sub + 1) / n[s]; } else { lo = a * Math.pow(b / a, sub / n[s]); hi = a * Math.pow(b / a, (sub + 1) / n[s]); }
+    return { v: c === 0 ? (lo + hi) / 2 : Math.sqrt(lo * hi), c, src: s };
+  }
+  function decodeProb(i) { if (!i) return null; const pb = S.meta.encoding.prob_base; const s = i >= pb[1] ? 1 : 0; return { k: i - pb[s], src: s }; }
+
+  // ---------------------------------------------------------------- PNG reader (8-bit or fewer, palette): the index of one pixel
+  async function inflate(bytes) {
+    if (typeof DecompressionStream === "undefined") throw new Error("no DecompressionStream");
+    const ds = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate"));
+    return new Uint8Array(await new Response(ds).arrayBuffer());
+  }
+  async function pngIndices(buf) {
+    const dv = new DataView(buf), u8 = new Uint8Array(buf); let p = 8, w = 0, h = 0, bd = 8; const parts = [];
+    while (p + 8 <= u8.length) { const len = dv.getUint32(p), type = String.fromCharCode(u8[p + 4], u8[p + 5], u8[p + 6], u8[p + 7]);
+      if (type === "IHDR") { w = dv.getUint32(p + 8); h = dv.getUint32(p + 12); bd = u8[p + 16]; } else if (type === "IDAT") parts.push(u8.subarray(p + 8, p + 8 + len)); else if (type === "IEND") break;
+      p += 12 + len; }
+    const z = new Uint8Array(parts.reduce((a, x) => a + x.length, 0)); let o = 0; for (const x of parts) { z.set(x, o); o += x.length; }
+    const d = await inflate(z), bpr = Math.ceil(w * bd / 8), out = new Uint8Array(w * h); let prev = new Uint8Array(bpr), cur = new Uint8Array(bpr), q = 0;
+    for (let y = 0; y < h; y++) {
+      const f = d[q++];
+      for (let i = 0; i < bpr; i++) { const x = d[q++], a = i ? cur[i - 1] : 0, b = prev[i], c = i ? prev[i - 1] : 0; let v;
+        if (f === 0) v = x; else if (f === 1) v = x + a; else if (f === 2) v = x + b; else if (f === 3) v = x + ((a + b) >> 1);
+        else { const pp = a + b - c, pa = Math.abs(pp - a), pb = Math.abs(pp - b), pc = Math.abs(pp - c); v = x + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c); }
+        cur[i] = v & 255; }
+      if (bd === 8) out.set(cur.subarray(0, w), y * w);
+      else { const per = 8 / bd, mask = (1 << bd) - 1; for (let x = 0; x < w; x++) out[y * w + x] = (cur[(x / per) | 0] >> (8 - bd * ((x % per) + 1))) & mask; }
+      const t = prev; prev = cur; cur = t;
+    }
+    return out;
+  }
+
+  // ---------------------------------------------------------------- tiles
+  const bits = {};
+  function hasTile(prod, z, x, y) {
+    const b = bits[prod] && bits[prod][z]; if (!b) return false; const n = 1 << z, i = y * n + x; if (x < 0 || y < 0 || x >= n || y >= n) return false;
+    return (b[i >> 3] >> (7 - (i & 7))) & 1;
+  }
+  const tileUrl = (prod, L, z, x, y) => `${BASE}${S.meta.date}/${prod}/${L}/${z}/${x}/${y}.png`;
+  let EMPTY = null;
+  async function emptyPng() { if (EMPTY) return EMPTY.slice(0); const c = document.createElement("canvas"); c.width = c.height = 1; const b = await new Promise((r) => c.toBlob(r, "image/png")); EMPTY = await b.arrayBuffer(); return EMPTY.slice(0); }
+  async function rawTile(prod, L, z, x, y, signal) {
+    const key = `${prod}/${L}/${z}/${x}/${y}`;
+    if (S.raw.has(key)) return S.raw.get(key).slice(0);
+    const r = await fetch(tileUrl(prod, L, z, x, y), { signal }); if (!r.ok) throw new Error("tile " + r.status);
+    const buf = await r.arrayBuffer();
+    S.raw.set(key, buf); if (S.raw.size > 400) S.raw.delete(S.raw.keys().next().value);
+    return buf.slice(0);
+  }
+  maplibregl.addProtocol("o1k", async (params, ac) => {
+    const [prod, L, z, x, y] = params.url.slice(6).split("/"); const zi = +z, xi = +x, yi = +y;
+    if (!S.meta || !hasTile(prod, zi, xi, yi)) return { data: await emptyPng() };
+    try { return { data: await rawTile(prod, +L, zi, xi, yi, ac.signal) }; } catch (e) { if (e.name === "AbortError") throw e; return { data: await emptyPng() }; }
+  });
+  const zmaxOf = (prod, L) => (S.meta.layers[prod] && S.meta.layers[prod][L] ? S.meta.layers[prod][L].zmax : 6);
+  function firstSymbol(map) { for (const l of map.getStyle().layers) if (l.type === "symbol") return l.id; return undefined; }
+  function addLayers() {
+    const map = S.map; if (!map || !S.meta || !S.styleReady) return;
+    for (const l of map.getStyle().layers) if (/country/i.test(l.id) && l.type === "symbol") map.removeLayer(l.id);      // no country names (site rule)
+    if (map.getLayer("pm")) map.removeLayer("pm"); if (map.getSource("pm")) map.removeSource("pm");
+    map.addSource("pm", { type: "raster", tiles: [`o1k://${S.prod}/${S.lead}/{z}/{x}/{y}`], tileSize: 256, minzoom: 0, maxzoom: zmaxOf(S.prod, S.lead), bounds: [-180, -58.2, 180, 84.5],
+      attribution: "Otso 1 km · Natural Earth" });
+    map.addLayer({ id: "pm", type: "raster", source: "pm", paint: { "raster-opacity": S.opacity, "raster-resampling": "nearest", "raster-fade-duration": 0 } }, firstSymbol(map));
+    if (!map.getSource("edge")) map.addSource("edge", { type: "geojson", data: BASE + S.meta.date + "/edge.geojson" });
+    if (map.getLayer("edge")) map.removeLayer("edge");
+    map.addLayer({ id: "edge", type: "line", source: "edge", paint: { "line-color": dark() ? "#e6edf3" : "#1c2530", "line-opacity": 0.7, "line-width": 1.4, "line-dasharray": [3, 3] } }, firstSymbol(map));
+  }
+
+  // ---------------------------------------------------------------- UI: status, days, legend
+  const dfmt = (iso, o) => new Date(iso + "T12:00:00Z").toLocaleDateString(LOC(), Object.assign({ timeZone: "UTC" }, o));
+  function status() {
+    const m = S.meta, l = S.latest; const upd = l.updated ? new Date(l.updated.replace("Z", ":00Z")).toLocaleString(LOC(), { dateStyle: "medium", timeStyle: "short" }) : "";
+    let t = k("status", { date: dfmt(m.date, { day: "numeric", month: "long", year: "numeric" }), upd });
+    const age = Math.round((Date.now() - Date.parse(m.date + "T00:00:00Z")) / 864e5); if (age >= 2) t += " · " + k("stale", { n: age });
+    $("status").textContent = t;
+  }
+  function relDay(iso) {
+    const today = new Date(); const t = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()); const n = Math.round((Date.parse(iso + "T00:00:00Z") - t) / 864e5);
+    return n === 0 ? k("today") : n === 1 ? k("tomorrow") : n > 1 ? k("dplus", { n }) : "";
+  }
+  function days() {
+    const L = S.meta.leads; $("days").innerHTML = L.map((x) => { const v = S.meta.layers.mean[x].valid; return `<button type="button" data-l="${x}" class="${x === S.lead ? "on" : ""}">${esc(dfmt(v, { weekday: "short", day: "numeric" }))}<small>${esc(relDay(v) || "\u00a0")}</small></button>`; }).join("");
+  }
+  $("days").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-l]"); if (!b) return; S.lead = +b.dataset.l; for (const x of $("days").children) x.classList.toggle("on", x === b); addLayers(); if (S.last) readout(S.last.lng, S.last.lat, false); syncUrl(); });
+  $("prod").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-p]"); if (!b) return; S.prod = b.dataset.p; for (const x of $("prod").children) x.classList.toggle("on", x === b); addLayers(); legend(); if (S.last) readout(S.last.lng, S.last.lat, false); syncUrl(); });
+  $("op").addEventListener("input", () => { S.opacity = +$("op").value; ls.set("otso-1km-op", S.opacity); if (S.map && S.map.getLayer("pm")) S.map.setPaintProperty("pm", "raster-opacity", S.opacity); });
+  function legend() {
+    const e = S.meta.encoding; let h = "";
+    if (S.prod === "mean") {
+      const b = e.bounds, cols = e.colors.concat([e.over]);
+      h += `<span class="lunit">PM<sub>2.5</sub> (${k("unit")})</span><div class="lscale">` + cols.map((c, i) => `<div title="${esc(tr("cls." + PM_KEYS[i]))}"><i style="background:${c}"></i><b>${i < 10 ? num(b[i], 1) : "&gt;" + num(b[10], 0)}</b></div>`).join("") + "</div>";
+    } else {
+      h += `<span class="lunit">${esc(k("legend_prob"))}</span><div class="lscale">` + e.prob_colors.map((c, i) => `<div><i style="background:${c}"></i><b>${i}</b></div>`).join("") + "</div>";
+    }
+    h += `<div class="lnotes"><span><i class="dash"></i>${esc(k("edge"))}</span><span><i class="pale"></i>${esc(S.prod === "mean" ? k("north") : k("noprob"))}</span><span><i class="pale" style="background:#abd9e9"></i>${esc(k("holes"))}</span></div>`;
+    $("legend").innerHTML = h;
+  }
+
+  // ---------------------------------------------------------------- click: value, class and source from the tile itself
+  function tileXY(lng, lat, z) {
+    const n = 1 << z, x = (lng + 180) / 360 * n, r = lat * Math.PI / 180, y = (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n;
+    const tx = Math.floor(x), ty = Math.floor(y); return { tx: ((tx % n) + n) % n, ty, px: Math.min(255, Math.floor((x - tx) * 256)), py: Math.min(255, Math.floor((y - ty) * 256)) };
+  }
+  async function pixel(prod, L, lng, lat) {
+    const z = zmaxOf(prod, L), t = tileXY(lng, lat, z);
+    if (!hasTile(prod, z, t.tx, t.ty)) return 0;
+    const key = `${prod}/${L}/${z}/${t.tx}/${t.ty}`; let ix = S.dec.get(key);
+    if (!ix) { ix = await pngIndices(await rawTile(prod, L, z, t.tx, t.ty)); S.dec.set(key, ix); if (S.dec.size > 24) S.dec.delete(S.dec.keys().next().value); }
+    return ix[t.py * 256 + t.px];
+  }
+  async function readout(lng, lat, fly) {
+    S.last = { lng, lat }; if (!S.meta) return;
+    const L = S.lead, valid = S.meta.layers.mean[L].valid;
+    let html = `<div class="rs">${esc(k("valid", { day: dfmt(valid, { weekday: "long", day: "numeric", month: "long" }) }))}</div>`;
+    try {
+      const im = decodeMean(await pixel("mean", L, lng, lat));
+      if (!im) html += `<div class="rc">${esc(k("sea"))}</div>`;
+      else {
+        let v = im.v; if (im.src === 2) { const c = S.meta.clim[L]; v = c.ug[(Math.floor((lng + 180) / c.sector_deg) % c.ug.length + c.ug.length) % c.ug.length]; }
+        const c = classOf(v), col = c < 10 ? S.meta.encoding.colors[c] : S.meta.encoding.over;
+        html += `<div class="rv">≈ ${num(v, v < 10 ? 1 : 0)}<small>${k("unit")}</small></div><div class="rc"><i style="background:${col}"></i>${esc(tr("cls." + PM_KEYS[c]))}</div>`;
+        html += `<div class="rs">${esc(im.src === 0 ? k("src_1km") : im.src === 1 ? k("src_04") : k("src_clim"))}</div>`;
+        if (im.src === 2) html += `<div class="rs">${esc(k("pclim"))}</div>`;
+        else { const ip = decodeProb(await pixel("prob15", L, lng, lat)); if (ip) html += `<div class="rs">${esc(k("pbelow", { k: ip.k }))}</div>`; }
+      }
+    } catch (e) { html += `<div class="rs">${esc(k("failed"))}</div>`; }
+    if (!S.popup) S.popup = new maplibregl.Popup({ closeOnClick: false, maxWidth: "260px" }).on("close", () => { S.last = null; });
+    S.popup.setLngLat([lng, lat]).setHTML(html); if (!S.popup.isOpen()) S.popup.addTo(S.map);
+    if (fly) S.map.flyTo({ center: [lng, lat], zoom: Math.max(S.map.getZoom(), 10), speed: 1.6 });
+  }
+
+  // ---------------------------------------------------------------- search (GeoNames gazetteer of the site) and position
+  let GAZ = null; const norm = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  async function gaz() { if (!GAZ) { const j = await (await fetch("../gazetteer.json")).json(); GAZ = j.map((r) => ({ name: r[0], country: r[1], lat: r[2], lon: r[3], pop: r[4], n: norm(r[0]) })); } return GAZ; }
+  const q = $("q"), ql = $("qlist"); let hits = [], hsel = -1;
+  function showHits() { ql.innerHTML = hits.length ? hits.map((h, i) => `<li data-i="${i}" class="${i === hsel ? "sel" : ""}">${esc(h.name)}<span>${esc(h.country)}</span></li>`).join("") : `<li>${esc(k("nores"))}</li>`; ql.hidden = !q.value.trim(); }
+  q.addEventListener("focus", () => { gaz().catch(() => {}); });
+  q.addEventListener("input", async () => { const s = norm(q.value.trim()); if (s.length < 2) { ql.hidden = true; return; } const g = await gaz(); hits = g.filter((r) => r.n.startsWith(s)).slice(0, 8); if (hits.length < 8) hits = hits.concat(g.filter((r) => !r.n.startsWith(s) && r.n.includes(s)).slice(0, 8 - hits.length)); hsel = hits.length ? 0 : -1; showHits(); });
+  q.addEventListener("keydown", (ev) => { if (ql.hidden) return; if (ev.key === "ArrowDown") { hsel = Math.min(hits.length - 1, hsel + 1); showHits(); ev.preventDefault(); } else if (ev.key === "ArrowUp") { hsel = Math.max(0, hsel - 1); showHits(); ev.preventDefault(); } else if (ev.key === "Enter" && hsel >= 0) { choose(hits[hsel]); ev.preventDefault(); } else if (ev.key === "Escape") ql.hidden = true; });
+  ql.addEventListener("click", (ev) => { const li = ev.target.closest("li[data-i]"); if (li) choose(hits[+li.dataset.i]); });
+  document.addEventListener("click", (ev) => { if (!ev.target.closest(".sbox")) ql.hidden = true; });
+  function choose(h) { ql.hidden = true; q.value = h.name + ", " + h.country; ls.set("otso-city", JSON.stringify({ name: q.value, lat: h.lat, lon: h.lon })); goTo(h.lng ?? h.lon, h.lat, 10); }
+  function goTo(lng, lat, z) { if (!S.map) return; S.map.jumpTo({ center: [lng, lat], zoom: z }); readout(lng, lat, false); }
+  $("geo").addEventListener("click", () => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition((p) => { ls.set("otso-geo", "1"); goTo(p.coords.longitude, p.coords.latitude, 11); }, () => {}, { timeout: 10000, maximumAge: 600000 });
+  });
+  let urlT = null;
+  function syncUrl() { clearTimeout(urlT); urlT = setTimeout(() => { if (!S.map) return; const c = S.map.getCenter(), u = new URL(location.href);
+    u.searchParams.set("lat", c.lat.toFixed(4)); u.searchParams.set("lon", c.lng.toFixed(4)); u.searchParams.set("z", S.map.getZoom().toFixed(1)); u.searchParams.set("day", S.lead); if (S.prod !== "mean") u.searchParams.set("p", S.prod); else u.searchParams.delete("p");
+    history.replaceState(null, "", u.pathname + u.search + u.hash); }, 400); }
+
+  // ---------------------------------------------------------------- start
+  async function start() {
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("../sw.js").catch(() => {});
+    await setLang(detectLang(), false);
+    $("note").textContent = k("loading");
+    try {
+      S.latest = await (await fetch(BASE + "latest.json", { cache: "no-cache" })).json();
+      S.meta = await (await fetch(BASE + S.latest.tiles_json, { cache: "no-cache" })).json();
+    } catch (e) { $("note").textContent = k("failed"); return; }
+    for (const [p, zz] of Object.entries(S.meta.tiles)) { bits[p] = {}; for (const [z, b64] of Object.entries(zz)) bits[p][z] = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)); }
+    const today = new Date().toISOString().slice(0, 10), L0 = S.meta.leads.find((x) => S.meta.layers.mean[x].valid === today);
+    S.lead = +(P.get("day") || L0 || S.meta.leads[0]); if (!S.meta.leads.includes(S.lead)) S.lead = S.meta.leads[0];
+    if (P.get("p") === "prob15") { S.prod = "prob15"; for (const x of $("prod").children) x.classList.toggle("on", x.dataset.p === "prob15"); }
+    status(); days(); legend();
+    const gl = (() => { try { const c = document.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl")); } catch (e) { return false; } })();
+    if (!gl) { $("note").textContent = k("nogl"); return; }
+    let center = [10, 48], zoom = 3.6, pick = null;
+    const plat = parseFloat(P.get("lat")), plon = parseFloat(P.get("lon"));
+    if (isFinite(plat) && isFinite(plon)) { center = [plon, plat]; zoom = parseFloat(P.get("z")) || 10; if (P.get("pin") === "1") pick = center; }
+    else { let rem = null; try { rem = JSON.parse(ls.get("otso-city") || "null"); } catch (e) {} if (rem && isFinite(rem.lat)) { center = [rem.lon, rem.lat]; zoom = 9.5; pick = center; q.value = rem.name || ""; } }
+    const map = new maplibregl.Map({ container: "map", style: styleUrl(), center, zoom, minZoom: 1, maxZoom: 17.5, attributionControl: { compact: true }, dragRotate: false, pitchWithRotate: false, cooperativeGestures: false });
+    S.map = map; map.touchZoomRotate.disableRotation();
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+    map.addControl(new maplibregl.ScaleControl({ maxWidth: 100 }), "bottom-left");
+    map.on("style.load", () => { S.styleReady = true; addLayers(); $("note").hidden = true; });
+    map.on("click", (ev) => readout(ev.lngLat.lng, ev.lngLat.lat, false));
+    map.on("moveend", syncUrl);
+    map.on("error", (ev) => { if (ev && ev.error && /style/i.test(String(ev.error.message))) $("note").textContent = k("failed"); });
+    if (pick) map.once("idle", () => readout(pick[0], pick[1], false));
+  }
+  start();
+})();
+</script>
+</body>
+</html>
