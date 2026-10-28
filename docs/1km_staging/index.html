@@ -167,16 +167,16 @@
       loading: "Loading the 1 km forecast…", failed: "The 1 km forecast could not be loaded.", pending: "The 1 km map of {date}: data being published, not online yet. This page retries every minute.", nogl: "This map needs WebGL, which this browser does not provide.",
       badge: "Research forecast: it does not replace official alerts.",
       unit: "µg m⁻³", legend_prob: "Members (of 8) above 15 µg m⁻³",
-      north: "North of 60° N: boreal climatology, no 1 km forecast", holes: "Hatched south of 60° N: interpolated from the 1 km values around (outside the model's 1 km mask)",
-      edge: "Edge of the 1 km domain (60° N)", noprob: "No probability north of 60° N",
-      src_1km: "Otso 1 km", src_04: "Otso 0.4° (no 1 km value within 50 km)", src_clim: "climatology (no 1 km forecast north of 60° N)", src_int: "interpolated (outside the 1 km model's mask)", sea: "Sea or no data", valid: "{day}, daily mean",
-      pbelow: "P(> 15 µg m⁻³): {k} of 8 members", pclim: "no probability here (climatology)",
+      north: "North of 60° N: Otso 0.4° forecast corrected towards GHAP (no 1 km)", holes: "Hatched south of 60° N: interpolated from the 1 km values around (outside the model's 1 km mask)",
+      edge: "Edge of the 1 km domain (60° N)",
+      src_1km: "Otso 1 km", src_04: "Otso 0.4° (no 1 km value within 50 km)", src_clim: "Otso 0.4° corrected towards GHAP (no 1 km north of 60° N)", src_int: "interpolated (outside the 1 km model's mask)", sea: "Sea or no data", valid: "{day}, daily mean",
+      pbelow: "P(> 15 µg m⁻³): {k} of 8 members",
       model: "Otso 1.2 (0.4°) downscaled to 1 km by a generative model trained on LGHAP v2, a satellite–station PM2.5 product. At monitors, 1 km beats 40 km: 2023 hindcasts (ERA5 weather) −13 % RMSE against Otso 0.4°; 2024, −14 % against CAMS 0.4°.",
       caveat: "LGHAP is itself fitted to monitors, so these station scores favour it; the forecast skill of each day is not known in advance.",
       about_h2: "About this map", about_what: "What it shows", about_not: "What it is not",
       what: ["<strong>Otso's forecast at 1 km.</strong> Every morning Otso 1.2 forecasts PM<sub>2.5</sub> at 0.4° (about 40 km) for five days; a generative model then draws 1 km fields conditioned on each of Otso's 8 members, on the weather forecast and on the transport computed by FLEXGREEN. The map shows the mean of the 8 members for each day (00–24 UTC), or the share of members above 15 µg m⁻³ (the WHO 24-hour guideline).",
              "<strong>Classes</strong> of the Foehn paper: 0–5, 5–10, 10–15, 15–25, 25–37.5, 37.5–50, 50–75, 75–100, 100–150, 150–250 and above 250 µg m⁻³. Click or tap the map for the value.",
-             "<strong>Where there is no 1 km forecast.</strong> North of 60° N (the edge of the LGHAP product the model learnt from, dashed on the map) the map shows a boreal climatology of the month, joined smoothly to the 1 km values between 60 and 64° N. A few land areas south of 60° N lie outside the model's 1 km mask (for example parts of Bavaria, Czechia and Austria): there the values are interpolated from the 1 km values around them. Both are drawn with a light hatching, and the value box says which source you are looking at."],
+             "<strong>Where there is no 1 km forecast.</strong> North of 60° N (the edge of the LGHAP product the model learnt from, dashed on the map) the map shows Otso's own 0.4° forecast corrected towards GHAP (a satellite–station PM<sub>2.5</sub> product that covers the north) by a quantile mapping per cell and month, its level joined to the 1 km values at 60° N. A few land areas south of 60° N lie outside the model's 1 km mask (for example parts of Bavaria, Czechia and Austria): there the values are interpolated from the 1 km values around them. Both are drawn with a light hatching, and the value box says which source you are looking at."],
       not: ["<strong>Not a street-by-street measurement.</strong> One value per square kilometre, from a model: streets, tunnels and chimneys are not resolved. The street map is there to find your way.",
             "<strong>Not validated in real time yet.</strong> The station scores above come from past years (2023 and 2024); the daily 1 km forecast has no live verification yet.",
             "<strong>Not an alert.</strong> Use your national or local air-quality service for health decisions."],
@@ -189,16 +189,16 @@
       loading: "Chargement de la prévision à 1 km…", failed: "La prévision à 1 km n'a pas pu être chargée.", pending: "Carte 1 km du {date} : données en cours de publication, pas encore en ligne. La page réessaie chaque minute.", nogl: "Cette carte demande WebGL, que ce navigateur ne fournit pas.",
       badge: "Prévision de recherche, ne remplace pas les alertes officielles.",
       unit: "µg m⁻³", legend_prob: "Membres (sur 8) au-dessus de 15 µg m⁻³",
-      north: "Au nord de 60° N : climatologie boréale, pas de prévision 1 km", holes: "Hachures au sud de 60° N : interpolé à partir des valeurs 1 km voisines (hors du masque du modèle 1 km)",
-      edge: "Limite du domaine 1 km (60° N)", noprob: "Pas de probabilité au nord de 60° N",
-      src_1km: "Otso 1 km", src_04: "Otso 0,4° (aucune valeur 1 km à moins de 50 km)", src_clim: "climatologie (pas de prévision 1 km au nord de 60° N)", src_int: "interpolé (hors du masque du modèle 1 km)", sea: "Mer ou pas de donnée", valid: "{day}, moyenne journalière",
-      pbelow: "P(> 15 µg m⁻³) : {k} membres sur 8", pclim: "pas de probabilité ici (climatologie)",
+      north: "Au nord de 60° N : prévision Otso 0,4° corrigée vers GHAP (pas de 1 km)", holes: "Hachures au sud de 60° N : interpolé à partir des valeurs 1 km voisines (hors du masque du modèle 1 km)",
+      edge: "Limite du domaine 1 km (60° N)",
+      src_1km: "Otso 1 km", src_04: "Otso 0,4° (aucune valeur 1 km à moins de 50 km)", src_clim: "0,4° corrigé (Otso corrigé vers GHAP, pas de 1 km au nord de 60° N)", src_int: "interpolé (hors du masque du modèle 1 km)", sea: "Mer ou pas de donnée", valid: "{day}, moyenne journalière",
+      pbelow: "P(> 15 µg m⁻³) : {k} membres sur 8",
       model: "Otso 1.2 (0,4°) affiné à 1 km par un modèle génératif entraîné sur LGHAP v2, un produit PM2,5 satellite–stations. Aux stations, le 1 km fait mieux que le 40 km : prévisions rétrospectives 2023 (météo ERA5) −13 % de RMSE par rapport à Otso 0,4° ; 2024, −14 % par rapport à CAMS 0,4°.",
       caveat: "LGHAP est lui-même ajusté aux stations, ce qui l'avantage dans ces scores ; la qualité de chaque prévision n'est pas connue à l'avance.",
       about_h2: "À propos de cette carte", about_what: "Ce qu'elle montre", about_not: "Ce qu'elle n'est pas",
       what: ["<strong>La prévision d'Otso à 1 km.</strong> Chaque matin, Otso 1.2 prévoit les PM<sub>2,5</sub> à 0,4° (environ 40 km) pour cinq jours ; un modèle génératif tire ensuite des champs à 1 km conditionnés par chacun des 8 membres d'Otso, la prévision météo et le transport calculé par FLEXGREEN. La carte montre la moyenne des 8 membres pour chaque jour (00–24 UTC), ou la part des membres au-dessus de 15 µg m⁻³ (la valeur guide de l'OMS sur 24 heures).",
              "<strong>Classes</strong> de l'article Foehn : 0–5, 5–10, 10–15, 15–25, 25–37,5, 37,5–50, 50–75, 75–100, 100–150, 150–250 et plus de 250 µg m⁻³. Cliquez ou touchez la carte pour la valeur.",
-             "<strong>Là où il n'y a pas de prévision à 1 km.</strong> Au nord de 60° N (la limite du produit LGHAP sur lequel le modèle a appris, en pointillés sur la carte), la carte montre une climatologie boréale du mois, raccordée en douceur aux valeurs 1 km entre 60 et 64° N. Quelques zones terrestres au sud de 60° N sont hors du masque 1 km du modèle (par exemple une partie de la Bavière, de la Tchéquie et de l'Autriche) : les valeurs y sont interpolées à partir des valeurs 1 km voisines. Les deux sont dessinées avec de légères hachures, et la fenêtre de valeur indique la source."],
+             "<strong>Là où il n'y a pas de prévision à 1 km.</strong> Au nord de 60° N (la limite du produit LGHAP sur lequel le modèle a appris, en pointillés sur la carte), la carte montre la prévision 0,4° d'Otso corrigée vers GHAP (un produit PM<sub>2,5</sub> satellite–stations qui couvre le nord) par une correspondance de quantiles par cellule et par mois, son niveau raccordé aux valeurs 1 km à 60° N. Quelques zones terrestres au sud de 60° N sont hors du masque 1 km du modèle (par exemple une partie de la Bavière, de la Tchéquie et de l'Autriche) : les valeurs y sont interpolées à partir des valeurs 1 km voisines. Les deux sont dessinées avec de légères hachures, et la fenêtre de valeur indique la source."],
       not: ["<strong>Pas une mesure rue par rue.</strong> Une valeur par kilomètre carré, issue d'un modèle : rues, tunnels et cheminées ne sont pas résolus. Le plan des rues sert à se repérer.",
             "<strong>Pas encore validée en temps réel.</strong> Les scores aux stations ci-dessus portent sur des années passées (2023 et 2024) ; la prévision quotidienne à 1 km n'a pas encore de vérification en direct.",
             "<strong>Pas une alerte.</strong> Pour votre santé, suivez le service national ou local de qualité de l'air."],
@@ -409,7 +409,7 @@
     } else {
       h += `<span class="lunit">${esc(k("legend_prob"))}</span><div class="lscale">` + e.prob_colors.map((c, i) => `<div><i style="background:${c}"></i><b>${i}</b></div>`).join("") + "</div>";
     }
-    h += `<div class="lnotes"><span><i class="dash"></i>${esc(k("edge"))}</span><span><i class="hatch"></i>${esc(S.prod === "mean" ? k("north") : k("noprob"))}</span><span><i class="hatch" style="background-color:#74add1"></i>${esc(k("holes"))}</span></div>`;
+    h += `<div class="lnotes"><span><i class="dash"></i>${esc(k("edge"))}</span><span><i class="hatch"></i>${esc(k("north"))}</span><span><i class="hatch" style="background-color:#74add1"></i>${esc(k("holes"))}</span></div>`;
     $("legend").innerHTML = h;
   }
 
@@ -435,8 +435,7 @@
         const c = classOf(v), col = c < 10 ? S.meta.encoding.colors[c] : S.meta.encoding.over;
         html += `<div class="rv">≈ ${num(v, v < 10 ? 1 : 0)}<small>${k("unit")}</small></div><div class="rc"><i style="background:${col}"></i>${esc(tr("cls." + PM_KEYS[c]))}</div>`;
         html += `<div class="rs">${esc(k(["src_1km", "src_04", "src_clim", "src_int"][im.src] || "src_1km"))}</div>`;
-        if (im.src === 2) html += `<div class="rs">${esc(k("pclim"))}</div>`;
-        else { const ip = decodeProb(await pixel("prob15", L, lng, lat)); if (ip) html += `<div class="rs">${esc(k("pbelow", { k: ip.k }))}</div>`; }
+        const ip = decodeProb(await pixel("prob15", L, lng, lat)); if (ip) html += `<div class="rs">${esc(k("pbelow", { k: ip.k }))}</div>`;
       }
     } catch (e) { html += `<div class="rs">${esc(k("failed"))}</div>`; }
     if (!S.popup) S.popup = new maplibregl.Popup({ closeOnClick: false, maxWidth: "260px" }).on("close", () => { S.last = null; });
