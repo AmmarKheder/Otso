@@ -12,6 +12,9 @@ Sources, per pixel (in the palette index, so the page says which one it shows an
             the Otso ensemble mean of the member daily means; times lghap_over_ghap_55_60N[m] at 60 N tapering (cosine)
             to 1 at 64 N so that the joint with the 1 km field has no step; then bilinear in log1p to the pixels (land).
             Probability: the same mapping applied to each Otso member, fraction above 15 ug m-3.
+            EXCEPT Greenland (Natural Earth 10 m admin-0 polygon, static/greenland.geojson): GHAP is a retrieval artefact over
+            the ice sheet (its mean is 10.3 ug m-3 at 70-80 N, 45-30 W, against 0.4 for CAMS), so the mapping would copy a
+            wrong target; there Otso 0.4 deg is used as it is (source 1, labelled "0,4° (Groenland : pas de correction)").
   3 interp  holes of the model's LGHAP mask inside the 1 km domain (parts of Bavaria, Czechia, Austria, ...): normalised
             convolution of the surrounding 1 km values (Gaussian-weighted mean of the valid neighbours, in log1p; radius
             grown 2 px, then 8, 16, 32, 64 px on an 8 x 8 block grid, up to ~50 km). Not within 3 px of the sea.
@@ -69,10 +72,10 @@ OVER = "#5c0019"
 TOP = 1000.0                             # members are capped at 1000 ug m-3
 SRC_1KM, SRC_OTSO, SRC_NORTH, SRC_INTERP = 0, 1, 2, 3
 NSRC = 4
-N = [8, 3, 6, 6]                         # sub-bins per class for each source
+N = [8, 5, 5, 5]                         # sub-bins per class for each source
 BASE = [1]
 for _s in range(1, NSRC):
-    BASE.append(BASE[-1] + 11 * N[_s - 1])                       # [1, 89, 122, 188]; last index 253
+    BASE.append(BASE[-1] + 11 * N[_s - 1])                       # [1, 89, 144, 199]; last index 253
 PBASE = [1, 10, 19, 28]                  # prob15: 1 km, 0.4 deg, north (corrected 0.4 deg), interpolated
 PROB_COLORS = ["#f4f1f8", "#dcd5ea", "#c2b6dc", "#a798cc", "#8c7bbb", "#7360a8", "#5c4794", "#46307e", "#2f1a66"]
 
@@ -265,12 +268,52 @@ def north_grids(day, L, valid_day, qm):
     ym = qmap(otso_points(dm.mean(0), lat, lon))
     pm = np.mean([qmap(otso_points(dm[k], lat, lon)) > 15.0 for k in range(dm.shape[0])], axis=0)
     out = []
+    grl = greenland_cells()
     for v in (np.log1p(ym), pm):
         G = np.full((GRID_NI, GRID_NJ), np.nan, np.float32)
         ok = (rows < GRID_NI) & np.isfinite(v)
         G[rows[ok], cols[ok]] = v[ok]
+        G[grl] = np.nan                                       # Greenland: no GHAP mapping (filled from the neighbours, then overwritten)
         idx = distance_transform_edt(~np.isfinite(G), return_distances=False, return_indices=True)
         out.append(G[idx[0], idx[1]])
+    return out
+
+
+def greenland_cells():
+    """(GRID_NI, GRID_NJ) bool: 0.25 deg cells whose centre lies in Greenland"""
+    from rasterio.features import rasterize
+    from rasterio.transform import Affine
+    g = json.loads((STATIC / "greenland.geojson").read_text())["geometry"]
+    tf = Affine(GRID_RES, 0, -180.0 - GRID_RES / 2, 0, -GRID_RES, GRID_LAT0 + GRID_RES / 2)
+    return rasterize([(g, 1)], out_shape=(GRID_NI, GRID_NJ), transform=tf, fill=0, dtype="uint8").astype(bool)
+
+
+_GRL_PACKED = None
+GRL_Y1 = (int(row_of_lat(59.0)) // 256 + 1) * 256                              # Greenland lies north of 59.8 N
+
+
+def greenland_rows(y0, y1):
+    """Greenland on z7 rows [y0, y1), bool (cached, bit-packed, in static/)"""
+    global _GRL_PACKED
+    cache = STATIC / f"greenland_z7_0_{GRL_Y1}.npy"
+    if _GRL_PACKED is None:
+        if not cache.exists():
+            from pyproj import Transformer
+            from rasterio.features import rasterize
+            from rasterio.transform import Affine
+            from shapely.geometry import box, shape
+            from shapely.ops import transform as stransform
+            g = shape(json.loads((STATIC / "greenland.geojson").read_text())["geometry"]).intersection(box(-180, -80, 180, LAT_MAX - 1e-6))
+            g = stransform(Transformer.from_crs("EPSG:4326", "EPSG:3857", always_xy=True).transform, g)
+            R = 20037508.342789244
+            res = 2 * R / NPX
+            m = rasterize([(g, 1)], out_shape=(GRL_Y1, NPX), transform=Affine(res, 0, -R, 0, -res, R), fill=0, dtype="uint8")
+            np.save(cache, np.packbits(m, axis=1))
+        _GRL_PACKED = np.load(cache, mmap_mode="r")
+    out = np.zeros((y1 - y0, NPX), bool)
+    a, b = max(y0, 0), min(y1, GRL_Y1)
+    if b > a:
+        out[a - y0:b - y0] = np.unpackbits(np.asarray(_GRL_PACKED[a:b]), axis=1)[:, :NPX].astype(bool)
     return out
 
 
@@ -404,14 +447,20 @@ def z7_field(M, otso, north_g, product, y0, y1, x0, x1):
     lnd = land[COAST_PX:COAST_PX + (e1 - e0)]
     # north of 60 N: Otso corrected towards GHAP (bilinear from the 0.25 deg cells), land only
     north = np.nonzero((lat >= EDGE_N) & (lat <= GRID_LAT0))[0]
+    grl = greenland_rows(e0, e1)[:, x0:x1] if north.size else None
     for a in range(0, north.size, 1024):
         rr = north[a:a + 1024]
         g = grid_sample(north_g, lat[rr], lon)
         val = (np.expm1(g) if product == "mean" else g).astype(np.float32)
         put = lnd[rr] & ~np.isfinite(V[rr]) & np.isfinite(val)
+        gp = put & grl[rr]                                                       # Greenland: Otso 0.4 deg as it is
         sub, ss = V[rr], S[rr]
         sub[put] = val[put]
         ss[put] = SRC_NORTH
+        if gp.any():
+            o = otso_sample(otso[0] if product == "mean" else otso[1], lat[rr], lon, log=(product == "mean")).astype(np.float32)
+            sub[gp] = o[gp]
+            ss[gp] = SRC_OTSO
         V[rr], S[rr] = sub, ss
     # holes of the 1 km domain (south of 60 N), away from the sea: interpolated, else Otso 0.4 deg
     south = (lat < EDGE_N) & (lat >= LGHAP_LAT_S)
@@ -589,7 +638,8 @@ def main():
     run = json.loads((OUT1K / a.date / a.tag / "run.json").read_text())
     valid = {L: run["per_lead_day"][str(L)]["valid"] for L in leads}
     t0 = time.time()
-    land_z7(0, TY1 * 256)                                                     # builds the cache once, before the pool
+    land_z7(0, TY1 * 256)                                                     # builds the caches once, before the pool
+    greenland_rows(0, 1)
     import tempfile
     tmp = Path(tempfile.mkdtemp(prefix="o1k_north_"))                          # outside the published tree
     qm = dict(np.load(NORTH_QM))
@@ -633,7 +683,7 @@ def main():
             "total_tiles": sum(v["tiles"] for p in sizes.values() for v in p.values()),
             "sources": {"1km": f"Otso 1 km (CD-FFM downscaling of Otso 1.2), run {a.tag}",
                         "interp": "holes of the model's LGHAP mask south of 60 N: normalised convolution of the 1 km values around them (up to ~50 km)",
-                        "otso04": "holes with no 1 km value within ~50 km: Otso 1.2 at 0.4 deg (member daily means, bilinear in log1p)",
+                        "otso04": "Otso 1.2 at 0.4 deg as it is (member daily means, bilinear in log1p): holes with no 1 km value within ~50 km, and Greenland (GHAP is an artefact over the ice sheet)",
                         "north": "north of 60 N: Otso 1.2 forecast corrected towards GHAP by per-cell monthly quantile mapping (CAMS -> GHAP, 2017-2022), level joined to the 1 km layer at 60 N (LGHAP/GHAP ratio, cosine taper to 64 N)",
                         "land": "Natural Earth 10 m land minus 10 m lakes (public domain)"},
             "elapsed_s": round(time.time() - t0, 1)}
