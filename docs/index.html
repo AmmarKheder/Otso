@@ -582,8 +582,8 @@
     return "en";
   }
   function applyI18n() {
-    for (const el of document.querySelectorAll("[data-i18n]")) el.textContent = tr(el.dataset.i18n);
-    for (const el of document.querySelectorAll("[data-i18n-html]")) el.innerHTML = tr(el.dataset.i18nHtml);
+    for (const el of document.querySelectorAll("[data-i18n]")) { const v = tr(el.dataset.i18n); if (v !== el.dataset.i18n) el.textContent = v; }        // a key missing from a stale dictionary keeps the page's text
+    for (const el of document.querySelectorAll("[data-i18n-html]")) { const v = tr(el.dataset.i18nHtml); if (v !== el.dataset.i18nHtml) el.innerHTML = v; }
     for (const el of document.querySelectorAll("[data-i18n-ph]")) el.placeholder = tr(el.dataset.i18nPh);
     for (const el of document.querySelectorAll("[data-i18n-aria]")) el.setAttribute("aria-label", tr(el.dataset.i18nAria));
     for (const el of document.querySelectorAll("[data-i18n-title]")) el.title = tr(el.dataset.i18nTitle);
