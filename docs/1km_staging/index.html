@@ -164,7 +164,7 @@
     en: { beta: "beta", back: "← Otso 1.2", nav_about: "About this map", geo: " My location", search_ph: "Search a city…", mean: "PM2.5, daily mean", prob: "Probability > 15",
       opacity: "Opacity", today: "today", tomorrow: "tomorrow", dplus: "D+{n}",
       status: "Forecast issued {date} (00 UTC), daily means (00–24 UTC) · updated {upd}", stale: "This forecast is {n} days old: today's run is missing or late.",
-      loading: "Loading the 1 km forecast…", failed: "The 1 km forecast could not be loaded.", nogl: "This map needs WebGL, which this browser does not provide.",
+      loading: "Loading the 1 km forecast…", failed: "The 1 km forecast could not be loaded.", pending: "The 1 km map of {date}: data being published, not online yet. This page retries every minute.", nogl: "This map needs WebGL, which this browser does not provide.",
       badge: "Research forecast: it does not replace official alerts.",
       unit: "µg m⁻³", legend_prob: "Members (of 8) above 15 µg m⁻³",
       north: "North of 60° N: boreal climatology (no 1 km forecast)", holes: "Paler areas south of 60° N: Otso 0.4° (outside the 1 km model's mask)",
@@ -186,7 +186,7 @@
     fr: { beta: "bêta", back: "← Otso 1.2", nav_about: "À propos de cette carte", geo: " Ma position", search_ph: "Chercher une ville…", mean: "PM2,5, moyenne du jour", prob: "Probabilité > 15",
       opacity: "Opacité", today: "aujourd'hui", tomorrow: "demain", dplus: "J+{n}",
       status: "Prévision émise le {date} (00 UTC), moyennes journalières (00–24 UTC) · mise à jour {upd}", stale: "Cette prévision a {n} jours : le calcul du jour manque ou est en retard.",
-      loading: "Chargement de la prévision à 1 km…", failed: "La prévision à 1 km n'a pas pu être chargée.", nogl: "Cette carte demande WebGL, que ce navigateur ne fournit pas.",
+      loading: "Chargement de la prévision à 1 km…", failed: "La prévision à 1 km n'a pas pu être chargée.", pending: "Carte 1 km du {date} : données en cours de publication, pas encore en ligne. La page réessaie chaque minute.", nogl: "Cette carte demande WebGL, que ce navigateur ne fournit pas.",
       badge: "Prévision de recherche, ne remplace pas les alertes officielles.",
       unit: "µg m⁻³", legend_prob: "Membres (sur 8) au-dessus de 15 µg m⁻³",
       north: "Au nord de 60° N : climatologie boréale (pas de prévision 1 km)", holes: "Zones pâles au sud de 60° N : Otso 0,4° (hors du masque du modèle 1 km)",
@@ -430,10 +430,21 @@
     if ("serviceWorker" in navigator) navigator.serviceWorker.register("../sw.js").catch(() => {});
     await setLang(detectLang(), false);
     $("note").textContent = k("loading");
-    try {
-      S.latest = await (await fetch(BASE + "latest.json", { cache: "no-cache" })).json();
-      S.meta = await (await fetch(BASE + S.latest.tiles_json, { cache: "no-cache" })).json();
-    } catch (e) { $("note").textContent = k("failed"); return; }
+    for (let tries = 0; ; tries++) {                                                      // the layer may not be online yet: retry every minute
+      try {
+        const r = await fetch(BASE + "latest.json", { cache: "no-cache" }); if (!r.ok) throw new Error("latest " + r.status);
+        S.latest = await r.json();
+        const r2 = await fetch(BASE + S.latest.tiles_json, { cache: "no-cache" }); if (!r2.ok) throw new Error("tiles.json " + r2.status);
+        S.meta = await r2.json(); break;
+      } catch (e) {
+        const d = (S.latest && S.latest.latest) || new Date().toISOString().slice(0, 10);
+        $("note").textContent = k("pending", { date: dfmt(d, { day: "numeric", month: "long", year: "numeric" }) });
+        $("status").textContent = k("pending", { date: dfmt(d, { day: "numeric", month: "long", year: "numeric" }) });
+        if (tries >= 60) return;
+        await new Promise((res) => setTimeout(res, 60000));
+      }
+    }
+    $("note").textContent = k("loading");
     for (const [p, zz] of Object.entries(S.meta.tiles)) { bits[p] = {}; for (const [z, b64] of Object.entries(zz)) bits[p][z] = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)); }
     const today = new Date().toISOString().slice(0, 10), L0 = S.meta.leads.find((x) => S.meta.layers.mean[x].valid === today);
     S.lead = +(P.get("day") || L0 || S.meta.leads[0]); if (!S.meta.leads.includes(S.lead)) S.lead = S.meta.leads[0];
