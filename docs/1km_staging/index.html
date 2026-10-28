@@ -69,7 +69,7 @@
   .lnotes { display: flex; flex-direction: column; gap: 4px; }
   .lnotes span { display: flex; align-items: center; gap: 8px; }
   .dash { width: 26px; height: 0; border-top: 2px dashed var(--ink); opacity: .75; display: inline-block; }
-  .pale { width: 26px; height: 10px; border-radius: 3px; background: #4575b4; opacity: .5; display: inline-block; }
+  .hatch { width: 26px; height: 12px; border-radius: 3px; display: inline-block; background-color: #4575b4; background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.4) 0 1px, transparent 1px 7px); }
   .modelline { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
   .maplibregl-popup-content { background: var(--card); color: var(--ink); border-radius: 12px; padding: 10px 12px; box-shadow: var(--shadow); font-size: 13.5px; min-width: 190px; }
   .maplibregl-popup-tip { border-top-color: var(--card) !important; border-bottom-color: var(--card) !important; }
@@ -126,7 +126,7 @@
       <div class="k1bar">
         <div class="seg" id="prod"><button type="button" data-p="mean" class="on" data-k="mean">PM2.5, daily mean</button><button type="button" data-p="prob15" data-k="prob">Probability &gt; 15</button></div>
         <div class="seg" id="days"></div>
-        <label class="opac"><span data-k="opacity">Opacity</span><input type="range" id="op" min="0.2" max="1" step="0.05" value="0.75" /></label>
+        <label class="opac"><span data-k="opacity">Opacity</span><input type="range" id="op" min="0.2" max="1" step="0.05" value="0.7" /></label>
       </div>
       <div class="k1map" id="map"><div class="badge" id="badge"></div><div class="note" id="note">…</div></div>
       <div class="legend" id="legend"></div>
@@ -167,16 +167,16 @@
       loading: "Loading the 1 km forecast…", failed: "The 1 km forecast could not be loaded.", pending: "The 1 km map of {date}: data being published, not online yet. This page retries every minute.", nogl: "This map needs WebGL, which this browser does not provide.",
       badge: "Research forecast: it does not replace official alerts.",
       unit: "µg m⁻³", legend_prob: "Members (of 8) above 15 µg m⁻³",
-      north: "North of 60° N: boreal climatology (no 1 km forecast)", holes: "Paler areas south of 60° N: Otso 0.4° (outside the 1 km model's mask)",
+      north: "North of 60° N: boreal climatology, no 1 km forecast", holes: "Hatched south of 60° N: interpolated from the 1 km values around (outside the model's 1 km mask)",
       edge: "Edge of the 1 km domain (60° N)", noprob: "No probability north of 60° N",
-      src_1km: "Otso 1 km", src_04: "Otso 0.4° (no 1 km here)", src_clim: "climatology (no 1 km forecast)", sea: "Sea or no data", valid: "{day}, daily mean",
+      src_1km: "Otso 1 km", src_04: "Otso 0.4° (no 1 km value within 50 km)", src_clim: "climatology (no 1 km forecast north of 60° N)", src_int: "interpolated (outside the 1 km model's mask)", sea: "Sea or no data", valid: "{day}, daily mean",
       pbelow: "P(> 15 µg m⁻³): {k} of 8 members", pclim: "no probability here (climatology)",
       model: "Otso 1.2 (0.4°) downscaled to 1 km by a generative model trained on LGHAP v2, a satellite–station PM2.5 product. At monitors, 1 km beats 40 km: 2023 hindcasts (ERA5 weather) −13 % RMSE against Otso 0.4°; 2024, −14 % against CAMS 0.4°.",
       caveat: "LGHAP is itself fitted to monitors, so these station scores favour it; the forecast skill of each day is not known in advance.",
       about_h2: "About this map", about_what: "What it shows", about_not: "What it is not",
       what: ["<strong>Otso's forecast at 1 km.</strong> Every morning Otso 1.2 forecasts PM<sub>2.5</sub> at 0.4° (about 40 km) for five days; a generative model then draws 1 km fields conditioned on each of Otso's 8 members, on the weather forecast and on the transport computed by FLEXGREEN. The map shows the mean of the 8 members for each day (00–24 UTC), or the share of members above 15 µg m⁻³ (the WHO 24-hour guideline).",
              "<strong>Classes</strong> of the Foehn paper: 0–5, 5–10, 10–15, 15–25, 25–37.5, 37.5–50, 50–75, 75–100, 100–150, 150–250 and above 250 µg m⁻³. Click or tap the map for the value.",
-             "<strong>Where there is no 1 km forecast.</strong> North of 60° N (the edge of the LGHAP product the model learnt from, dashed on the map) the map shows a boreal climatology of the month, paler. A few land areas south of 60° N lie outside the model's 1 km mask (for example parts of Bavaria, Czechia and Austria): there the map shows Otso's own 0.4° forecast, also paler. The value box says which source you are looking at."],
+             "<strong>Where there is no 1 km forecast.</strong> North of 60° N (the edge of the LGHAP product the model learnt from, dashed on the map) the map shows a boreal climatology of the month, joined smoothly to the 1 km values between 60 and 64° N. A few land areas south of 60° N lie outside the model's 1 km mask (for example parts of Bavaria, Czechia and Austria): there the values are interpolated from the 1 km values around them. Both are drawn with a light hatching, and the value box says which source you are looking at."],
       not: ["<strong>Not a street-by-street measurement.</strong> One value per square kilometre, from a model: streets, tunnels and chimneys are not resolved. The street map is there to find your way.",
             "<strong>Not validated in real time yet.</strong> The station scores above come from past years (2023 and 2024); the daily 1 km forecast has no live verification yet.",
             "<strong>Not an alert.</strong> Use your national or local air-quality service for health decisions."],
@@ -189,16 +189,16 @@
       loading: "Chargement de la prévision à 1 km…", failed: "La prévision à 1 km n'a pas pu être chargée.", pending: "Carte 1 km du {date} : données en cours de publication, pas encore en ligne. La page réessaie chaque minute.", nogl: "Cette carte demande WebGL, que ce navigateur ne fournit pas.",
       badge: "Prévision de recherche, ne remplace pas les alertes officielles.",
       unit: "µg m⁻³", legend_prob: "Membres (sur 8) au-dessus de 15 µg m⁻³",
-      north: "Au nord de 60° N : climatologie boréale (pas de prévision 1 km)", holes: "Zones pâles au sud de 60° N : Otso 0,4° (hors du masque du modèle 1 km)",
+      north: "Au nord de 60° N : climatologie boréale, pas de prévision 1 km", holes: "Hachures au sud de 60° N : interpolé à partir des valeurs 1 km voisines (hors du masque du modèle 1 km)",
       edge: "Limite du domaine 1 km (60° N)", noprob: "Pas de probabilité au nord de 60° N",
-      src_1km: "Otso 1 km", src_04: "Otso 0,4° (pas de 1 km ici)", src_clim: "climatologie (pas de prévision 1 km)", sea: "Mer ou pas de donnée", valid: "{day}, moyenne journalière",
+      src_1km: "Otso 1 km", src_04: "Otso 0,4° (aucune valeur 1 km à moins de 50 km)", src_clim: "climatologie (pas de prévision 1 km au nord de 60° N)", src_int: "interpolé (hors du masque du modèle 1 km)", sea: "Mer ou pas de donnée", valid: "{day}, moyenne journalière",
       pbelow: "P(> 15 µg m⁻³) : {k} membres sur 8", pclim: "pas de probabilité ici (climatologie)",
       model: "Otso 1.2 (0,4°) affiné à 1 km par un modèle génératif entraîné sur LGHAP v2, un produit PM2,5 satellite–stations. Aux stations, le 1 km fait mieux que le 40 km : prévisions rétrospectives 2023 (météo ERA5) −13 % de RMSE par rapport à Otso 0,4° ; 2024, −14 % par rapport à CAMS 0,4°.",
       caveat: "LGHAP est lui-même ajusté aux stations, ce qui l'avantage dans ces scores ; la qualité de chaque prévision n'est pas connue à l'avance.",
       about_h2: "À propos de cette carte", about_what: "Ce qu'elle montre", about_not: "Ce qu'elle n'est pas",
       what: ["<strong>La prévision d'Otso à 1 km.</strong> Chaque matin, Otso 1.2 prévoit les PM<sub>2,5</sub> à 0,4° (environ 40 km) pour cinq jours ; un modèle génératif tire ensuite des champs à 1 km conditionnés par chacun des 8 membres d'Otso, la prévision météo et le transport calculé par FLEXGREEN. La carte montre la moyenne des 8 membres pour chaque jour (00–24 UTC), ou la part des membres au-dessus de 15 µg m⁻³ (la valeur guide de l'OMS sur 24 heures).",
              "<strong>Classes</strong> de l'article Foehn : 0–5, 5–10, 10–15, 15–25, 25–37,5, 37,5–50, 50–75, 75–100, 100–150, 150–250 et plus de 250 µg m⁻³. Cliquez ou touchez la carte pour la valeur.",
-             "<strong>Là où il n'y a pas de prévision à 1 km.</strong> Au nord de 60° N (la limite du produit LGHAP sur lequel le modèle a appris, en pointillés sur la carte), la carte montre une climatologie boréale du mois, plus pâle. Quelques zones terrestres au sud de 60° N sont hors du masque 1 km du modèle (par exemple une partie de la Bavière, de la Tchéquie et de l'Autriche) : la carte y montre la prévision 0,4° d'Otso, plus pâle aussi. La fenêtre de valeur indique la source."],
+             "<strong>Là où il n'y a pas de prévision à 1 km.</strong> Au nord de 60° N (la limite du produit LGHAP sur lequel le modèle a appris, en pointillés sur la carte), la carte montre une climatologie boréale du mois, raccordée en douceur aux valeurs 1 km entre 60 et 64° N. Quelques zones terrestres au sud de 60° N sont hors du masque 1 km du modèle (par exemple une partie de la Bavière, de la Tchéquie et de l'Autriche) : les valeurs y sont interpolées à partir des valeurs 1 km voisines. Les deux sont dessinées avec de légères hachures, et la fenêtre de valeur indique la source."],
       not: ["<strong>Pas une mesure rue par rue.</strong> Une valeur par kilomètre carré, issue d'un modèle : rues, tunnels et cheminées ne sont pas résolus. Le plan des rues sert à se repérer.",
             "<strong>Pas encore validée en temps réel.</strong> Les scores aux stations ci-dessus portent sur des années passées (2023 et 2024) ; la prévision quotidienne à 1 km n'a pas encore de vérification en direct.",
             "<strong>Pas une alerte.</strong> Pour votre santé, suivez le service national ou local de qualité de l'air."],
@@ -216,7 +216,7 @@
   const $ = (id) => document.getElementById(id);
 
   // ---------------------------------------------------------------- state
-  const S = { meta: null, latest: null, prod: "mean", lead: 1, opacity: +(ls.get("otso-1km-op") || 0.75), map: null, popup: null, last: null, raw: new Map(), dec: new Map() };
+  const S = { meta: null, latest: null, prod: "mean", lead: 1, opacity: +(ls.get("otso-1km-op") || 0.7), map: null, popup: null, last: null, raw: new Map(), dec: new Map() };
   $("op").value = S.opacity;
 
   // ---------------------------------------------------------------- language
@@ -272,12 +272,43 @@
   function decodeMean(i) {
     const e = S.meta.encoding, n = e.n, base = e.base, B = e.bounds.concat([e.top]);
     if (!i) return null;
-    const s = i >= base[2] ? 2 : i >= base[1] ? 1 : 0, off = i - base[s], c = Math.floor(off / n[s]), sub = off % n[s];
+    let s = 0; for (let q = 0; q < base.length; q++) if (i >= base[q]) s = q;
+    const off = i - base[s], c = Math.floor(off / n[s]), sub = off % n[s];
     const a = B[c], b = B[c + 1];
     let lo, hi; if (c === 0) { lo = a + (b - a) * sub / n[s]; hi = a + (b - a) * (sub + 1) / n[s]; } else { lo = a * Math.pow(b / a, sub / n[s]); hi = a * Math.pow(b / a, (sub + 1) / n[s]); }
     return { v: c === 0 ? (lo + hi) / 2 : Math.sqrt(lo * hi), c, src: s };
   }
-  function decodeProb(i) { if (!i) return null; const pb = S.meta.encoding.prob_base; const s = i >= pb[1] ? 1 : 0; return { k: i - pb[s], src: s }; }
+  function decodeProb(i) { if (!i) return null; const pb = S.meta.encoding.prob_base; let s = -1; pb.forEach((b, q) => { if (b != null && i >= b && i < b + 9) s = q; }); return s < 0 ? null : { k: i - pb[s], src: s }; }
+  // colours of every palette index (the class colour) and its source; sources other than 1 km get a light hatching
+  const LUT = {};
+  function buildLut() {
+    const e = S.meta.encoding, cols = e.colors.concat([e.over]).map(hexrgb), pc = e.prob_colors.map(hexrgb);
+    const lm = new Uint8ClampedArray(1024), sm = new Uint8Array(256).fill(255), lp = new Uint8ClampedArray(1024), sp = new Uint8Array(256).fill(255);
+    for (let s = 0; s < e.n.length; s++) for (let c = 0; c < 11; c++) for (let j = 0; j < e.n[s]; j++) { const i = e.base[s] + c * e.n[s] + j; if (i > 255) continue; lm.set([...cols[c], 255], i * 4); sm[i] = s; }
+    e.prob_base.forEach((b, s) => { if (b == null) return; for (let q = 0; q < 9; q++) { lp.set([...pc[q], 255], (b + q) * 4); sp[b + q] = s; } });
+    LUT.mean = { rgba: lm, src: sm }; LUT.prob15 = { rgba: lp, src: sp };
+  }
+  async function toImage(data, w, h) {
+    const im = new ImageData(data, w, h);
+    if (typeof createImageBitmap === "function") return createImageBitmap(im);
+    const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d").putImageData(im, 0, 0);
+    return new Promise((res) => c.toBlob((b) => b.arrayBuffer().then(res), "image/png"));
+  }
+  function renderTile(ix, prod, z, x, y, sh, nx, ny) {
+    const L = LUT[prod], out = new Uint8ClampedArray(65536 * 4), sc = Math.pow(2, sh), cm = new Int32Array(256);
+    for (let u = 0; u < 256; u++) cm[u] = Math.floor(((x - nx * sc) * 256 + u) / sc);
+    for (let v = 0; v < 256; v++) {
+      const vn = Math.floor(((y - ny * sc) * 256 + v) / sc), rowN = vn * 256, Y = y * 256 + v;
+      for (let u = 0; u < 256; u++) {
+        const i = ix[rowN + cm[u]]; if (!i) continue;
+        const o = (v * 256 + u) * 4, p = i * 4;
+        if (L.src[i] !== 0 && (x * 256 + u + Y) % 7 === 0) { out[o] = L.rgba[p] * 0.74 + 66; out[o + 1] = L.rgba[p + 1] * 0.74 + 66; out[o + 2] = L.rgba[p + 2] * 0.74 + 66; }
+        else { out[o] = L.rgba[p]; out[o + 1] = L.rgba[p + 1]; out[o + 2] = L.rgba[p + 2]; }
+        out[o + 3] = 255;
+      }
+    }
+    return out;
+  }
 
   // ---------------------------------------------------------------- PNG reader (8-bit or fewer, palette): the index of one pixel
   async function inflate(bytes) {
@@ -312,30 +343,41 @@
     return (b[i >> 3] >> (7 - (i & 7))) & 1;
   }
   const tileUrl = (prod, L, z, x, y) => `${BASE}${S.meta.date}/${prod}/${L}/${z}/${x}/${y}.png`;
-  let EMPTY = null;
-  async function emptyPng() { if (EMPTY) return EMPTY.slice(0); const c = document.createElement("canvas"); c.width = c.height = 1; const b = await new Promise((r) => c.toBlob(r, "image/png")); EMPTY = await b.arrayBuffer(); return EMPTY.slice(0); }
   async function rawTile(prod, L, z, x, y, signal) {
     const key = `${prod}/${L}/${z}/${x}/${y}`;
     if (S.raw.has(key)) return S.raw.get(key).slice(0);
     const r = await fetch(tileUrl(prod, L, z, x, y), { signal }); if (!r.ok) throw new Error("tile " + r.status);
     const buf = await r.arrayBuffer();
-    S.raw.set(key, buf); if (S.raw.size > 400) S.raw.delete(S.raw.keys().next().value);
+    S.raw.set(key, buf); if (S.raw.size > 64) S.raw.delete(S.raw.keys().next().value);
     return buf.slice(0);
   }
+  // every displayed tile is drawn here from the native tile (zoom <= 7): class colours, hatching where it is not the 1 km
+  // model, and 1 km squares kept sharp down to street level (the native tile is enlarged pixel by pixel)
+  async function nativeIndices(prod, L, z, x, y, signal) {
+    const key = `${prod}/${L}/${z}/${x}/${y}`; let ix = S.dec.get(key);
+    if (!ix) { ix = await pngIndices(await rawTile(prod, L, z, x, y, signal)); S.dec.set(key, ix); if (S.dec.size > 96) S.dec.delete(S.dec.keys().next().value); }
+    return ix;
+  }
+  const blank = () => toImage(new Uint8ClampedArray(4), 1, 1);
   maplibregl.addProtocol("o1k", async (params, ac) => {
     const [prod, L, z, x, y] = params.url.slice(6).split("/"); const zi = +z, xi = +x, yi = +y;
-    if (!S.meta || !hasTile(prod, zi, xi, yi)) return { data: await emptyPng() };
-    try { return { data: await rawTile(prod, +L, zi, xi, yi, ac.signal) }; } catch (e) { if (e.name === "AbortError") throw e; return { data: await emptyPng() }; }
+    if (!S.meta) return { data: await blank() };
+    const nz = Math.min(zi, zmaxOf(prod, +L)), sh = zi - nz, nx = Math.floor(xi / Math.pow(2, sh)), ny = Math.floor(yi / Math.pow(2, sh));
+    if (!hasTile(prod, nz, nx, ny)) return { data: await blank() };
+    try { const ix = await nativeIndices(prod, +L, nz, nx, ny, ac.signal); return { data: await toImage(renderTile(ix, prod, zi, xi, yi, sh, nx, ny), 256, 256) }; }
+    catch (e) { if (e.name === "AbortError") throw e; return { data: await blank() }; }
   });
   const zmaxOf = (prod, L) => (S.meta.layers[prod] && S.meta.layers[prod][L] ? S.meta.layers[prod][L].zmax : 6);
   function firstSymbol(map) { for (const l of map.getStyle().layers) if (l.type === "symbol") return l.id; return undefined; }
+  // the PM2.5 layer goes above the land, park and building fills but below the roads, railways, borders and names
+  function underRoads(map) { for (const l of map.getStyle().layers) if (l.type === "symbol" || (l.type === "line" && /tunnel|aeroway|road|highway|railway|bridge|boundary/.test(l.id))) return l.id; return undefined; }
   function addLayers() {
     const map = S.map; if (!map || !S.meta || !S.styleReady) return;
     for (const l of map.getStyle().layers) if (/country/i.test(l.id) && l.type === "symbol") map.removeLayer(l.id);      // no country names (site rule)
     if (map.getLayer("pm")) map.removeLayer("pm"); if (map.getSource("pm")) map.removeSource("pm");
-    map.addSource("pm", { type: "raster", tiles: [`o1k://${S.prod}/${S.lead}/{z}/{x}/{y}`], tileSize: 256, minzoom: 0, maxzoom: zmaxOf(S.prod, S.lead), bounds: [-180, -58.2, 180, 84.5],
+    map.addSource("pm", { type: "raster", tiles: [`o1k://${S.prod}/${S.lead}/{z}/{x}/{y}`], tileSize: 256, minzoom: 0, maxzoom: 16, bounds: [-180, -58.2, 180, 84.5],
       attribution: "Otso 1 km · Natural Earth" });
-    map.addLayer({ id: "pm", type: "raster", source: "pm", paint: { "raster-opacity": S.opacity, "raster-resampling": "nearest", "raster-fade-duration": 0 } }, firstSymbol(map));
+    map.addLayer({ id: "pm", type: "raster", source: "pm", paint: { "raster-opacity": S.opacity, "raster-resampling": "linear", "raster-fade-duration": 0 } }, underRoads(map));
     if (!map.getSource("edge")) map.addSource("edge", { type: "geojson", data: BASE + S.meta.date + "/edge.geojson" });
     if (map.getLayer("edge")) map.removeLayer("edge");
     map.addLayer({ id: "edge", type: "line", source: "edge", paint: { "line-color": dark() ? "#e6edf3" : "#1c2530", "line-opacity": 0.7, "line-width": 1.4, "line-dasharray": [3, 3] } }, firstSymbol(map));
@@ -367,7 +409,7 @@
     } else {
       h += `<span class="lunit">${esc(k("legend_prob"))}</span><div class="lscale">` + e.prob_colors.map((c, i) => `<div><i style="background:${c}"></i><b>${i}</b></div>`).join("") + "</div>";
     }
-    h += `<div class="lnotes"><span><i class="dash"></i>${esc(k("edge"))}</span><span><i class="pale"></i>${esc(S.prod === "mean" ? k("north") : k("noprob"))}</span><span><i class="pale" style="background:#abd9e9"></i>${esc(k("holes"))}</span></div>`;
+    h += `<div class="lnotes"><span><i class="dash"></i>${esc(k("edge"))}</span><span><i class="hatch"></i>${esc(S.prod === "mean" ? k("north") : k("noprob"))}</span><span><i class="hatch" style="background-color:#74add1"></i>${esc(k("holes"))}</span></div>`;
     $("legend").innerHTML = h;
   }
 
@@ -379,9 +421,7 @@
   async function pixel(prod, L, lng, lat) {
     const z = zmaxOf(prod, L), t = tileXY(lng, lat, z);
     if (!hasTile(prod, z, t.tx, t.ty)) return 0;
-    const key = `${prod}/${L}/${z}/${t.tx}/${t.ty}`; let ix = S.dec.get(key);
-    if (!ix) { ix = await pngIndices(await rawTile(prod, L, z, t.tx, t.ty)); S.dec.set(key, ix); if (S.dec.size > 24) S.dec.delete(S.dec.keys().next().value); }
-    return ix[t.py * 256 + t.px];
+    return (await nativeIndices(prod, L, z, t.tx, t.ty))[t.py * 256 + t.px];
   }
   async function readout(lng, lat, fly) {
     S.last = { lng, lat }; if (!S.meta) return;
@@ -391,10 +431,10 @@
       const im = decodeMean(await pixel("mean", L, lng, lat));
       if (!im) html += `<div class="rc">${esc(k("sea"))}</div>`;
       else {
-        let v = im.v; if (im.src === 2) { const c = S.meta.clim[L]; v = c.ug[(Math.floor((lng + 180) / c.sector_deg) % c.ug.length + c.ug.length) % c.ug.length]; }
+        const v = im.v;
         const c = classOf(v), col = c < 10 ? S.meta.encoding.colors[c] : S.meta.encoding.over;
         html += `<div class="rv">≈ ${num(v, v < 10 ? 1 : 0)}<small>${k("unit")}</small></div><div class="rc"><i style="background:${col}"></i>${esc(tr("cls." + PM_KEYS[c]))}</div>`;
-        html += `<div class="rs">${esc(im.src === 0 ? k("src_1km") : im.src === 1 ? k("src_04") : k("src_clim"))}</div>`;
+        html += `<div class="rs">${esc(k(["src_1km", "src_04", "src_clim", "src_int"][im.src] || "src_1km"))}</div>`;
         if (im.src === 2) html += `<div class="rs">${esc(k("pclim"))}</div>`;
         else { const ip = decodeProb(await pixel("prob15", L, lng, lat)); if (ip) html += `<div class="rs">${esc(k("pbelow", { k: ip.k }))}</div>`; }
       }
@@ -446,6 +486,7 @@
     }
     $("note").textContent = k("loading");
     for (const [p, zz] of Object.entries(S.meta.tiles)) { bits[p] = {}; for (const [z, b64] of Object.entries(zz)) bits[p][z] = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)); }
+    buildLut();
     const today = new Date().toISOString().slice(0, 10), L0 = S.meta.leads.find((x) => S.meta.layers.mean[x].valid === today);
     S.lead = +(P.get("day") || L0 || S.meta.leads[0]); if (!S.meta.leads.includes(S.lead)) S.lead = S.meta.leads[0];
     if (P.get("p") === "prob15") { S.prod = "prob15"; for (const x of $("prod").children) x.classList.toggle("on", x.dataset.p === "prob15"); }
