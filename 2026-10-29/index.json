@@ -1,0 +1,110 @@
+{
+ "date": "2026-10-29",
+ "issued": "2026-10-29T00:00Z",
+ "leads_h": [
+  12,
+  24,
+  36,
+  48,
+  60,
+  72,
+  84,
+  96,
+  108,
+  120
+ ],
+ "members": 8,
+ "threshold": 25.0,
+ "png": {
+  "version": 2,
+  "pm_log10_range": [
+   -1.0,
+   3.0
+  ],
+  "pm_offset": 8,
+  "pm_steps": 247,
+  "prob_offset": 10,
+  "ocean": {
+   "pm": 0,
+   "prob": 255
+  }
+ },
+ "files": {
+  "mean": [
+   "mean_012h.png",
+   "mean_024h.png",
+   "mean_036h.png",
+   "mean_048h.png",
+   "mean_060h.png",
+   "mean_072h.png",
+   "mean_084h.png",
+   "mean_096h.png",
+   "mean_108h.png",
+   "mean_120h.png"
+  ],
+  "p90": [
+   "p90_012h.png",
+   "p90_024h.png",
+   "p90_036h.png",
+   "p90_048h.png",
+   "p90_060h.png",
+   "p90_072h.png",
+   "p90_084h.png",
+   "p90_096h.png",
+   "p90_108h.png",
+   "p90_120h.png"
+  ],
+  "prob": [
+   "prob_012h.png",
+   "prob_024h.png",
+   "prob_036h.png",
+   "prob_048h.png",
+   "prob_060h.png",
+   "prob_072h.png",
+   "prob_084h.png",
+   "prob_096h.png",
+   "prob_108h.png",
+   "prob_120h.png"
+  ],
+  "map": [
+   "map_012h.png",
+   "map_024h.png",
+   "map_036h.png",
+   "map_048h.png",
+   "map_060h.png",
+   "map_072h.png",
+   "map_084h.png",
+   "map_096h.png",
+   "map_108h.png",
+   "map_120h.png"
+  ]
+ },
+ "cities": "cities.json",
+ "disclaimer": "Otso 1.2 is a research forecast (Foehn-CAMS, 0.4 degrees, trained on the CAMS analyses of 2017-2022, fine-tuned on the live inputs of January-August 2026, run on live inputs since October 2026). It is not an official product and does not replace the air-quality forecasts and alerts of your country.",
+ "model": "Otso 1.2 (Foehn-CAMS, 0.4\u00b0)",
+ "version": "1.2",
+ "inputs": {
+  "date": "2026-10-29",
+  "gi": 3588,
+  "year": 2026,
+  "doy": 301,
+  "ifs_source": "https://storage.googleapis.com/ecmwf-open-data",
+  "gfas_day": "2026-10-28",
+  "gfas_version": "v1.4.2",
+  "gfas_stamp": "2026-10-29",
+  "archive": false,
+  "fire_injection_variable": "injh"
+ },
+ "land_mean": [
+  8.66,
+  9.46,
+  8.42,
+  9.52,
+  8.92,
+  9.38,
+  8.58,
+  9.39,
+  8.3,
+  9.18
+ ]
+}

@@ -1,0 +1,26 @@
+{
+ "latest": "2026-10-31",
+ "days": [
+  "2026-10-25",
+  "2026-10-26",
+  "2026-10-27",
+  "2026-10-28",
+  "2026-10-29",
+  "2026-10-30",
+  "2026-10-31"
+ ],
+ "updated": "2026-10-31T10:37Z",
+ "leads_h": [
+  12,
+  24,
+  36,
+  48,
+  60,
+  72,
+  84,
+  96,
+  108,
+  120
+ ],
+ "disclaimer": "Otso 1.2 is a research forecast (Foehn-CAMS, 0.4 degrees, trained on the CAMS analyses of 2017-2022, fine-tuned on the live inputs of January-August 2026, run on live inputs since October 2026). It is not an official product and does not replace the air-quality forecasts and alerts of your country."
+}
