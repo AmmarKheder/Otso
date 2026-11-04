@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Otso 1.2 — live PM2.5 forecast (beta)</title>
-<meta name="description" content="Otso 1.2 runs the 0.4° Foehn model every morning on the live CAMS analysis, the ECMWF forecast and the GFAS fires, and shows where fine particles from all sources (traffic, industry, heating, dust, sea salt, fires) will be up to five days ahead. Research forecast, not an official alert." />
-<meta property="og:title" content="Otso 1.2 — live PM2.5 forecast (beta)" />
-<meta property="og:description" content="Where will the fine particles be tomorrow? The coarse Foehn model, run daily on live inputs. Research forecast." />
+<title>Otso — PM2.5 forecast at 1 km (beta)</title>
+<meta name="description" content="Otso runs the 0.4° Foehn model every morning on the live CAMS analysis, the ECMWF forecast and the GFAS fires, downscales it to 1 km with a generative model, and shows on a street map where the fine particles from all sources (traffic, industry, heating, dust, sea salt, fires) will be up to five days ahead. Research forecast, not an official alert." />
+<meta property="og:title" content="Otso — PM2.5 forecast at 1 km (beta)" />
+<meta property="og:description" content="Where will the fine particles be tomorrow, down to your street? A daily research forecast at 1 km on a street map." />
 <meta property="og:type" content="website" />
 <link rel="icon" type="image/png" href="assets/favicon.png" />
 <link rel="manifest" href="manifest.webmanifest" />
@@ -17,6 +17,7 @@
 <meta name="apple-mobile-web-app-title" content="Otso" />
 <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 <link rel="stylesheet" href="assets/style.css?v=20261012o" />
+<link rel="stylesheet" href="vendor/maplibre-gl.css" />
 <style>
   :root { --card: #ffffff; --amber-bg: #FFF8E8; --amber-line: #F3D9A4; --amber-ink: #4a3b12; --amber: #D99A1E; --shadow: 0 8px 24px rgba(28,37,48,.12); color-scheme: light; }
   :root[data-theme="dark"] { --bg: #0f1720; --bg-soft: #141d28; --card: #19232f; --ink: #e6edf3; --muted: #9aa7b4; --line: #27323e; --blue: #7fb0ff; --blue-dark: #5a8fe6; --blue-soft: #35507a; --pink: #ff6ea3;
@@ -58,12 +59,6 @@
   table.scores td, table.scores th { text-align: right; } table.scores td:first-child, table.scores th:first-child { text-align: left; }
   .scores-notes { margin: 14px 0 0; padding-left: 20px; } .scores-notes li { font-size: 14px; margin-bottom: 8px; }
   body.app #scores { display: none !important; }
-  .k1card { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 20px 22px; border-radius: 22px; background: var(--card); color: var(--ink); text-decoration: none; box-shadow: 0 1px 2px rgba(16,24,40,.04), 0 8px 24px rgba(16,24,40,.06); }
-  .k1card:hover { text-decoration: none; } :root[data-theme="dark"] .k1card { box-shadow: none; border: 1px solid var(--line); }
-  .k1card-text { display: flex; flex-direction: column; gap: 6px; min-width: 0; } .k1card-h { display: flex; align-items: center; gap: 10px; } .k1card-t { font-size: 24px; font-weight: 700; letter-spacing: -.01em; }
-  .k1card-sub { color: var(--muted); font-size: 15px; max-width: 720px; } .k1card-btn { flex: none; }
-  @media (max-width: 600px) { .k1card { flex-direction: column; align-items: stretch; padding: 16px; } .k1card-btn { text-align: center; } }
-  body.app #k1 { padding: 4px 0 12px; } body.app .k1card { padding: 12px 14px; border-radius: 16px; } body.app .k1card-sub { display: none; } body.app .k1card-t { font-size: 18px; } body.app #k1 .pill-beta { display: inline-block !important; }
   body.app #tablewrap:not(.all) table.ct tbody tr:nth-child(n+13) { display: none; } body.app .showall { display: block !important; width: 100%; margin-top: 10px; }
   body.app #tablewrap.all + .showall { display: none !important; }
   .otso-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
@@ -189,7 +184,7 @@
     .mapfoot .lead output { flex-basis: 100%; min-width: 0; font-size: 13.5px; white-space: normal; padding-left: 2px; }
     .cbar { width: 100%; } .cbar canvas { flex: 1; width: auto; min-width: 0; max-width: 420px; }
   }
-  @media (max-width: 600px) { #ct th:nth-child(3), #ct td:nth-child(3), #ct th:nth-child(4), #ct td:nth-child(4), #ct th:nth-child(6), #ct td:nth-child(6) { display: none; }
+  @media (max-width: 600px) { 
     table.ct td, table.ct th { padding: 8px 6px; } .cities-top { gap: 8px; } }
   @media (max-width: 480px) { .mapcard, .cities { padding: 10px; } .cities input { min-width: 0; width: 100%; } }
 
@@ -252,7 +247,7 @@
   /* app mode: a page that belongs to the place */
   body.app { background: linear-gradient(180deg, color-mix(in srgb, var(--pc, var(--blue)) 16%, var(--bg)) 0, var(--bg) 640px) no-repeat, var(--bg); }
   body.app .hero { display: none; } body.app section.band, body.app section.band-soft { background: transparent; border: 0; }
-  body.app #map { padding-top: 10px; } body.app .mapbar #day { display: none; }
+  body.app #map { padding-top: 10px; } 
   body.app .air-hero { background: transparent; box-shadow: none; padding: 18px 8px 12px; }
   body.app .ah-value { font-size: 112px; }
   body.app .topbar { background: color-mix(in srgb, var(--bg) 78%, transparent); border-bottom-color: transparent; }
@@ -298,19 +293,78 @@
   [dir="rtl"] .disclaimer { border-left: 1px solid var(--amber-line); border-right: 4px solid var(--amber); }
   [dir="rtl"] .tip { direction: rtl; }
   @media (max-width: 600px) { .lang-wrap { margin-left: 6px; padding: 6px 10px; } .lang-name { display: none; } .lang-code { display: inline; font-size: 13px; font-weight: 700; letter-spacing: .04em; } }
+
+  /* ===== the 1 km street map (2026-11-04): the main map of the site ===== */
+  .k1map { position: relative; height: 68vh; min-height: 460px; border-radius: 14px; overflow: hidden; background: var(--bg-soft); }
+  .k1map .note { position: absolute; z-index: 3; left: 50%; top: 50%; transform: translate(-50%, -50%); background: var(--card); color: var(--ink); padding: 10px 14px; border-radius: 12px; box-shadow: var(--shadow); font-size: 14px; max-width: 80%; text-align: center; }
+  .badge { position: absolute; z-index: 2; left: 10px; top: 10px; background: rgba(255,248,232,.94); color: #4a3b12; border: 1px solid #F3D9A4; border-radius: 10px; padding: 5px 9px; font-size: 12px; max-width: calc(100% - 70px); pointer-events: none; }
+  :root[data-theme="dark"] .badge { background: rgba(42,36,18,.92); color: #f3d9a4; border-color: #5a4a1a; }
+  .k1note { background: var(--amber-bg); color: var(--amber-ink); border: 1px solid var(--amber-line); border-radius: 8px; padding: 6px 10px; font-size: 12.5px; margin: 0 0 10px; }
+  .k1bar { display: flex; gap: 10px 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin: 0 0 10px; }
+  .k1right { display: flex; gap: 8px 12px; align-items: center; flex-wrap: wrap; }
+  .seg { display: inline-flex; flex-wrap: nowrap; gap: 2px; padding: 3px; border-radius: 11px; background: var(--bg-soft); border: 1px solid var(--line); max-width: 100%; overflow-x: auto; }
+  .seg button { border: 0; background: transparent; color: var(--ink); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; line-height: 1.25; min-height: 0; }
+  .seg button.on { background: var(--card); color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px rgba(16,24,40,.14), 0 1px 1px rgba(16,24,40,.06); }
+  :root[data-theme="dark"] .seg button.on { background: #2b3847; color: var(--ink); }
+  .seg button small { display: block; font-size: 11px; color: var(--muted); font-weight: 500; }
+  .seg button.kplay { width: 40px; font-size: 14px; }
+  .daysrow { margin: 0 0 10px; }
+  .opac { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .opac input { width: 110px; accent-color: var(--blue); }
+  .k1right select { padding: 7px 10px; border: 1px solid var(--line); border-radius: 10px; font-size: 14px; background: var(--bg-soft); color: var(--ink); }
+  .legend { display: flex; gap: 8px 18px; flex-wrap: wrap; align-items: flex-start; font-size: 12.5px; color: var(--muted); }
+  .lscale { display: flex; flex-wrap: wrap; gap: 0; align-items: flex-end; }
+  .lscale div { display: flex; flex-direction: column; align-items: center; min-width: 38px; }
+  .lscale i { display: block; width: 38px; height: 12px; }
+  .lscale div:first-child i { border-radius: 4px 0 0 4px; } .lscale div:last-child i { border-radius: 0 4px 4px 0; }
+  .lscale b { font-weight: 500; font-size: 11px; margin-top: 3px; color: var(--muted); white-space: nowrap; }
+  .lunit { align-self: center; color: var(--ink); font-weight: 600; }
+  .lnotes { display: flex; flex-direction: column; gap: 4px; }
+  .lnotes span { display: flex; align-items: center; gap: 8px; }
+  .hatch { width: 26px; height: 12px; border-radius: 3px; display: inline-block; flex: none; background-color: #74add1; background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.35) 0 1px, transparent 1px 8px); }
+  .modelline { font-size: 13px; color: var(--muted); margin: 10px 0 0; }
+  .maplibregl-popup-content { background: var(--card); color: var(--ink); border-radius: 12px; padding: 10px 12px; box-shadow: var(--shadow); font-size: 13.5px; min-width: 190px; }
+  .maplibregl-popup-tip { border-top-color: var(--card) !important; border-bottom-color: var(--card) !important; }
+  .maplibregl-popup-close-button { color: var(--muted); font-size: 18px; padding: 0 6px; }
+  .rn { font-weight: 700; margin: 0 18px 2px 0; }
+  .rv { font-size: 26px; font-weight: 300; line-height: 1.1; } .rv small { font-size: 13px; color: var(--muted); margin-left: 4px; }
+  .rc { display: flex; align-items: center; gap: 6px; font-weight: 600; margin: 2px 0 4px; text-transform: capitalize; } .rc i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .rs { color: var(--muted); font-size: 12.5px; }
+  .maplibregl-ctrl-attrib { font-size: 11px; }
+  :root[data-theme="dark"] .maplibregl-ctrl-group { background: var(--card); } :root[data-theme="dark"] .maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: invert(1); }
+  :root[data-theme="dark"] .maplibregl-ctrl-attrib { background: rgba(25,35,47,.8); color: var(--muted); } :root[data-theme="dark"] .maplibregl-ctrl-attrib a { color: var(--muted); }
+  .mapfoot { margin-top: 10px; }
+  .mapfoot .lead { flex: 1; min-width: 280px; } .mapfoot .lead output { min-width: 220px; }
+  .drow { grid-template-columns: minmax(96px, 1.3fr) 16px 44px minmax(0, 3fr) 70px; }
+  .dk1 { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; } .drow .dmax { color: var(--muted); font-weight: 500; font-size: 13px; white-space: nowrap; }
+  .drow.on { background: color-mix(in srgb, var(--blue) 10%, transparent); }
+  .dnote { margin: 8px 0 0; }
+  @media (max-width: 600px) { .drow { grid-template-columns: minmax(84px, 1.2fr) 14px 40px minmax(0, 2.2fr) 62px; } }
+  #ct .chip-none { background: var(--bg-soft); color: var(--muted); }
+  @media (max-width: 600px) { #ct th:nth-child(4), #ct td:nth-child(4), #ct th:nth-child(5), #ct td:nth-child(5), #ct th:nth-child(7), #ct td:nth-child(7) { display: none; } }
+  table.scores td, table.scores th { text-align: right; } table.scores td:first-child, table.scores th:first-child { text-align: left; }
+  body.app .k1map { height: calc(100vh - 250px); height: calc(100dvh - 250px); min-height: 380px; }
+  body.app #day, body.app .k1right select#basemap { display: none !important; } body.app .modelline .long { display: none; }
+  body.app .k1bar { margin-bottom: 8px; }
+  @media (max-width: 600px) {
+    .k1map { height: 62vh; min-height: 380px; } .k1bar { flex-direction: column; align-items: stretch; } #layers.seg { width: 100%; } #layers.seg button { flex: 1; padding: 7px 6px; }
+    .k1right { flex-direction: column; align-items: stretch; gap: 8px; } .k1right .seg { width: 100%; } .k1right .seg button { flex: 1; padding: 7px 6px; }
+    .k1right select { width: 100%; min-width: 0; font-size: 16px; } #day { display: none !important; } .opac { width: 100%; } .opac input { flex: 1; width: auto; }
+    .daysrow.seg { width: 100%; } .daysrow.seg button { flex: 1; padding: 7px 4px; }
+    .lscale div, .lscale i { min-width: 0; width: 28px; } .lscale b { font-size: 10px; }
+  }
 </style>
 </head>
 <body>
 
 <header class="topbar">
   <div class="wrap topbar-row">
-    <a class="brand" href="#top"><img src="assets/logo_mark.svg" alt="" style="height:28px;width:28px" /><span>Otso</span><span style="color:var(--muted);font-weight:400">1.2</span></a>
+    <a class="brand" href="#top"><img src="assets/logo_mark.svg" alt="" style="height:28px;width:28px" /><span>Otso</span><span style="color:var(--muted);font-weight:400">1 km</span></a>
     <nav class="nav">
       <a href="#install" data-i18n="nav.install">Install</a>
       <a href="#map" data-i18n="nav.map">Map</a>
-      <a href="1km/" data-i18n="nav.k1">1 km map</a>
-      <a href="#cities" data-i18n="nav.cities">Cities</a>
       <a href="#city" data-i18n="nav.city">Your city</a>
+      <a href="#cities" data-i18n="nav.cities">Cities</a>
       <a href="#scores" data-i18n="nav.scores">Scores</a>
       <a href="#about" data-i18n="nav.about">What Otso is</a>
       <a href="#data" data-i18n="nav.data">Data</a>
@@ -328,22 +382,19 @@
   <div class="wrap">
     <div class="hero-text">
       <p class="kicker" data-i18n="hero.kicker">Foehn project · live research forecast</p>
-      <div class="otso-head"><h1 style="margin:0">Otso <span style="font-weight:500;color:var(--blue)">1.2</span></h1><span class="pill pill-beta" data-i18n="hero.beta">beta</span><span class="pill pill-live" id="pill-live" data-i18n="hero.updated" hidden>updated today</span></div>
-      <p class="tag" style="margin-top:10px" data-i18n="hero.tag">Where will the fine particles be tomorrow, and the days after?</p>
-      <p class="lede" data-i18n-html="hero.lede">Every morning Otso 1.2 takes the 00 UTC analysis of the Copernicus Atmosphere Monitoring Service, the ECMWF weather
-        forecast of the same hour and the fires seen by satellite, computes the transport of the air with FLEXGREEN and forecasts PM<sub>2.5</sub> from all its sources (traffic, industry, heating, agriculture, dust, sea salt and fires) over all land, 12 hours to 5 days ahead, as an ensemble of 8 members. Otso is the coarse (0.4°) model of the
-        <a href="https://ammarkheder.com/Foehn/">Foehn paper</a>, the one evaluated in Aurora's protocol, fine-tuned on the live inputs of 2026. The 1 km Foehn is not run in real time.</p>
-      <p class="status" id="status">Loading the latest forecast…</p>
+      <div class="otso-head"><h1 style="margin:0">Otso <span style="font-weight:500;color:var(--blue)">1 km</span></h1><span class="pill pill-beta" data-i18n="hero.beta">beta</span><span class="pill pill-live" id="pill-live" data-i18n="hero.updated" hidden>updated today</span></div>
+      <p class="tag" style="margin-top:10px" data-i18n="hero.tag">Where will the fine particles be tomorrow, down to your street?</p>
+      <p class="lede" data-i18n-html="hero.lede">Every morning Otso takes the 00 UTC analysis of the Copernicus Atmosphere Monitoring Service, the ECMWF weather forecast of the same hour and the fires seen by satellite, computes the transport of the air with FLEXGREEN and forecasts PM<sub>2.5</sub> from all its sources (traffic, industry, heating, agriculture, dust, sea salt and fires) over all land, 12 hours to 5 days ahead, as an ensemble of 8 members at 0.4° (about 40 km). A generative model then draws the same forecast at 1 km, conditioned on each member, on the weather and on the transport, and the map puts it on a street map. Otso is the coarse model of the <a href="https://ammarkheder.com/Foehn/">Foehn paper</a>, fine-tuned on the live inputs of 2026; the 1 km model is trained on GHAP V1, a satellite–station PM<sub>2.5</sub> record.</p>
+      <p class="status" id="status" data-i18n="hero.loading">Loading the latest forecast…</p>
       <p class="status status-short" id="status-short" hidden></p>
       <p class="usage" id="stats" hidden></p>
       <div class="cta" style="margin:14px 0 0"><a class="btn btn-primary" href="#install" data-i18n="hero.cta_install">📲 Install Otso on your phone</a><a class="btn btn-ghost" href="#map" data-i18n="hero.cta_see">See the forecast</a></div>
-      <div class="disclaimer"><strong data-i18n="disc.title">Research forecast.</strong> <span class="long" data-i18n="disc.long">Otso 1.2 is an experiment of a university group, not an official service. It has not yet
+      <div class="disclaimer"><strong data-i18n="disc.title">Research forecast.</strong> <span class="long" data-i18n="disc.long">Otso is an experiment of a university group, not an official service. It has not yet
         been evaluated in real time, it is not monitored around the clock, and it does not replace the air-quality forecasts, indices and alerts
         of your national or local authorities. If you must decide something about your health, use those.</span><span class="short" data-i18n="disc.short">Not an official alert: for health decisions use your national air-quality service.</span></div>
     </div>
   </div>
 </section>
-
 <section class="band band-soft" id="install">
   <div class="wrap">
     <h2 data-i18n="install.h2">Put Otso on your phone</h2>
@@ -365,19 +416,18 @@
 <section class="band" id="map">
   <div class="wrap">
     <h2 data-i18n="map.h2">The forecast</h2>
-    <p class="sub" data-i18n-html="map.sub">Hover or tap a place for its value; click to keep it and see how it evolves over the five days. Scroll or pinch to zoom, drag to pan.
-      Fields: the mean of the 8 members, their 90<sup>th</sup> percentile (a plausible bad case), and the share of members above 25&nbsp;µg&nbsp;m<sup>−3</sup>,
-      the limit of the "moderate" class of the European Air Quality Index for PM<sub>2.5</sub>.</p>
+    <p class="sub" data-i18n-html="map.sub">Search a city, a street or an address, use your position, or tap the map: the value of that square kilometre, its class, and how the days ahead look. Scroll or pinch to zoom down to the streets, drag to pan.
+      Layers: the daily mean of the 8 members at 1 km, the number of members above 15&nbsp;µg&nbsp;m<sup>−3</sup> (the WHO 24-hour guideline), and the 40 km forecast every 12 hours (mean, 90<sup>th</sup> percentile, share above 25&nbsp;µg&nbsp;m<sup>−3</sup>).</p>
     <div class="city" id="city">
       <div class="city-row">
         <label for="city-q" class="city-lab" data-i18n="city.label">Your city</label>
         <div class="city-box">
-          <input type="search" id="city-q" placeholder="Search a city or a village…" autocomplete="off" aria-label="Find your city" data-i18n-ph="city.ph" data-i18n-aria="city.aria" />
+          <input type="search" id="city-q" placeholder="Search a city, a street, an address…" autocomplete="off" aria-label="Find your city or your street" data-i18n-ph="city.ph" data-i18n-aria="city.aria" />
           <ul class="city-list" id="city-list" hidden></ul>
         </div>
         <button type="button" class="btn btn-ghost city-geo" id="city-geo" title="Use the position of this device" aria-label="Use my location" data-i18n-title="city.geo_title" data-i18n-aria="welcome.geo">📍<span class="full" data-i18n="city.geo_btn"> My location</span></button>
       </div>
-      <p class="small city-note" data-i18n-html="city.note">Any city, town or village: 34,000 places above 15,000 inhabitants answer instantly (<a href="https://www.geonames.org/">GeoNames</a>, CC BY 4.0), the others come from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> as you type (© OpenStreetMap contributors). You can also click the map or use your position. The forecast is for the 0.4° cell (about 40 km) that contains the place.</p>
+      <p class="small city-note" data-i18n-html="city.note">Any city, town or village: 34,000 places above 15,000 inhabitants answer instantly (<a href="https://www.geonames.org/">GeoNames</a>, CC BY 4.0); streets, addresses and the other places come from <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> as you type (© OpenStreetMap contributors). You can also tap the map or use your position. The headline value is the square kilometre that contains the place; the 12-hour curve is the 0.4° cell (about 40 km) around it.</p>
     </div>
     <div class="welcome" id="welcome" hidden>
       <div class="welcome-ico">📍</div>
@@ -395,79 +445,65 @@
         <div class="ah-range" id="pt-range"></div>
       </div>
       <div class="acards">
-        <div class="acard acard-days"><div class="acard-h"><span>📅</span><span data-i18n="card.days">5-day forecast</span></div><div class="days" id="pt-days"></div></div>
+        <div class="acard acard-days"><div class="acard-h"><span>📅</span><span data-i18n="card.days">Five days at 1 km</span></div><div class="days" id="pt-days"></div></div>
         <div class="acard acard-advice"><div class="acard-h"><span>💬</span><span data-i18n="card.means">What it means</span></div><p class="place-text" id="pt-text"></p></div>
-        <div class="acard acard-hours"><div class="acard-h"><span>🕒</span><span data-i18n="card.hours">Every 12 hours</span></div>
+        <div class="acard acard-hours" id="acard-hours"><div class="acard-h"><span>🕒</span><span data-i18n="card.hours">Every 12 hours · the 40 km cell</span></div>
           <div class="stripwrap"><div class="strip" id="pt-strip" aria-label="The ten leads"></div></div>
           <svg class="series" id="series" viewBox="0 0 560 150" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Forecast at the selected place"></svg>
-          <p class="small place-foot" data-i18n="place.foot">Line: ensemble mean · band: 10–90 % of the 8 members · dashed: 25 µg m⁻³. A 0.4° cell (about 40 km): a city average, not a street.</p>
+          <p class="small place-foot" data-i18n="place.foot">Line: ensemble mean of the 0.4° cell (about 40 km) every 12 h · band: 10–90 % of the 8 members · dashed: 25 µg m⁻³. The headline numbers are the 1 km daily means.</p>
         </div>
       </div>
     </div>
     <div class="mapcard">
       <div class="offline" id="offline" data-i18n="map.offline" hidden>You are offline: this is the last forecast stored on this device.</div>
-      <div class="mapbar">
-        <div class="layers" id="fields">
-          <button type="button" data-f="mean" class="on"><span class="full" data-i18n="layer.mean_full">Ensemble mean</span><span class="short" data-i18n="layer.mean_short">Mean</span></button>
-          <button type="button" data-f="p90"><span class="full" data-i18n="layer.p90_full">90th percentile</span><span class="short" data-i18n="layer.p90_short">90th pct.</span></button>
-          <button type="button" data-f="prob"><span class="full" data-i18n-html="layer.prob_full">Probability &gt; 25 µg m⁻³</span><span class="short" data-i18n-html="layer.prob_short">P &gt; 25</span></button>
+      <div class="k1note" id="k1note" hidden></div>
+      <div class="k1bar">
+        <div class="layers seg" id="layers">
+          <button type="button" data-l="k1" class="on"><span class="full" data-i18n="layer.k1_full">1 km · daily mean</span><span class="short" data-i18n="layer.k1_short">1 km</span></button>
+          <button type="button" data-l="k1p"><span class="full" data-i18n-html="layer.k1p_full">Members &gt; 15 µg m⁻³</span><span class="short" data-i18n-html="layer.k1p_short">P &gt; 15</span></button>
+          <button type="button" data-l="o4"><span class="full" data-i18n="layer.o4_full">40 km · every 12 h</span><span class="short" data-i18n="layer.o4_short">12 h</span></button>
         </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <select id="region" aria-label="Region">
-            <option value="world" data-i18n="region.world">World</option><option value="europe" data-i18n="region.europe">Europe</option><option value="sasia" data-i18n="region.sasia">South Asia</option>
-            <option value="easia" data-i18n="region.easia">East Asia</option><option value="seasia" data-i18n="region.seasia">South-East Asia</option><option value="mideast" data-i18n="region.mideast">Middle East</option>
-            <option value="africa" data-i18n="region.africa">Africa</option><option value="namerica" data-i18n="region.namerica">North America</option><option value="samerica" data-i18n="region.samerica">South America</option>
-            <option value="oceania" data-i18n="region.oceania">Australia</option>
-          </select>
-          <select id="day" aria-label="Forecast day"></select>
-          <div class="zoombtns"><button type="button" id="zin" title="Zoom in" data-i18n-title="zoom.in">+</button><button type="button" id="zout" title="Zoom out" data-i18n-title="zoom.out">−</button><button type="button" id="zreset" title="Reset view" data-i18n-title="zoom.reset">⟲</button></div>
+        <div class="k1right">
+          <div class="layers seg" id="fields" hidden>
+            <button type="button" data-f="mean" class="on"><span class="full" data-i18n="layer.mean_full">Ensemble mean</span><span class="short" data-i18n="layer.mean_short">Mean</span></button>
+            <button type="button" data-f="p90"><span class="full" data-i18n="layer.p90_full">90th percentile</span><span class="short" data-i18n="layer.p90_short">90th pct.</span></button>
+            <button type="button" data-f="prob"><span class="full" data-i18n-html="layer.prob_full">Probability &gt; 25 µg m⁻³</span><span class="short" data-i18n-html="layer.prob_short">P &gt; 25</span></button>
+          </div>
+          <select id="day" aria-label="Forecast day" hidden></select>
+          <select id="basemap" aria-label="Basemap"><option value="" data-i18n="basemap.auto">Map: auto</option><option value="light" data-i18n="basemap.light">Map: light</option><option value="streets" data-i18n="basemap.streets">Map: streets</option><option value="dark" data-i18n="basemap.dark">Map: dark</option></select>
+          <label class="opac"><span data-i18n="k1.opacity">Opacity</span><input type="range" id="op" min="0.2" max="1" step="0.05" value="0.72" aria-label="Opacity of the forecast layer" /></label>
         </div>
       </div>
-      <div class="mapwrap">
-        <canvas id="map-canvas" class="otso-canvas" width="1200" height="480" aria-label="Otso PM2.5 forecast map"></canvas>
-        <div class="tip" id="tip"></div>
-        <div class="pin" id="pin" hidden></div>
-        <div class="overlay" id="overlay"><span data-i18n="map.loading">Loading the forecast…</span></div>
-      </div>
-      <div class="tlwrap"><div class="timeline" id="timeline" aria-label="Forecast time"></div></div>
+      <div class="seg daysrow" id="days" hidden></div>
+      <div class="k1map" id="k1map"><div class="badge" id="badge" data-i18n="k1.badge">Research forecast: it does not replace official alerts.</div><div class="note" id="note"><span data-i18n="map.loading">Loading the forecast…</span></div></div>
+      <div class="tlwrap" id="tlwrap" hidden><div class="timeline" id="timeline" aria-label="Forecast time"></div></div>
       <div class="mapfoot">
-        <div class="lead">
+        <div class="lead" id="leadrow" hidden>
           <button type="button" class="play" id="play" aria-label="Play">▶</button>
-          <input type="range" id="lead" min="0" max="9" step="1" value="1" aria-label="Lead time" />
-          <output id="leadout">+24 h</output>
+          <input type="range" id="lead" min="0" max="9" step="1" value="0" aria-label="Lead time" />
+          <output id="leadout"></output>
         </div>
-        <div class="cbar"><span id="cbar-lab">PM<sub>2.5</sub> (µg m⁻³)</span><canvas id="cbar" width="520" height="28"></canvas></div>
+        <div class="cbar" id="cbarwrap" hidden><span id="cbar-lab">PM<sub>2.5</sub> (µg m⁻³)</span><canvas id="cbar" width="520" height="28"></canvas></div>
+        <div class="legend" id="legend"></div>
       </div>
-      <p class="help" id="help">Ensemble mean of 8 members, 0.4° grid, instantaneous value at the valid time. Ocean is white: Otso forecasts over land.</p>
+      <p class="help" id="help"></p>
       <p class="small tznote" id="tznote"></p>
-      </div>
+      <p class="modelline"><span id="modelline" data-i18n="k1.model">Otso (0.4°) is downscaled to 1 km by a generative model trained on GHAP V1, a satellite–station PM2.5 record covering land from 60° S to 84° N. At monitors kept apart from everything, the 1 km forecast has an 8 to 14 % lower error than the CAMS 0.4° analysis (2022 to 2026).</span> <span class="long" id="caveat" data-i18n="k1.caveat">GHAP is itself fitted to monitors (2017–2022); the skill of each day's forecast is not known in advance.</span></p>
     </div>
-  </div>
-</section>
-
-<section class="band" id="k1">
-  <div class="wrap">
-    <a class="k1card" href="1km/">
-      <span class="k1card-text">
-        <span class="k1card-h"><span class="k1card-t" data-i18n="k1.h2">Otso 1 km</span><span class="pill pill-beta" data-i18n="hero.beta">beta</span></span>
-        <span class="k1card-sub" data-i18n="k1.sub">The same forecast, downscaled to 1 km by a generative model and drawn on a street map: zoom into your neighbourhood, five days ahead. The 1 km model covers land from 60° S to 84° N.</span>
-      </span>
-      <span class="btn btn-primary k1card-btn" data-i18n="k1.btn">Open the 1 km map</span>
-    </a>
   </div>
 </section>
 
 <section class="band band-soft" id="cities">
   <div class="wrap">
     <h2 data-i18n="cities.h2">Cities</h2>
-    <p class="sub" data-i18n="cities.sub">Sixty large cities are published with every forecast; type any other city, town or village in the box to add it to the table (it is computed here from the forecast layers, and kept on this device). Values are the ensemble mean over the 3 × 3 cells around the place; the bars show the ten leads from +12 h to +120 h. Click a row to centre the map on it; sort by any column.</p>
+    <p class="sub" data-i18n="cities.sub">Sixty large cities are published with every forecast; type any other city, town or village in the box to add it to the table (it is computed here from the forecast layers, and kept on this device). The 1 km column is the daily mean of the selected day at the city centre, read from the 1 km layer; the other columns are the ensemble mean over the 3 × 3 cells of 0.4° around the place, and the bars show the ten leads from +12 h to +120 h. Click a row to fly to it; sort by any column.</p>
     <div class="cities">
       <div class="cities-top">
         <div class="city-box" style="min-width:260px"><input type="search" id="search" placeholder="Find or add any city…" aria-label="Find or add any city" data-i18n-ph="cities.ph" data-i18n-aria="cities.ph" autocomplete="off" /><ul class="city-list" id="search-list" hidden></ul></div>
         <span class="small" id="cities-note"></span>
       </div>
       <div class="tablewrap" id="tablewrap"><table class="ct" id="ct"><thead><tr>
-        <th data-k="name" data-i18n="th.city">City</th><th data-k="d1"><span class="full" data-i18n="th.tomorrow_full">Tomorrow (+24 h)</span><span class="short" data-i18n="th.tomorrow">Tomorrow</span></th><th data-k="d3">+72 h</th><th data-k="d5">+120 h</th><th data-k="max"><span class="full" data-i18n="th.max_full">Max of the 5 days</span><span class="short" data-i18n="th.max">5-day max</span></th><th data-k="pmax" data-i18n-html="th.p">P &gt; 25 (max)</th><th><span class="full" data-i18n="th.trend_full">12 → 120 h</span><span class="short" data-i18n="th.trend">Trend</span></th>
+        <th data-k="name" data-i18n="th.city">City</th><th data-k="k1"><span class="full" data-i18n="th.k1_full">1 km · day</span><span class="short" data-i18n="th.k1">1 km</span></th><th data-k="d1"><span class="full" data-i18n="th.tomorrow_full">Tomorrow (+24 h)</span><span class="short" data-i18n="th.tomorrow">Tomorrow</span></th><th data-k="d3">+72 h</th><th data-k="d5">+120 h</th><th data-k="max"><span class="full" data-i18n="th.max_full">Max of the 5 days</span><span class="short" data-i18n="th.max">5-day max</span></th><th data-k="pmax" data-i18n-html="th.p">P &gt; 25 (max)</th><th><span class="full" data-i18n="th.trend_full">12 → 120 h</span><span class="short" data-i18n="th.trend">Trend</span></th>
       </tr></thead><tbody></tbody></table></div>
       <button type="button" class="btn btn-ghost showall" id="showall" data-i18n="cities.showall" hidden>Show all cities</button>
     </div>
@@ -477,7 +513,15 @@
 <section class="band" id="scores" lang="en">
   <div class="wrap">
     <h2>How good is it?</h2>
-    <h3 style="margin-top:6px">Otso 1.2: fine-tuned on 2026</h3>
+    <h3 style="margin-top:6px">The 1 km forecast at the monitors</h3>
+    <p class="sub">The 1 km model is trained on GHAP V1 (2017–2021) and checked against air-quality monitors that were never used for anything: neither for training, nor for choosing the model, nor for any adjustment. For 2022 the 1 km fields are drawn from the archived 0.4° forecast; 2023 to 2026 are hindcasts of the live chain on the archived inputs. Root-mean-square error of the daily mean at the monitor's own square kilometre, against the monitor's day, compared with the CAMS 0.4° analysis interpolated to the monitor and with a climatology.</p>
+    <div class="tablewrap"><table class="ct scores" id="k1-table"><thead><tr><th>Year</th><th>Monitors</th><th>Otso 1 km vs CAMS 0.4°</th><th>Otso 1 km vs climatology</th><th>CAMS 0.4° vs climatology</th></tr></thead>
+      <tbody><tr><td>2022</td><td>1,495</td><td><b>−8 %</b></td><td>−24 %</td><td>−17 %</td></tr><tr><td>2023</td><td>805</td><td><b>−11 %</b></td><td>−24 %</td><td>−14 %</td></tr><tr><td>2024</td><td>757</td><td><b>−12 %</b></td><td>−25 %</td><td>−15 %</td></tr><tr><td>2025</td><td>759</td><td><b>−11 %</b></td><td>−25 %</td><td>−16 %</td></tr><tr><td>2026 (Jan–Oct)</td><td>716</td><td><b>−14 %</b></td><td>−31 %</td><td>−20 %</td></tr></tbody></table></div>
+    <ul class="scores-notes">
+      <li><strong>The 1 km forecast is closer to the monitors than the 40 km analysis it starts from</strong>, by 8 to 14 % every year, and the probabilistic score (CRPS) follows. The monitors are in China (CNEMC), Europe, North America and elsewhere (OpenAQ); 2022 also includes AirKorea, Japan and India.</li>
+      <li><strong>Read with care.</strong> GHAP, the record the 1 km model learnt from, is itself fitted to about 9,500 monitors of 2017–2022, so a monitor-pixel comparison is favourable to any model trained on it; the gain is smaller one pixel away. The forecast skill of a given day is not known in advance, and the live 1 km chain has no verification yet (the 0.4° chain has one, below).</li>
+    </ul>
+    <h3 style="margin-top:26px">Otso 1.2 (0.4°): fine-tuned on 2026</h3>
     <p class="sub">Otso 1.2 keeps the network of the paper and learns, for six passes, from the live inputs of January to August 2026 (243 days). Scored on 6–20 September, after its training period (no day in common with its training targets), against the CAMS analysis. RMSE of the ensemble mean over land, µg m⁻³.</p>
     <div class="tablewrap"><table class="ct scores" id="v12-table"><thead><tr><th>Lead</th><th>Otso 1.2</th><th>Otso 1.1</th><th>CAMS forecast</th><th>persistence</th></tr></thead><tbody><tr><td>+12 h</td><td><b>11.1</b></td><td>13.5</td><td>–</td><td>18.9</td></tr><tr><td>+24 h</td><td><b>10.3</b></td><td>13.5</td><td>8.8</td><td>15.8</td></tr><tr><td>+48 h</td><td><b>11.4</b></td><td>14.5</td><td>–</td><td>18.2</td></tr><tr><td>+72 h</td><td><b>12.3</b></td><td>15.2</td><td>–</td><td>19.1</td></tr><tr><td>+96 h</td><td><b>12.8</b></td><td>15.7</td><td>–</td><td>19.1</td></tr><tr><td>+120 h</td><td><b>13.4</b></td><td>15.8</td><td>14.7</td><td>19.1</td></tr></tbody></table></div>
     <ul class="scores-notes">
@@ -486,18 +530,16 @@
       <li>One reason: the CAMS system of 2026 differs from the 2017–2022 analyses the paper's model learnt from; seeing eight months of it was enough. All numbers: <a href="scores_otso12.json">scores_otso12.json</a>.</li>
     </ul>
     <h3 style="margin-top:22px">Otso 1.1: the paper's weights on live inputs</h3>
-
     <p class="sub">Before publishing, Otso 1.1 was run on the live inputs of 1–20 September 2026 (20 start days) and scored against the CAMS analysis of each valid time,
       with and without the satellite fires, next to the CAMS operational forecast and persistence (the analysis of the morning kept unchanged). RMSE of the ensemble mean, µg m⁻³, cosine-latitude weighted.</p>
     <div class="tablewrap"><table class="ct scores" id="scores-table"><thead><tr><th>Lead</th><th>Otso 1.1 · land</th><th>without fires</th><th>CAMS forecast</th><th>persistence</th><th>Otso 1.1 · all cells</th><th>CAMS forecast</th><th>persistence</th></tr></thead>
       <tbody><tr><td>+12 h</td><td><b>14.4</b></td><td>18.1</td><td>–</td><td>20.1</td><td>8.5</td><td>–</td><td>11.4</td></tr><tr><td>+24 h</td><td><b>14.5</b></td><td>15.2</td><td>9.2</td><td>17.2</td><td>8.7</td><td>5.4</td><td>10.1</td></tr><tr><td>+48 h</td><td><b>15.6</b></td><td>16.4</td><td>–</td><td>19.9</td><td>9.4</td><td>–</td><td>11.8</td></tr><tr><td>+72 h</td><td><b>16.3</b></td><td>17.0</td><td>–</td><td>20.7</td><td>9.8</td><td>–</td><td>12.3</td></tr><tr><td>+96 h</td><td><b>16.2</b></td><td>16.8</td><td>–</td><td>20.3</td><td>9.8</td><td>–</td><td>12.1</td></tr><tr><td>+120 h</td><td><b>16.1</b></td><td>16.6</td><td>15.0</td><td>20.2</td><td>9.6</td><td>8.9</td><td>12.0</td></tr></tbody></table></div>
-    <h3 style="margin-top:26px">Live verification, updated every day</h3>
+    <h3 style="margin-top:26px">Live verification of the 0.4° chain, updated every day</h3>
     <p class="sub">Every morning the forecasts of the last five days are scored against the CAMS analyses that have arrived since (nothing is hidden: every day counts). Last 30 days, RMSE of the ensemble mean over land, and the mean absolute error in the 60 published cities. <span id="live-note"></span></p>
     <div class="tablewrap"><table class="ct scores" id="live-table"><thead><tr><th>Lead</th><th>days</th><th>Otso · land</th><th>CAMS forecast</th><th>persistence</th><th>cities · Otso</th><th>cities · CAMS</th></tr></thead><tbody><tr><td colspan="7" class="small">Loading…</td></tr></tbody></table></div>
     <ul class="scores-notes">
       <li><strong>The fires matter.</strong> With the GFAS fires (injection height <code>injh</code>, the variable that replaces the <code>mami</code> of the training), the error over land is 20 % lower at 12 h and 3–15 % lower afterwards, and the bias over fire cells is +1 instead of −3 µg m⁻³.</li>
-      <li><strong>Skilful, but weaker than in the paper's 2022 test.</strong> Otso beats persistence by 25 % at 12 h and 20 % at 120 h; in 2022 it beat it by 45 % and 34 %, and overtook the CAMS forecast from 48 h on. Here the CAMS forecast stays ahead (9.2 vs 14.5 over land at 24 h, 15.0 vs 16.1 at 120 h). September 2026 is also a harder period: the persistence error is 25–55 % larger than in 2022.</li>
-      <li><strong>Why.</strong> The inputs of the live chain were checked channel by channel against the archive (winds, temperatures, humidity, pressure, rain, 13 CAMS species): all in range. What changed is the CAMS system itself, whose 2026 analyses are more variable (and richer in CO, NO₂, SO₂) than the 2017–2022 analyses Otso was trained on, and the fire product (v1.4.2 detects about twice as many burning cells). The obvious next step, Otso 1.2, is a fine-tuning on the 2025–2026 analyses.</li>
+      <li><strong>Skilful, but weaker than in the paper's 2022 test.</strong> Otso 1.1 beat persistence by 25 % at 12 h and 20 % at 120 h; in 2022 it beat it by 45 % and 34 %, and overtook the CAMS forecast from 48 h on. The inputs of the live chain were checked channel by channel against the archive (winds, temperatures, humidity, pressure, rain, 13 CAMS species): all in range. What changed is the CAMS system itself, whose 2026 analyses are more variable (and richer in CO, NO₂, SO₂) than the 2017–2022 analyses Otso was trained on, and the fire product (v1.4.2 detects about twice as many burning cells); hence Otso 1.2.</li>
       <li>All numbers: <a href="scores.json">scores.json</a> (with the 2022 figures of the paper for comparison).</li>
     </ul>
   </div>
@@ -505,41 +547,46 @@
 
 <section class="band band-soft" id="about" lang="en">
   <div class="wrap">
-    <h2>What Otso 1.2 is, and is not</h2>
+    <h2>What Otso is, and is not</h2>
     <div class="twocol">
       <div>
         <h3>What it is</h3>
         <ul>
-          <li><strong>The coarse Foehn model of the paper, brought up to date.</strong> Otso 1.2 is Foehn-CAMS, the 0.4° version trained on the CAMS analyses of 2017–2022 in the protocol of Microsoft's Aurora, fine-tuned on the live inputs of January–August 2026, because the CAMS system of 2026 differs from the one it learnt from. Otso 1.1, the paper's weights unchanged, ran on 10 October 2026; that forecast has since been recomputed with Otso 1.2.</li>
+          <li><strong>The coarse Foehn model of the paper, brought up to date, and drawn at 1 km.</strong> Otso 1.2 is Foehn-CAMS, the 0.4° version trained on the CAMS analyses of 2017–2022 in the protocol of Microsoft's Aurora, fine-tuned on the live inputs of January–August 2026 because the CAMS system of 2026 differs from the one it learnt from. A second model, a pointwise flow-matching downscaler trained on GHAP V1 (a 1 km satellite–station PM<sub>2.5</sub> record), draws the 1 km fields for each of the 8 members, conditioned on the weather forecast and on the transport computed by FLEXGREEN.</li>
           <li><strong>Live inputs, every morning.</strong> The 00 UTC CAMS analysis (13 species and columns), the 00 UTC ECMWF IFS forecast from the open-data service (winds, temperature, humidity, pressure, rain, to +192 h), and the fires of the previous day from GFAS. FLEXGREEN recomputes, for every land cell and every lead, where its air was.</li>
-          <li><strong>A probabilistic forecast.</strong> Eight members per day. The map shows their mean, their 90<sup>th</sup> percentile and the share of members above 25 µg m⁻³; the city table and the NetCDF file also give the 10 % and 90 % quantiles.</li>
-          <li><strong>Reproducible.</strong> Each day's inputs, their sources and the exact variables used are logged with the forecast (see the <code>inputs</code> field of <code>index.json</code>). The real-time chain is on the <code>main</code> branch of the <a href="https://github.com/AmmarKheder/Otso">Otso repository</a>, the model code in the <a href="https://github.com/AmmarKheder/Foehn">Foehn repository</a>, folder <code>experiments/global1km/realtime</code>.</li>
+          <li><strong>A probabilistic forecast.</strong> Eight members per day. At 1 km the map shows their daily mean and the number of members above 15 µg m⁻³ (the WHO 24-hour guideline); at 0.4°, every 12 hours, their mean, their 90<sup>th</sup> percentile and the share above 25 µg m⁻³; the city table and the NetCDF file also give the 10 % and 90 % quantiles.</li>
+          <li><strong>Where there is no 1 km value.</strong> The 1 km model covers the land where GHAP is valid, from 60° S to 84° N. Over Greenland and the other permanent ice, where GHAP is not reliable, the map shows Otso's own 0.4° forecast as it is; a few small land areas outside the model's 1 km mask are interpolated from the 1 km values around them or, with none within 50 km, show the 0.4° forecast. All are drawn with a light hatching, and the value box says which source you are looking at.</li>
+          <li><strong>Reproducible.</strong> Each day's inputs, their sources and the exact variables used are logged with the forecast (see the <code>inputs</code> field of <code>index.json</code>). The real-time chain is on the <code>main</code> branch of the <a href="https://github.com/AmmarKheder/Otso">Otso repository</a>, the model code in the <a href="https://github.com/AmmarKheder/Foehn">Foehn repository</a>.</li>
         </ul>
       </div>
       <div>
         <h3>What it is not, yet</h3>
         <ul>
-          <li><strong>Not the 1 km Foehn.</strong> The paper's kilometre-scale forecasts need the 1 km record that exists only for the past; Otso works at 0.4°, about 40 km.</li>
-          <li><strong>Weaker than in the paper's 2022 test, for now.</strong> The live chain differs from the paper in two ways we know of: the fire injection height comes from the GFAS variable <code>injh</code>, because the variable the model was trained with (<code>mami</code>) is no longer produced since GFAS v1.4.2 (January 2026); and the weather comes from the open-data IFS at 0.25° instead of the archived HRES. The <a href="#scores">scores on 1–20 September 2026</a> show a skilful forecast that nevertheless no longer beats the CAMS forecast; a fine-tuning on the 2025–2026 analyses is the next step.</li>
-          <li><strong>Not an operational service.</strong> It runs on a shared supercomputer (LUMI) when a GPU is free; a day can be late or missing. The last seven days are kept.</li>
-          <li><strong>Not an alert.</strong> See the notice at the top. Otso is named after the bear of Finnish folklore. Versions: 1.1, the paper's weights on live inputs; 1.2, fine-tuned on January–August 2026. A thing of the forest, best observed from a distance.</li>
+          <li><strong>Not a street-by-street measurement.</strong> One value per square kilometre, from a model: streets, tunnels and chimneys are not resolved. The street map is there to find your way, and the 1 km value is a neighbourhood value.</li>
+          <li><strong>Not the 1 km Foehn of the paper.</strong> The paper's kilometre-scale forecasts need a 1 km analysis that exists only for the past; the live 1 km fields come from a downscaler of the 0.4° forecast, trained on GHAP. GHAP is itself fitted to monitors (2017–2022), which the station scores above inherit.</li>
+          <li><strong>Not validated in real time at 1 km.</strong> The station scores come from 2022 to 2026 hindcasts; the daily 1 km forecast has no live verification yet. The 0.4° chain is verified every morning against the CAMS analyses (<a href="#scores">scores</a>).</li>
+          <li><strong>Not an operational service.</strong> It runs on a shared supercomputer (LUMI) when a GPU is free; a day can be late or missing. The last seven days of the 0.4° forecast are kept, the latest day of the 1 km tiles.</li>
+          <li><strong>Not an alert.</strong> See the notice at the top. Otso is named after the bear of Finnish folklore. Versions: 1.1, the paper's weights on live inputs (10 October 2026); 1.2, fine-tuned on January–August 2026; the 1 km layer since 4 November 2026. A thing of the forest, best observed from a distance.</li>
         </ul>
       </div>
     </div>
+    <p class="small" style="margin-top:14px">The previous page, with the 0.4° forecast drawn on a plain world map without a street basemap, is kept as the <a href="classic/">classic map</a>; it also works in browsers without WebGL.</p>
   </div>
 </section>
 
 <section class="band" id="data" lang="en">
   <div class="wrap">
     <h2>Data</h2>
-    <p class="sub">Everything the page shows is in the <code>live</code> branch of the repository, rewritten every day with the last seven forecasts.</p>
+    <p class="sub">Everything the page shows is in two branches of the repository: <code>live</code> (0.4°, the last seven forecasts) and <code>live1km</code> (the 1 km tiles of the latest day), both rewritten every day.</p>
     <table class="links">
       <tr><td>NetCDF of the day</td><td><a id="dl-nc" href="#">otso_&lt;date&gt;.nc</a> — mean, 10/50/90 % quantiles and P(&gt;25) of PM<sub>2.5</sub>, 0.4°, ten leads, 0.1 µg m⁻³ precision</td></tr>
-      <tr><td>Cities</td><td><a id="dl-cities" href="#">cities.json</a> — the table above</td></tr>
+      <tr><td>Cities</td><td><a id="dl-cities" href="#">cities.json</a> — the table above (0.4°)</td></tr>
       <tr><td>Inputs and provenance</td><td><a id="dl-index" href="#">index.json</a> — sources, versions, the fire-injection variable, land mean by lead</td></tr>
       <tr><td>Maps</td><td><a id="dl-map" href="#">map_&lt;lead&gt;.png</a> — the rendered map of each lead; the <code>mean_</code>, <code>p90_</code> and <code>prob_</code> PNGs are 8-bit data layers (see <code>png</code> in index.json)</td></tr>
-      <tr><td>Branch</td><td><a href="https://github.com/AmmarKheder/Otso/tree/live">github.com/AmmarKheder/Otso/tree/live</a> — <code>latest.json</code> lists the available days</td></tr>
-      <tr><td>Sources</td><td>Contains modified Copernicus Atmosphere Monitoring Service information 2026 (CAMS analysis, GFAS). ECMWF open data, CC BY 4.0. Neither the European Commission nor ECMWF is responsible for any use of this forecast.</td></tr>
+      <tr><td>1 km tiles</td><td><a id="dl-k1" href="https://github.com/AmmarKheder/Otso/tree/live1km">tiles.json</a> — the encoding (the palette index of each pixel is the value, the class and the source), the existing tiles, the domain; the tiles are <code>&lt;day&gt;/&lt;product&gt;/&lt;lead&gt;/&lt;z&gt;/&lt;x&gt;/&lt;y&gt;.png</code> (Web Mercator, 256 px, zoom 0–7); <a id="dl-k1latest" href="https://raw.githubusercontent.com/AmmarKheder/Otso/live1km/latest.json">latest.json</a> names the day</td></tr>
+      <tr><td>Branches</td><td><a href="https://github.com/AmmarKheder/Otso/tree/live">github.com/AmmarKheder/Otso/tree/live</a> (<code>latest.json</code> lists the available days) · <a href="https://github.com/AmmarKheder/Otso/tree/live1km">tree/live1km</a></td></tr>
+      <tr><td>Basemap</td><td><a href="https://openfreemap.org">OpenFreeMap</a>, © <a href="https://www.openmaptiles.org/">OpenMapTiles</a>, data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>. Land and lakes of the 1 km tiles: Natural Earth. Place and street search: GeoNames (CC BY 4.0) and OpenStreetMap through Photon (komoot).</td></tr>
+      <tr><td>Sources</td><td>Contains modified Copernicus Atmosphere Monitoring Service information 2026 (CAMS analysis, GFAS). ECMWF open data, CC BY 4.0. GHAP V1 (Wei et al. 2023). Neither the European Commission nor ECMWF is responsible for any use of this forecast.</td></tr>
       <tr><td>Citing</td><td>Please cite the Foehn paper (see the <a href="https://ammarkheder.com/Foehn/#cite">main page</a>) and name the day's forecast by its issue date.</td></tr>
     </table>
   </div>
@@ -548,36 +595,41 @@
 </main>
 <div class="toast" id="toast" hidden><span data-i18n="toast.updated">Otso was updated.</span><button type="button" id="toast-reload" data-i18n="toast.reload">Reload</button></div>
 <nav class="tabbar" id="tabbar" hidden aria-label="App navigation">
-  <a href="#city" id="tab-locate"><span>📍</span><b data-i18n="tab.locate">Locate</b></a><a href="#city" data-sec="city"><span>🏙️</span><b data-i18n="tab.city">City</b></a><a href="#map" data-sec="map"><span>🗺️</span><b data-i18n="tab.map">Map</b></a><a href="#cities" data-sec="cities"><span>📋</span><b data-i18n="tab.cities">Cities</b></a><a href="1km/"><span>🛣️</span><b data-i18n="tab.k1">1 km</b></a><a href="?full=1#about"><span>ℹ️</span><b data-i18n="tab.about">About</b></a>
+  <a href="#city" id="tab-locate"><span>📍</span><b data-i18n="tab.locate">Locate</b></a><a href="#city" data-sec="city"><span>🏙️</span><b data-i18n="tab.city">City</b></a><a href="#map" data-sec="map"><span>🗺️</span><b data-i18n="tab.map">Map</b></a><a href="#cities" data-sec="cities"><span>📋</span><b data-i18n="tab.cities">Cities</b></a><a href="?full=1#about"><span>ℹ️</span><b data-i18n="tab.about">About</b></a>
 </nav>
 <footer><div class="wrap">
   <div class="foot">
     <div class="foot-text">
       <div class="credit-by"><span data-i18n="foot.dev">Developed by</span> <a href="https://ammarkheder.com/">Ammar Kheder</a></div>
       <div class="credit-org"><a href="https://www.amc-lahti.fi/">Atmospheric Modelling Centre Lahti</a> (AMC-Lahti) · University of Helsinki · LUT University</div>
-      <div class="credit-links"><a href="https://ammarkheder.com/Foehn/" data-i18n="foot.paper">The Foehn paper</a> · <a href="https://github.com/AmmarKheder/Otso" data-i18n="foot.code">Code and data</a> · <a href="https://github.com/AmmarKheder/Otso/issues" data-i18n="foot.report">Report a problem</a> · <span class="i18n-note" data-i18n="i18n.note"></span></div>
+      <div class="credit-links"><a href="https://ammarkheder.com/Foehn/" data-i18n="foot.paper">The Foehn paper</a> · <a href="https://github.com/AmmarKheder/Otso" data-i18n="foot.code">Code and data</a> · <a href="https://github.com/AmmarKheder/Otso/issues" data-i18n="foot.report">Report a problem</a> · <a href="classic/" data-i18n="k1.classic">Classic 0.4° map</a> · <span class="i18n-note" data-i18n="i18n.note"></span></div>
     </div>
   </div>
   <label class="lang-foot-wrap"><span aria-hidden="true">🌐</span><span data-i18n="lang.aria">Language</span><select id="lang-foot" aria-label="Language"></select></label>
-  <p class="fine">Otso runs every morning on <strong>LUMI</strong>, the EuroHPC supercomputer hosted by <strong>CSC</strong> in Kajaani, Finland. Otso 1.2 · Foehn project · Institute for Atmospheric and Earth System Research (INAR), University of Helsinki · LUT University · AMC-Lahti. Research forecast, not an official alert. Contains modified Copernicus Atmosphere Monitoring Service information 2026; ECMWF open data (CC BY 4.0); city list © GeoNames (CC BY 4.0) and © OpenStreetMap contributors. © 2026 Ammar Kheder.</p>
+  <p class="fine">Otso runs every morning on <strong>LUMI</strong>, the EuroHPC supercomputer hosted by <strong>CSC</strong> in Kajaani, Finland. Otso 1.2 and its 1 km layer · Foehn project · Institute for Atmospheric and Earth System Research (INAR), University of Helsinki · LUT University · AMC-Lahti. Research forecast, not an official alert. Contains modified Copernicus Atmosphere Monitoring Service information 2026; ECMWF open data (CC BY 4.0); GHAP V1 (Wei et al.); basemap © OpenMapTiles, data © OpenStreetMap contributors; city list © GeoNames (CC BY 4.0). © 2026 Ammar Kheder.</p>
 </div></footer>
-
+<script src="vendor/maplibre-gl.js"></script>
 <script>
 (() => {
-  const BASE = "https://raw.githubusercontent.com/AmmarKheder/Otso/live/";
+  const P = new URLSearchParams(location.search);
+  const OWN = "https://raw.githubusercontent.com/AmmarKheder/Otso/";
+  const BASE = OWN + "live/";                                                                // Otso 0.4°: the last seven forecasts
+  const BASE1 = (P.get("data") || "").startsWith(OWN) && P.get("data").endsWith("/") ? P.get("data") : OWN + "live1km/";   // Otso 1 km: the latest day (?data= may only name another branch of the repository)
   const NLAT = 361, NLON = 900, LAT0 = 84, DLAT = 0.4, LON0 = -180, DLON = 0.4;
   const PM_COLORS = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"];
   const PM_BOUNDS = [0, 5, 10, 15, 25, 37.5, 50, 75, 100, 150, 250];
+  const $ = (id) => document.getElementById(id);
+  const ls = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} }, del: (k) => { try { localStorage.removeItem(k); } catch (e) {} } };
   // ---- languages: one dictionary per language (i18n/<code>.json), English as the fallback; RTL for Arabic, Persian, Urdu
   const RTL = new Set(["ar", "fa", "ur"]), LANG_CODES = [...document.querySelectorAll("#lang option[value]")].map((o) => o.value);
   let DICT = {}, EN = {}, LANG = "en";
-  const tr = (k, v) => { let x = DICT[k] ?? EN[k] ?? k; if (v) for (const [a, b] of Object.entries(v)) x = x.split("{" + a + "}").join(b); return x; };
+  const tr = (k, v) => { let x = DICT[k] ?? EN[k] ?? k; if (v) for (const [a, b] of Object.entries(v)) x = String(x).split("{" + a + "}").join(b); return x; };
   const LOC = () => (LANG === "en" ? "en-GB" : LANG === "zh" ? "zh-CN" : LANG);
   const PM_KEYS = ["very_clean", "clean", "good", "fair", "moderate", "moderate", "poor", "poor", "very_poor", "extremely_poor", "extremely_poor"];
   const clsName = (c) => tr("cls." + PM_KEYS[c]);
   function detectLang() {
-    const q = new URLSearchParams(location.search).get("lang"); if (q && LANG_CODES.includes(q)) return q;
-    try { const s0 = localStorage.getItem("otso-lang"); if (s0 && LANG_CODES.includes(s0)) return s0; } catch (e) {}
+    const q = P.get("lang"); if (q && LANG_CODES.includes(q)) return q;
+    const s0 = ls.get("otso-lang"); if (s0 && LANG_CODES.includes(s0)) return s0;
     for (const l of navigator.languages || [navigator.language || "en"]) { const b = String(l).toLowerCase().split("-")[0]; if (LANG_CODES.includes(b)) return b; }
     return "en";
   }
@@ -588,29 +640,34 @@
     for (const el of document.querySelectorAll("[data-i18n-aria]")) el.setAttribute("aria-label", tr(el.dataset.i18nAria));
     for (const el of document.querySelectorAll("[data-i18n-title]")) el.title = tr(el.dataset.i18nTitle);
     document.querySelector(".i18n-note").hidden = LANG === "en";
+    const t = tr("page.title"); if (t !== "page.title") document.title = t;
   }
   async function setLang(code, save) {
     LANG = LANG_CODES.includes(code) ? code : "en";
     try { if (!Object.keys(EN).length) EN = await (await fetch("i18n/en.json")).json(); } catch (e) {}
     try { DICT = LANG === "en" ? {} : await (await fetch("i18n/" + LANG + ".json")).json(); } catch (e) { DICT = {}; }
-    document.documentElement.lang = LANG; document.documentElement.dir = RTL.has(LANG) ? "rtl" : "ltr"; document.getElementById("lang").value = LANG; document.getElementById("lang-code").textContent = LANG.toUpperCase(); const ln = document.querySelector(`#lang option[value="${LANG}"]`); document.getElementById("lang-name").textContent = ln ? ln.textContent : "English";
-    const lf = document.getElementById("lang-foot"); if (lf) lf.value = LANG;
-    if (save) { try { localStorage.setItem("otso-lang", LANG); } catch (e) {} }
+    document.documentElement.lang = LANG; document.documentElement.dir = RTL.has(LANG) ? "rtl" : "ltr"; $("lang").value = LANG; $("lang-code").textContent = LANG.toUpperCase(); const ln = document.querySelector(`#lang option[value="${LANG}"]`); $("lang-name").textContent = ln ? ln.textContent : "English";
+    const lf = $("lang-foot"); if (lf) lf.value = LANG;
+    if (save) ls.set("otso-lang", LANG);
     applyI18n(); rerender();
   }
   function rerender() {                                                                     // everything written by the script, in the new language
     try { renderStatus(); } catch (e) {}
     try { renderUsage(); } catch (e) {}
-    try { const tl = document.getElementById("timeline"); if (tl) tl.dataset.day = ""; if (cur) { drawCbar(); show(); } } catch (e) {}
+    try { $("timeline").dataset.day = ""; timeControls(); legend(); helpLine(); } catch (e) {}
     try { if (state.place) renderPlace(state.place); } catch (e) {}
     try { if (state.cities) table(); } catch (e) {}
-    try { const dsel = document.getElementById("day"); if (state.days && state.days.length) dsel.innerHTML = state.days.map((d) => `<option value="${d}">${d === state.latestDay ? tr("day.latest") + ": " : ""}${d}</option>`).join(""), dsel.value = state.day; } catch (e) {}
+    try { daySelect(); } catch (e) {}
+    try { if (state.popupAt) readout(state.popupAt.lng, state.popupAt.lat); } catch (e) {}
   }
   const PROB_COLORS = ["#FFFFFF", "#F1F6FB", "#DCE9F5", "#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B"];
   const REGIONS = { world: [-180, 180, -60, 84], europe: [-12, 42, 34, 66], sasia: [60, 98, 5, 38], easia: [95, 145, 18, 50], seasia: [92, 130, -12, 24],
     mideast: [25, 65, 12, 42], africa: [-20, 52, -36, 38], namerica: [-130, -60, 15, 60], samerica: [-85, -33, -56, 13], oceania: [112, 155, -45, -10] };
-  const cv = document.getElementById("map-canvas"), ctx = cv.getContext("2d"), tip = document.getElementById("tip");
-  const state = { place: null, field: "mean", lead: 1, day: null, days: [], idx: null, layers: {}, lines: null, view: REGIONS.world.slice(), pick: null, cities: null, timer: null, sort: "d1", desc: true };
+  const state = { place: null, layer: "k1", f04: "mean", kday: 1, lead: 0, day: null, days: [], idx: null, layers: {}, pick: null, cities: null, timer: null, ktimer: null, sort: "d1", desc: true,
+    opacity: Math.min(1, Math.max(0.2, +(ls.get("otso-op") || 0.72))), basemap: ls.get("otso-basemap") || "", k1: null, k1latest: null, k1pending: false, map: null, styleReady: false, popup: null, popupAt: null, marker: null,
+    dec: new Map(), bits: {}, userLayer: false, gl: true, k1city: {} };
+  if (P.get("debug")) window.__otso = state;
+  // ---- colours and the 8-bit encoding of the 0.4° layers
   const rgb = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
   const PMC = PM_COLORS.map(rgb), PRC = PROB_COLORS.map(rgb);
   const ENC = { pmOff: 1, pmSteps: 254, probOff: 0 };                                    // encoding v1; v2 (offset 8 / 247 / 10) is read from index.json
@@ -619,9 +676,8 @@
   function setEnc(ix) { const g = (ix && ix.png) || {}; ENC.pmOff = g.pm_offset || 1; ENC.pmSteps = g.pm_steps || 254; ENC.probOff = g.prob_offset || 0; }
   const pmClass = (x) => { let c = 0; for (let i = 0; i < PM_BOUNDS.length; i++) if (x >= PM_BOUNDS[i]) c = i; return c; };
   const pmHex = (x) => PM_COLORS[pmClass(x)];
-  const fmt = (x) => x >= 100 ? x.toFixed(0) : x >= 10 ? x.toFixed(0) : x.toFixed(1);
-  const LUT = {}; (() => {                                                                 // value byte -> colour, for both kinds
-  })();
+  const fmt = (x) => { const d = x >= 10 ? 0 : 1; return (+x).toLocaleString(LOC(), { minimumFractionDigits: d, maximumFractionDigits: d }); };   // 7.4 / 7,4 / 12
+  const LUT = {};
   const PM_ANCH = (() => { const b = PM_BOUNDS.concat([400]); return PMC.map((c, i) => [(Math.log10(Math.max(b[i], 1)) + Math.log10(b[i + 1])) / 2, c]); })();
   function ramp(anch, l) {                                                               // continuous colour between the class anchors
     if (l <= anch[0][0]) return anch[0][1]; const n = anch.length; if (l >= anch[n - 1][0]) return anch[n - 1][1];
@@ -640,9 +696,18 @@
   const fmtTime = (t) => t.toLocaleString(LOC(), { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) + (TZ === "UTC" ? " UTC" : "");
   const sameDay = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
   function dayWord(t) { const now = new Date(), tm = new Date(now); tm.setDate(now.getDate() + 1); return sameDay(t, now) ? tr("w.today") : sameDay(t, tm) ? tr("w.tomorrow") : t.toLocaleString(LOC(), { weekday: "short", day: "numeric" }); }
-  function setStatus(msg, ok) { const s = document.getElementById("status"); s.innerHTML = msg; if (ok) document.getElementById("pill-live").hidden = false; }
+  const dayLabel = (t) => dayWord(t), hourLabel = (t) => t.toLocaleString(LOC(), { hour: "2-digit", minute: "2-digit" });
+  const dfmt = (iso, o) => new Date(iso + "T12:00:00Z").toLocaleDateString(LOC(), Object.assign({ timeZone: "UTC" }, o));
+  const todayIso = () => new Date().toISOString().slice(0, 10);
+  function relDay(iso) {                                                                  // today / tomorrow / D+n, else the weekday (a stale forecast)
+    const n = Math.round((Date.parse(iso + "T00:00:00Z") - Date.parse(todayIso() + "T00:00:00Z")) / 864e5);
+    return n === 0 ? tr("w.today") : n === 1 ? tr("w.tomorrow") : n > 1 ? tr("k1.dplus", { n }) : dfmt(iso, { weekday: "short", day: "numeric" });
+  }
+  function setStatus(msg, ok) { const s = $("status"); s.innerHTML = msg; if (ok) $("pill-live").hidden = false; }
+  const esc = (t) => String(t).replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+  const coord = (lat, lon) => Math.abs(lat).toFixed(2) + "°" + (lat >= 0 ? "N" : "S") + ", " + Math.abs(lon).toFixed(2) + "°" + (lon >= 0 ? "E" : "W");
 
-  // ---- data loading: one 8-bit PNG per field and lead, decoded through a canvas
+  // ---- 0.4° data: one 8-bit PNG per field and lead, decoded through a canvas
   function loadLayer(day, field, lead) {
     const key = day + "/" + field + "/" + lead; if (state.layers[key]) return state.layers[key];
     const fn = state.idx[day].files[field][lead];
@@ -659,129 +724,287 @@
     if (!state.idx[day]) state.idx[day] = await (await fetch(BASE + day + "/index.json", { cache: "no-cache" })).json();
     setEnc(state.idx[day]); buildLut(); return state.idx[day];
   }
-  // ---- drawing
-  let W = 1200, H = 480, img = null, cur = null;
-  function size() {
-    const b = cv.getBoundingClientRect(); const dpr = Math.min(2, window.devicePixelRatio || 1);
-    const [l0, l1, a0, a1] = state.view; const asp = ((l1 - l0) / (a1 - a0)) * Math.cos(((a0 + a1) / 2) * Math.PI / 180) ; // mild Mercator-ish feel
-    W = Math.round(b.width * dpr); H = Math.round(Math.max(0.28, Math.min(0.75, 1 / Math.max(asp, 1.2))) * W);
-    cv.width = W; cv.height = H; cv.style.height = (H / dpr) + "px"; img = ctx.createImageData(W, H); draw();
+  let cur = null;                                                                          // the 0.4° layer shown (field, lead of the issue day)
+
+  // ---- 1 km data (tiles.json): palette index -> value, class, source; the PNG tiles are read here, pixel by pixel
+  const hexrgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  function decodeMean(i) {
+    const e = state.k1.encoding, n = e.n, base = e.base, B = e.bounds.concat([e.top]);
+    if (!i) return null;
+    let s = 0; for (let q = 0; q < base.length; q++) if (i >= base[q]) s = q;
+    const off = i - base[s], c = Math.floor(off / n[s]), sub = off % n[s];
+    const a = B[c], b = B[c + 1];
+    let lo, hi; if (c === 0) { lo = a + (b - a) * sub / n[s]; hi = a + (b - a) * (sub + 1) / n[s]; } else { lo = a * Math.pow(b / a, sub / n[s]); hi = a * Math.pow(b / a, (sub + 1) / n[s]); }
+    return { v: c === 0 ? (lo + hi) / 2 : Math.sqrt(lo * hi), c, src: s };
   }
-  let LABELS = null, fullTimer = null;
-  function draw(fast) {
-    if (!cur) return;
-    const [l0, l1, a0, a1] = state.view, lut = state.field === "prob" ? LUT.prob : LUT.pm, isOcean = state.field === "prob" ? isOceanProb : isOceanPm;
-    const d = img.data; const kx = (l1 - l0) / W, ky = (a1 - a0) / H; const dark = isDark(); const SEA = dark ? [27, 38, 52] : [255, 255, 255], OUT = dark ? [15, 23, 32] : [246, 248, 250];
-    const J0 = new Int32Array(W), J1 = new Int32Array(W), TX = new Float32Array(W);              // columns: grid nodes on both sides
-    for (let x = 0; x < W; x++) { let lon = l0 + (x + 0.5) * kx; lon = ((lon + 180) % 360 + 360) % 360; const fx = lon / DLON; const j = Math.floor(fx); J0[x] = j % NLON; J1[x] = (j + 1) % NLON; TX[x] = fx - j; }
-    for (let y = 0; y < H; y++) {
-      const fy = (LAT0 - (a1 - (y + 0.5) * ky)) / DLAT;
-      if (fy < -0.5 || fy > NLAT - 0.5) { for (let x = 0; x < W; x++) { const o = 4 * (y * W + x); d[o] = OUT[0]; d[o + 1] = OUT[1]; d[o + 2] = OUT[2]; d[o + 3] = 255; } continue; }
-      const i0 = Math.max(0, Math.min(NLAT - 2, Math.floor(fy))), ty = Math.max(0, Math.min(1, fy - i0)), b0 = i0 * NLON, b1 = b0 + NLON, bn = ty < 0.5 ? b0 : b1;
-      for (let x = 0; x < W; x++) {
-        const o = 4 * (y * W + x), j0 = J0[x], j1 = J1[x], tx = TX[x];
-        let v;
-        if (fast) {                                                                        // while dragging: the nearest node
-          v = cur[bn + (tx < 0.5 ? j0 : j1)];
-          if (isOcean(v)) { d[o] = SEA[0]; d[o + 1] = SEA[1]; d[o + 2] = SEA[2]; d[o + 3] = 255; continue; }
-        } else {                                                                           // bilinear: land where the land fraction is >= 1/2 (a smooth coast), log PM2.5 averaged over the land nodes
-          const v00 = cur[b0 + j0], v01 = cur[b0 + j1], v10 = cur[b1 + j0], v11 = cur[b1 + j1];
-          const w00 = isOcean(v00) ? 0 : (1 - tx) * (1 - ty), w01 = isOcean(v01) ? 0 : tx * (1 - ty), w10 = isOcean(v10) ? 0 : (1 - tx) * ty, w11 = isOcean(v11) ? 0 : tx * ty;
-          const ws = w00 + w01 + w10 + w11;
-          if (ws < 0.5) { d[o] = SEA[0]; d[o + 1] = SEA[1]; d[o + 2] = SEA[2]; d[o + 3] = 255; continue; }
-          v = Math.round((w00 * v00 + w01 * v01 + w10 * v10 + w11 * v11) / ws);
-        }
-        d[o] = lut[3 * v]; d[o + 1] = lut[3 * v + 1]; d[o + 2] = lut[3 * v + 2]; d[o + 3] = 255;
+  function decodeProb(i) { if (!i) return null; const pb = state.k1.encoding.prob_base; let s = -1; pb.forEach((b, q) => { if (b != null && i >= b && i < b + 9) s = q; }); return s < 0 ? null : { k: i - pb[s], src: s }; }
+  const LUT1 = {};
+  function buildLut1() {                                                                 // colour of every palette index (the class colour) and its source; other sources than the 1 km get a light hatching
+    const e = state.k1.encoding, cols = e.colors.concat([e.over]).map(hexrgb), pc = e.prob_colors.map(hexrgb);
+    const lm = new Uint8ClampedArray(1024), sm = new Uint8Array(256).fill(255), lp = new Uint8ClampedArray(1024), sp = new Uint8Array(256).fill(255);
+    for (let s = 0; s < e.n.length; s++) for (let c = 0; c < 11; c++) for (let j = 0; j < e.n[s]; j++) { const i = e.base[s] + c * e.n[s] + j; if (i > 255) continue; lm.set([...cols[c], 255], i * 4); sm[i] = s; }
+    e.prob_base.forEach((b, s) => { if (b == null) return; for (let q = 0; q < 9; q++) { lp.set([...pc[q], 255], (b + q) * 4); sp[b + q] = s; } });
+    LUT1.mean = { rgba: lm, src: sm }; LUT1.prob15 = { rgba: lp, src: sp };
+  }
+  async function toImage(data, w, h) {
+    const im = new ImageData(data, w, h);
+    if (typeof createImageBitmap === "function") return createImageBitmap(im);
+    const c = document.createElement("canvas"); c.width = w; c.height = h; c.getContext("2d").putImageData(im, 0, 0);
+    return new Promise((res) => c.toBlob((b) => b.arrayBuffer().then(res), "image/png"));
+  }
+  function renderTile(ix, prod, z, x, y, sh, nx, ny) {                                   // a displayed tile from the native tile: class colours, hatching, 1 km squares kept sharp at street level
+    const L = LUT1[prod], out = new Uint8ClampedArray(65536 * 4), sc = Math.pow(2, sh), cm = new Int32Array(256);
+    for (let u = 0; u < 256; u++) cm[u] = Math.floor(((x - nx * sc) * 256 + u) / sc);
+    for (let v = 0; v < 256; v++) {
+      const vn = Math.floor(((y - ny * sc) * 256 + v) / sc), rowN = vn * 256, Y = y * 256 + v;
+      for (let u = 0; u < 256; u++) {
+        const i = ix[rowN + cm[u]]; if (!i) continue;
+        const o = (v * 256 + u) * 4, p = i * 4;
+        if (L.src[i] !== 0 && (x * 256 + u + Y) % 8 === 0) { out[o] = L.rgba[p] * 0.8 + 51; out[o + 1] = L.rgba[p + 1] * 0.8 + 51; out[o + 2] = L.rgba[p + 2] * 0.8 + 51; }
+        else { out[o] = L.rgba[p]; out[o + 1] = L.rgba[p + 1]; out[o + 2] = L.rgba[p + 2]; }
+        out[o + 3] = 255;
       }
     }
-    ctx.putImageData(img, 0, 0);
-    if (fast) { clearTimeout(fullTimer); fullTimer = setTimeout(() => draw(false), 160); }
-    if (state.lines) {
-      const X = (lon) => (lon - l0) / (l1 - l0) * W, Y = (lat) => (a1 - lat) / (a1 - a0) * H;
-      const strokeLines = (lines, color, w) => { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.beginPath();
-        for (const ln of lines) { let pen = false; for (let i = 0; i < ln.length; i++) { const x = X(ln[i][0]), y = Y(ln[i][1]); if (i && Math.abs(ln[i][0] - ln[i - 1][0]) > 180) pen = false; if (!pen) { ctx.moveTo(x, y); pen = true; } else ctx.lineTo(x, y); } } ctx.stroke(); };
-      const zoom = 360 / (l1 - l0), dpr = W / cv.getBoundingClientRect().width || 1;
-      if (zoom >= 3 && !state.linesHi && !state.linesHiLoading) { state.linesHiLoading = true; fetch("lines_hi.json").then((r) => r.json()).then((j) => { state.linesHi = j; draw(); }).catch(() => {}); }
-      const L = zoom >= 3 && state.linesHi ? state.linesHi : state.lines;
-      strokeLines(L.borders, dark ? "rgba(230,237,243,0.30)" : "rgba(40,50,60,0.30)", dpr * Math.max(0.5, Math.min(1.1, 0.35 * Math.sqrt(zoom))));
-      strokeLines(L.coast, dark ? "rgba(230,237,243,0.70)" : "rgba(28,37,48,0.62)", dpr * Math.max(0.6, Math.min(1.3, 0.45 * Math.sqrt(zoom))));
-      if (LABELS) {                                                                        // city names, by population, without overlaps
-        const thr = 9000 / (zoom * zoom), maxN = Math.max(3, Math.round(W * H / (dpr * dpr) / 15000)), boxes = [];
-        ctx.font = `600 ${Math.round(11.5 * dpr)}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`; ctx.textBaseline = "middle"; ctx.lineJoin = "round";
-        for (const [nm, la, lo, pop] of LABELS) {
-          if (pop < thr || boxes.length >= maxN) break;
-          if (la < a0 || la > a1 || lo < l0 || lo > l1) continue;
-          const x = X(lo), y = Y(la), w = ctx.measureText(nm).width, bx = [x - 4 * dpr, y - 8 * dpr, x + 7 * dpr + w, y + 8 * dpr];
-          if (bx[2] > W - 2 || bx[1] < 2 || bx[3] > H - 2 || boxes.some((q) => bx[0] < q[2] && bx[2] > q[0] && bx[1] < q[3] && bx[3] > q[1])) continue;
-          boxes.push(bx);
-          ctx.beginPath(); ctx.arc(x, y, 2.6 * dpr, 0, 2 * Math.PI); ctx.fillStyle = dark ? "#e6edf3" : "#1c2530"; ctx.fill();
-          ctx.lineWidth = 3.2 * dpr; ctx.strokeStyle = dark ? "rgba(15,23,32,0.85)" : "rgba(255,255,255,0.9)"; ctx.strokeText(nm, x + 6 * dpr, y); ctx.fillText(nm, x + 6 * dpr, y);
-        }
+    return out;
+  }
+  async function inflate(bytes) {
+    if (typeof DecompressionStream === "undefined") throw new Error("no DecompressionStream");
+    const ds = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate"));
+    return new Uint8Array(await new Response(ds).arrayBuffer());
+  }
+  async function pngIndices(buf) {                                                       // PNG reader (palette, 8 bits or fewer): the palette index of every pixel
+    const dv = new DataView(buf), u8 = new Uint8Array(buf); let p = 8, w = 0, h = 0, bd = 8; const parts = [];
+    while (p + 8 <= u8.length) { const len = dv.getUint32(p), type = String.fromCharCode(u8[p + 4], u8[p + 5], u8[p + 6], u8[p + 7]);
+      if (type === "IHDR") { w = dv.getUint32(p + 8); h = dv.getUint32(p + 12); bd = u8[p + 16]; } else if (type === "IDAT") parts.push(u8.subarray(p + 8, p + 8 + len)); else if (type === "IEND") break;
+      p += 12 + len; }
+    const z = new Uint8Array(parts.reduce((a, x) => a + x.length, 0)); let o = 0; for (const x of parts) { z.set(x, o); o += x.length; }
+    const d = await inflate(z), bpr = Math.ceil(w * bd / 8), out = new Uint8Array(w * h); let prev = new Uint8Array(bpr), cu = new Uint8Array(bpr), q = 0;
+    for (let y = 0; y < h; y++) {
+      const f = d[q++];
+      for (let i = 0; i < bpr; i++) { const x = d[q++], a = i ? cu[i - 1] : 0, b = prev[i], c = i ? prev[i - 1] : 0; let v;
+        if (f === 0) v = x; else if (f === 1) v = x + a; else if (f === 2) v = x + b; else if (f === 3) v = x + ((a + b) >> 1);
+        else { const pp = a + b - c, pa = Math.abs(pp - a), pb = Math.abs(pp - b), pc = Math.abs(pp - c); v = x + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c); }
+        cu[i] = v & 255; }
+      if (bd === 8) out.set(cu.subarray(0, w), y * w);
+      else { const per = 8 / bd, mask = (1 << bd) - 1; for (let x = 0; x < w; x++) out[y * w + x] = (cu[(x / per) | 0] >> (8 - bd * ((x % per) + 1))) & mask; }
+      const t = prev; prev = cu; cu = t;
+    }
+    return out;
+  }
+  function hasTile(prod, z, x, y) {
+    const b = state.bits[prod] && state.bits[prod][z]; if (!b) return false; const n = 1 << z, i = y * n + x; if (x < 0 || y < 0 || x >= n || y >= n) return false;
+    return (b[i >> 3] >> (7 - (i & 7))) & 1;
+  }
+  const tileUrl = (prod, L, z, x, y) => `${BASE1}${state.k1.date}/${prod}/${L}/${z}/${x}/${y}.png`;
+  async function rawTile(prod, L, z, x, y) { const r = await fetch(tileUrl(prod, L, z, x, y)); if (!r.ok) throw new Error("tile " + r.status); return r.arrayBuffer(); }
+  async function nativeIndices(prod, L, z, x, y) {                                       // one download per native tile, shared by the map and the readouts
+    const key = `${state.k1.date}/${prod}/${L}/${z}/${x}/${y}`; let p = state.dec.get(key);
+    if (!p) { p = rawTile(prod, L, z, x, y).then(pngIndices); state.dec.set(key, p); p.catch(() => state.dec.delete(key)); if (state.dec.size > 160) state.dec.delete(state.dec.keys().next().value); }
+    return p;
+  }
+  const zmaxOf = (prod, L) => (state.k1 && state.k1.layers[prod] && state.k1.layers[prod][L] ? state.k1.layers[prod][L].zmax : 6);
+  const blank = () => toImage(new Uint8ClampedArray(4), 1, 1);
+  if (typeof maplibregl !== "undefined") maplibregl.addProtocol("o1k", async (params) => {      // o1k://<product>/<lead>/{z}/{x}/{y}
+    const [prod, L, z, x, y] = params.url.slice(6).split("/"); const zi = +z, xi = +x, yi = +y;
+    if (!state.k1) return { data: await blank() };
+    const nz = Math.min(zi, zmaxOf(prod, +L)), sh = zi - nz, nx = Math.floor(xi / Math.pow(2, sh)), ny = Math.floor(yi / Math.pow(2, sh));
+    if (!hasTile(prod, nz, nx, ny)) return { data: await blank() };
+    try { const ix = await nativeIndices(prod, +L, nz, nx, ny); return { data: await toImage(renderTile(ix, prod, zi, xi, yi, sh, nx, ny), 256, 256) }; }
+    catch (e) { if (e && e.name === "AbortError") throw e; return { data: await blank() }; }
+  });
+  function tileXY(lng, lat, z) {
+    const n = 1 << z, x = (lng + 180) / 360 * n, r = lat * Math.PI / 180, y = (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n;
+    const tx = Math.floor(x), ty = Math.floor(y); return { tx: ((tx % n) + n) % n, ty, px: Math.min(255, Math.floor((x - tx) * 256)), py: Math.min(255, Math.floor((y - ty) * 256)) };
+  }
+  async function pixel(prod, L, lng, lat) {                                              // the palette index of the 1 km pixel at a position (0: none)
+    if (!state.k1 || lat >= 85 || lat <= -85) return 0;
+    const z = zmaxOf(prod, L), t = tileXY(lng, lat, z);
+    if (!hasTile(prod, z, t.tx, t.ty)) return 0;
+    return (await nativeIndices(prod, L, z, t.tx, t.ty))[t.py * 256 + t.px];
+  }
+  async function k1At(lng, lat) {                                                          // the 1 km daily means and member counts of every lead at a position
+    if (!state.k1) return null; const out = {};
+    for (const L of state.k1.leads) { const im = decodeMean(await pixel("mean", L, lng, lat)), ip = decodeProb(await pixel("prob15", L, lng, lat));
+      out[L] = { v: im ? im.v : null, src: im ? im.src : null, k: ip ? ip.k : null, valid: state.k1.layers.mean[L].valid }; }
+    return out;
+  }
+
+  // ---- the 0.4° layer on the street map: each Web Mercator tile is drawn from the lat-lon grid (sea transparent; bilinear over the land nodes, as the classic map)
+  function tile04(arr, field, z, x, y) {
+    const out = new Uint8ClampedArray(65536 * 4), n = 1 << z, lut = field === "prob" ? LUT.prob : LUT.pm, isOcean = field === "prob" ? isOceanProb : isOceanPm;
+    const J0 = new Int32Array(256), J1 = new Int32Array(256), TX = new Float32Array(256);
+    for (let u = 0; u < 256; u++) { const fx = (((x + (u + 0.5) / 256) / n) * 360 - 180 - LON0) / DLON, j = Math.floor(fx); J0[u] = ((j % NLON) + NLON) % NLON; J1[u] = (J0[u] + 1) % NLON; TX[u] = fx - j; }
+    for (let v = 0; v < 256; v++) {
+      const lat = Math.atan(Math.sinh(Math.PI * (1 - 2 * (y + (v + 0.5) / 256) / n))) * 180 / Math.PI, fy = (LAT0 - lat) / DLAT;
+      if (fy < -0.5 || fy > NLAT - 0.5) continue;
+      const i0 = Math.max(0, Math.min(NLAT - 2, Math.floor(fy))), ty = Math.max(0, Math.min(1, fy - i0)), b0 = i0 * NLON, b1 = b0 + NLON;
+      for (let u = 0; u < 256; u++) {
+        const o = 4 * (v * 256 + u), j0 = J0[u], j1 = J1[u], tx = TX[u];
+        const v00 = arr[b0 + j0], v01 = arr[b0 + j1], v10 = arr[b1 + j0], v11 = arr[b1 + j1];
+        const w00 = isOcean(v00) ? 0 : (1 - tx) * (1 - ty), w01 = isOcean(v01) ? 0 : tx * (1 - ty), w10 = isOcean(v10) ? 0 : (1 - tx) * ty, w11 = isOcean(v11) ? 0 : tx * ty;
+        const ws = w00 + w01 + w10 + w11; if (ws < 0.5) continue;
+        const q = Math.round((w00 * v00 + w01 * v01 + w10 * v10 + w11 * v11) / ws);
+        out[o] = lut[3 * q]; out[o + 1] = lut[3 * q + 1]; out[o + 2] = lut[3 * q + 2]; out[o + 3] = 255;
       }
     }
-    const pin = document.getElementById("pin");
-    if (state.pick) { const X = (state.pick.lon - l0) / (l1 - l0), Y = (a1 - state.pick.lat) / (a1 - a0); pin.hidden = !(X >= 0 && X <= 1 && Y >= 0 && Y <= 1); pin.style.left = (100 * X) + "%"; pin.style.top = (100 * Y) + "%"; }
-    else pin.hidden = true;
+    return out;
   }
-  function drawCbar() {
-    const c = document.getElementById("cbar"), x = c.getContext("2d"); x.clearRect(0, 0, c.width, c.height); x.font = "11px -apple-system, Helvetica, Arial, sans-serif"; x.fillStyle = isDark() ? "#9aa7b4" : "#5b6977"; x.textAlign = "center";
-    const tc = isDark() ? "#9aa7b4" : "#5b6977";
-    if (state.field === "prob") { for (let px = 0; px < c.width; px++) { x.fillStyle = hexOf(ramp(PROB_ANCH, 100 * (px + 0.5) / c.width)); x.fillRect(px, 0, 1, 14); } const n = 10, w = c.width / n; x.fillStyle = tc;
-      for (let i = 0; i <= n; i += 2) x.fillText(i * 10 + (i === n ? " %" : ""), Math.min(c.width - 14, Math.max(10, i * w)), 26);
-      document.getElementById("cbar-lab").textContent = tr("cbar.prob"); }
-    else { const L0 = 0, L1 = Math.log10(400); for (let px = 0; px < c.width; px++) { x.fillStyle = hexOf(ramp(PM_ANCH, L0 + (L1 - L0) * (px + 0.5) / c.width)); x.fillRect(px, 0, 1, 14); } x.fillStyle = tc;
-      for (const t of [5, 10, 25, 50, 100, 250]) x.fillText(String(t), c.width * (Math.log10(t) - L0) / (L1 - L0), 26);
-      document.getElementById("cbar-lab").innerHTML = tr("cbar.pm"); }
+  if (typeof maplibregl !== "undefined") maplibregl.addProtocol("o4t", async (params) => {      // o4t://<day>/<field>/<lead>/{z}/{x}/{y}
+    const [day, field, L, z, x, y] = params.url.slice(6).split("/");
+    try { if (!state.idx || !state.idx[day]) throw 0; const a = await loadLayer(day, field, +L); return { data: await toImage(tile04(a, field, +z, +x, +y), 256, 256) }; }
+    catch (e) { if (e && e.name === "AbortError") throw e; return { data: await blank() }; }
+  });
+
+  // ---- the map (MapLibre GL, OpenFreeMap vector basemap): the forecast goes above the land fills, below the roads and the names
+  const isDark = () => document.documentElement.dataset.theme === "dark";
+  const styleUrl = () => "https://tiles.openfreemap.org/styles/" + (state.basemap === "streets" ? "liberty" : state.basemap === "light" ? "positron" : state.basemap === "dark" ? "dark" : isDark() ? "dark" : "positron");
+  function underRoads(map) { for (const l of map.getStyle().layers) if (l.type === "symbol" || (l.type === "line" && /tunnel|aeroway|road|highway|railway|bridge|boundary/.test(l.id))) return l.id; return undefined; }
+  function stripCountries(map) { for (const l of map.getStyle().layers) if (/country/i.test(l.id) && l.type === "symbol") map.removeLayer(l.id); }   // no country names (site rule)
+  function addLayers() {
+    const map = state.map; if (!map || !state.styleReady) return;
+    try { stripCountries(map); } catch (e) {}
+    for (const id of ["pm", "o4"]) { if (map.getLayer(id)) map.removeLayer(id); if (map.getSource(id)) map.removeSource(id); }
+    if (state.layer !== "o4") {
+      if (!state.k1) return;                                                               // the 1 km layer is not online yet
+      const prod = state.layer === "k1p" ? "prob15" : "mean";
+      map.addSource("pm", { type: "raster", tiles: [`o1k://${prod}/${state.kday}/{z}/{x}/{y}`], tileSize: 256, minzoom: 0, maxzoom: 16, bounds: [-180, -60.2, 180, 84.5], attribution: "Otso 1 km · Natural Earth" });
+      map.addLayer({ id: "pm", type: "raster", source: "pm", paint: { "raster-opacity": state.opacity, "raster-resampling": "linear", "raster-fade-duration": 0 } }, underRoads(map));
+    } else {
+      if (!state.day || !cur) return;
+      map.addSource("o4", { type: "raster", tiles: [`o4t://${state.day}/${state.f04}/${state.lead}/{z}/{x}/{y}`], tileSize: 256, minzoom: 0, maxzoom: 7, bounds: [-180, -60, 180, 84], attribution: "Otso 0.4°" });
+      map.addLayer({ id: "o4", type: "raster", source: "o4", paint: { "raster-opacity": state.opacity, "raster-resampling": "linear", "raster-fade-duration": 0 } }, underRoads(map));
+    }
+    noteText("", false);
   }
-  const dayNum = (t) => dayWord(t);
+  function ensureLayer() {                                                               // no 1 km layer online yet: the 40 km layer is shown meanwhile (unless the visitor chose a layer)
+    if (!state.k1 && cur && !state.userLayer && state.layer !== "o4") { state.layer = "o4"; for (const b of document.querySelectorAll("#layers button")) b.classList.toggle("on", b.dataset.l === "o4"); timeControls(); addLayers(); legend(); helpLine(); }
+  }
+  function setOpacity() { const m = state.map; if (!m) return; for (const id of ["pm", "o4"]) if (m.getLayer(id)) m.setPaintProperty(id, "raster-opacity", state.opacity); }
+  function noteText(t, show) { const n = $("note"); n.firstElementChild.textContent = t; n.hidden = !show; }
+  function createMap(center, zoom) {
+    const map = new maplibregl.Map({ container: "k1map", style: styleUrl(), center, zoom, minZoom: 1, maxZoom: 17.5, attributionControl: { compact: true }, dragRotate: false, pitchWithRotate: false, cooperativeGestures: false });
+    state.map = map; map.touchZoomRotate.disableRotation();
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
+    const geo = new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }, trackUserLocation: false, showUserLocation: true, fitBoundsOptions: { maxZoom: 12 } });
+    map.addControl(geo, "top-right");
+    geo.on("geolocate", (p) => { const lat = p.coords.latitude, lon = p.coords.longitude; ls.set("otso-geo", "1"); pick(lat, lon, null, { reverse: true, remember: true }); });
+    map.addControl(new maplibregl.ScaleControl({ maxWidth: 100 }), "bottom-left");
+    map.on("style.load", () => { state.styleReady = true; addLayers(); if (state.k1 || cur) noteText("", false); });
+    map.on("click", (ev) => { pick(ev.lngLat.lat, ev.lngLat.lng, null, { reverse: true }); });
+    map.on("moveend", syncUrl);
+    map.on("error", (ev) => { const m = ev && ev.error ? String(ev.error.message || "") : ""; if (/style/i.test(m)) noteText(tr("map.failed"), true); });
+    return map;
+  }
+  function setStyle() { if (!state.map) return; state.styleReady = false; state.map.setStyle(styleUrl()); }
+
+  // ---- controls: the layer, the day (1 km) or the 12-hour lead (0.4°), the basemap, the opacity
+  const leadOfKday = (L) => { if (!state.k1 || !state.day) return state.lead; const off = Math.round((Date.parse(state.k1.layers.mean[L].valid + "T00:00:00Z") - Date.parse(state.day + "T00:00:00Z")) / 864e5); return Math.max(0, Math.min(9, 2 * off)); };
+  const kdayOfLead = (k) => { if (!state.k1 || !state.day) return state.kday; const iso = validTime(state.day, k).toISOString().slice(0, 10); const L = state.k1.leads.find((x) => state.k1.layers.mean[x].valid === iso); return L == null ? state.kday : L; };
+  function setLayer(l, byUser) {
+    state.layer = l; if (byUser) state.userLayer = true;
+    for (const b of document.querySelectorAll("#layers button")) b.classList.toggle("on", b.dataset.l === l);
+    timeControls(); addLayers(); legend(); helpLine(); syncUrl();
+    if (state.place) renderPlace(state.place); if (state.popupAt) readout(state.popupAt.lng, state.popupAt.lat);
+  }
+  function timeControls() {                                                              // which time control is shown, and its content
+    const o4 = state.layer === "o4", k1 = state.k1 && !o4;
+    $("days").hidden = !k1; $("tlwrap").hidden = !o4; $("leadrow").hidden = !o4; $("cbarwrap").hidden = !o4; $("legend").hidden = o4; $("fields").hidden = !o4; $("day").hidden = !o4;
+    if (k1) days(); if (o4) { timeline(); for (const x of document.querySelectorAll(".tl")) x.classList.toggle("on", +x.dataset.k === state.lead); $("leadout").textContent = state.day ? "+" + 12 * (state.lead + 1) + " h · " + fmtTime(validTime(state.day, state.lead)) : ""; }
+  }
+  function days() {
+    const L = state.k1.leads; $("days").innerHTML = `<button type="button" class="play kplay" id="kplay" aria-label="Play">${state.ktimer ? "❚❚" : "▶"}</button>` +
+      L.map((x) => { const v = state.k1.layers.mean[x].valid; return `<button type="button" data-l="${x}" class="${x === state.kday ? "on" : ""}">${esc(dfmt(v, { weekday: "short", day: "numeric" }))}<small>${esc(relDay(v) || "\u00a0")}</small></button>`; }).join("");
+  }
+  function setKday(L) { if (!state.k1 || !state.k1.leads.includes(L)) return; state.kday = L; const k = leadOfKday(L); if (k !== state.lead) { state.lead = k; $("lead").value = k; show(); } else refreshK(); }
+  function refreshK() { for (const x of $("days").querySelectorAll("button[data-l]")) x.classList.toggle("on", +x.dataset.l === state.kday); if (state.layer !== "o4") addLayers(); helpLine(); if (state.place) renderPlace(state.place); if (state.popupAt) readout(state.popupAt.lng, state.popupAt.lat); k1Cities(); syncUrl(); }
+  $("days").addEventListener("click", (ev) => { const b = ev.target.closest("button"); if (!b) return;
+    if (b.id === "kplay") { if (state.ktimer) { clearInterval(state.ktimer); state.ktimer = null; b.textContent = "▶"; return; } b.textContent = "❚❚";
+      state.ktimer = setInterval(() => { const L = state.k1.leads; setKday(L[(L.indexOf(state.kday) + 1) % L.length]); }, 1400); return; }
+    if (b.dataset.l) setKday(+b.dataset.l); });
+  $("layers").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-l]"); if (!b) return; if (b.dataset.l !== "o4" && !state.k1) return; setLayer(b.dataset.l, true); });
+  $("fields").addEventListener("click", (ev) => { const b = ev.target.closest("button"); if (!b) return; state.f04 = b.dataset.f; for (const x of document.querySelectorAll("#fields button")) x.classList.toggle("on", x === b); show(); });
+  $("op").value = state.opacity; $("op").addEventListener("input", () => { state.opacity = +$("op").value; ls.set("otso-op", state.opacity); setOpacity(); });
+  $("basemap").value = state.basemap; $("basemap").addEventListener("change", () => { state.basemap = $("basemap").value; ls.set("otso-basemap", state.basemap); setStyle(); });
   function centerChip(el) { const p = el.parentElement; p.scrollTo({ left: el.offsetLeft - p.clientWidth / 2 + el.offsetWidth / 2, behavior: "smooth" }); }
   function timeline() {
-    const tl = document.getElementById("timeline"); if (tl.dataset.day === state.day) return; tl.dataset.day = state.day;
-    tl.innerHTML = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => { const t = validTime(state.day, k); return `<div class="tl${t.getUTCHours() === 0 ? " day0" : ""}" data-k="${k}"><div class="d">${dayNum(t)}</div><div class="h">${hourLabel(t)}</div><div class="l">+${12 * (k + 1)} h</div></div>`; }).join("");
+    const tl = $("timeline"); if (tl.dataset.day === state.day || !state.day) return; tl.dataset.day = state.day;
+    tl.innerHTML = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => { const t = validTime(state.day, k); return `<div class="tl${t.getUTCHours() === 0 ? " day0" : ""}" data-k="${k}"><div class="d">${dayLabel(t)}</div><div class="h">${hourLabel(t)}</div><div class="l">+${12 * (k + 1)} h</div></div>`; }).join("");
   }
-  document.getElementById("timeline").addEventListener("click", (ev) => { const c = ev.target.closest(".tl"); if (!c) return; state.lead = +c.dataset.k; document.getElementById("lead").value = state.lead; show(); });
-  async function show() {
-    const day = state.day, lead = state.lead; document.getElementById("leadout").textContent = "+" + 12 * (lead + 1) + " h · " + fmtTime(validTime(day, lead));
-    timeline(); for (const x of document.querySelectorAll(".tl")) { const on = +x.dataset.k === lead; x.classList.toggle("on", on); if (on) centerChip(x); }
+  $("timeline").addEventListener("click", (ev) => { const c = ev.target.closest(".tl"); if (!c) return; state.lead = +c.dataset.k; $("lead").value = state.lead; show(); });
+  async function show() {                                                                // the 0.4° lead changed: the 12-hour layer, the strips, the 1 km day that goes with it
+    const day = state.day, lead = state.lead; if (!day) return;
+    $("leadout").textContent = "+" + 12 * (lead + 1) + " h · " + fmtTime(validTime(day, lead));
+    timeline(); for (const x of document.querySelectorAll(".tl")) { const on = +x.dataset.k === lead; x.classList.toggle("on", on); if (on && !$("tlwrap").hidden) centerChip(x); }
     for (const x of document.querySelectorAll(".sitem")) { const on = +x.dataset.k === lead; x.classList.toggle("on", on); if (on) centerChip(x); }
-    try { cur = await loadLayer(day, state.field, lead); } catch (e) { setStatus(tr("map.failed") + " (" + e.message + ").", false); document.getElementById("overlay").firstElementChild.textContent = tr("map.failed"); return; }
-    document.getElementById("overlay").hidden = true; draw(); drawCbar();
-    const mm = state.idx[day].members, names = { mean: tr("help.mean", { m: mm }), p90: tr("help.p90", { m: mm }), prob: tr("help.prob", { m: mm }) };
-    document.getElementById("help").textContent = names[state.field] + tr("help.rest", { day });
-    for (let k = 0; k < 10; k++) loadLayer(day, state.field, k).catch(() => {});                                   // warm the other leads for the slider
+    const L = kdayOfLead(lead); if (L !== state.kday) state.kday = L;
+    try { cur = await loadLayer(day, state.f04, lead); } catch (e) { setStatus(tr("map.failed") + " (" + e.message + ").", false); return; }
+    ensureLayer(); if (state.layer === "o4") addLayers(); drawCbar(); refreshK();
+    for (let k = 0; k < 10; k++) loadLayer(day, state.f04, k).catch(() => {});                                     // warm the other leads for the slider
   }
-  // ---- picking
-  function cellAt(ev) {
-    const b = cv.getBoundingClientRect(); const [l0, l1, a0, a1] = state.view;
-    let lon = l0 + (ev.clientX - b.left) / b.width * (l1 - l0); const lat = a1 - (ev.clientY - b.top) / b.height * (a1 - a0);
-    lon = ((lon + 180) % 360 + 360) % 360 - 180; const r = Math.round((LAT0 - lat) / DLAT), c = Math.round((lon - LON0) / DLON) % NLON;
-    return { lat, lon, r, c, ok: r >= 0 && r < NLAT };
+  $("lead").addEventListener("input", (ev) => { state.lead = +ev.target.value; show(); });
+  $("play").addEventListener("click", () => { const b = $("play");
+    if (state.timer) { clearInterval(state.timer); state.timer = null; b.textContent = "▶"; return; }
+    b.textContent = "❚❚"; state.timer = setInterval(() => { state.lead = (state.lead + 1) % 10; $("lead").value = state.lead; show(); }, 900); });
+  function daySelect() { const dsel = $("day"); if (state.days && state.days.length) { dsel.innerHTML = state.days.map((d) => `<option value="${d}">${d === state.latestDay ? tr("day.latest") + ": " : ""}${d}</option>`).join(""); dsel.value = state.day; } }
+  $("day").addEventListener("change", async (ev) => { state.day = ev.target.value; await loadDay(state.day); await loadCities(state.day); links(); $("timeline").dataset.day = ""; show(); if (state.pick) pick(state.pick.lat, state.pick.lon, state.pick.name, { reverse: false }); });
+  window.addEventListener("keydown", (ev) => { if (ev.target.tagName === "INPUT" || ev.target.tagName === "SELECT") return;
+    if (state.layer === "o4") { if (ev.key === "ArrowRight") { state.lead = Math.min(9, state.lead + 1); $("lead").value = state.lead; show(); } if (ev.key === "ArrowLeft") { state.lead = Math.max(0, state.lead - 1); $("lead").value = state.lead; show(); } }
+    else if (state.k1) { const L = state.k1.leads, i = L.indexOf(state.kday); if (ev.key === "ArrowRight" && i < L.length - 1) setKday(L[i + 1]); if (ev.key === "ArrowLeft" && i > 0) setKday(L[i - 1]); } });
+
+  // ---- legend and help line
+  function drawCbar() {
+    const c = $("cbar"), x = c.getContext("2d"); x.clearRect(0, 0, c.width, c.height); x.font = "11px -apple-system, Helvetica, Arial, sans-serif"; x.textAlign = "center"; const tc = isDark() ? "#9aa7b4" : "#5b6977";
+    if (state.f04 === "prob") { for (let px = 0; px < c.width; px++) { x.fillStyle = hexOf(ramp(PROB_ANCH, 100 * (px + 0.5) / c.width)); x.fillRect(px, 0, 1, 14); } const n = 10, w = c.width / n; x.fillStyle = tc;
+      for (let i = 0; i <= n; i += 2) x.fillText(i * 10 + (i === n ? " %" : ""), Math.min(c.width - 14, Math.max(10, i * w)), 26);
+      $("cbar-lab").textContent = tr("cbar.prob"); }
+    else { const L0 = 0, L1 = Math.log10(400); for (let px = 0; px < c.width; px++) { x.fillStyle = hexOf(ramp(PM_ANCH, L0 + (L1 - L0) * (px + 0.5) / c.width)); x.fillRect(px, 0, 1, 14); } x.fillStyle = tc;
+      for (const t of [5, 10, 25, 50, 100, 250]) x.fillText(String(t), c.width * (Math.log10(t) - L0) / (L1 - L0), 26);
+      $("cbar-lab").innerHTML = tr("cbar.pm"); }
   }
-  const coord = (lat, lon) => Math.abs(lat).toFixed(1) + "°" + (lat >= 0 ? "N" : "S") + ", " + Math.abs(lon).toFixed(1) + "°" + (lon >= 0 ? "E" : "W");
-  function hover(ev) {
-    if (!cur) return; const p = cellAt(ev); const b = cv.getBoundingClientRect();
-    if (!p.ok) { tip.style.display = "none"; return; }
-    const v = cur[p.r * NLON + p.c];
-    if (state.field === "prob" ? isOceanProb(v) : isOceanPm(v)) { tip.style.display = "none"; return; }
-    tip.style.display = "block"; tip.style.left = (ev.clientX - b.left) + "px"; tip.style.top = (ev.clientY - b.top) + "px";
-    tip.innerHTML = state.field === "prob" ? tr("tip.prob", { p: "<b>" + probOf(v) + "</b>" }) + "<br>" + coord(p.lat, p.lon) : "<b>" + fmt(dec(v)) + "</b> µg m⁻³ · " + clsName(pmClass(dec(v))) + "<br>" + coord(p.lat, p.lon);
+  const num = (v, d) => v.toLocaleString(LOC(), { maximumFractionDigits: d, minimumFractionDigits: 0 });
+  function legend() {
+    if (!state.k1 || state.layer === "o4") { $("legend").innerHTML = ""; return; }
+    const e = state.k1.encoding; let h = "";
+    if (state.layer === "k1") { const cols = e.colors.concat([e.over]);
+      h += `<span class="lunit">PM<sub>2.5</sub> (µg m⁻³)</span><div class="lscale">` + cols.map((c, i) => `<div title="${esc(clsName(i))}"><i style="background:${c}"></i><b>${i < 10 ? num(e.bounds[i], 1) : "&gt;" + num(e.bounds[10], 0)}</b></div>`).join("") + "</div>"; }
+    else h += `<span class="lunit">${esc(tr("k1.legend_prob"))}</span><div class="lscale">` + e.prob_colors.map((c, i) => `<div><i style="background:${c}"></i><b>${i}</b></div>`).join("") + "</div>";
+    h += `<div class="lnotes"><span><i class="hatch"></i>${esc(tr("k1.holes"))}</span></div>`;
+    $("legend").innerHTML = h;
   }
-  async function pick(lat, lon, name) {
-    state.pick = { lat, lon, name }; draw();
-    history.replaceState(null, "", "#lat=" + lat.toFixed(2) + "&lon=" + lon.toFixed(2) + (name ? "&name=" + encodeURIComponent(name) : ""));
-    const r = Math.round((LAT0 - lat) / DLAT), c = Math.round(((((lon + 180) % 360 + 360) % 360 - 180) - LON0) / DLON) % NLON;
-    if (r < 0 || r >= NLAT) return;
-    const day = state.day; const m = await Promise.all([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => loadLayer(day, "mean", k)));
-    const q = await Promise.all([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => loadLayer(day, "p90", k)));
-    const pr = await Promise.all([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => loadLayer(day, "prob", k)));
-    let nodes = []; for (const R of [1, 2]) { if (nodes.length) break; for (let dr = -R; dr <= R; dr++) for (let dc = -R; dc <= R; dc++) { const rr = r + dr; if (rr < 0 || rr >= NLAT) continue; const ii = rr * NLON + (c + dc + NLON) % NLON; if (!isOceanPm(m[0][ii])) nodes.push(ii); } }
-    if (!nodes.length) { document.getElementById("pt-text").textContent = tr("sea.text"); document.getElementById("point").hidden = false;
-      document.getElementById("pt-title").textContent = name || coord(lat, lon); document.getElementById("pt-sub").textContent = coord(lat, lon); document.getElementById("pt-pill").textContent = tr("cls.sea"); document.getElementById("pt-big").textContent = "—"; document.getElementById("pt-when").textContent = ""; document.getElementById("pt-range").textContent = ""; document.getElementById("pt-days").innerHTML = ""; document.getElementById("pt-strip").innerHTML = ""; document.getElementById("series").innerHTML = ""; state.place = null; return; }
-    const avg = (a, f) => nodes.reduce((t, ii) => t + f(a[ii]), 0) / nodes.length;
-    const mean = m.map((a) => avg(a, dec)), p90 = q.map((a) => avg(a, dec)), prob = pr.map((a) => Math.round(avg(a, probOf)));
-    state.place = { lat, lon, name, day, mean, p90, prob }; renderPlace(state.place);
+  function helpLine() {
+    const h = $("help"); if (!state.day && !state.k1) { h.textContent = ""; return; }
+    if (state.layer === "o4" && state.day) { const mm = state.idx[state.day].members, names = { mean: tr("help.mean", { m: mm }), p90: tr("help.p90", { m: mm }), prob: tr("help.prob", { m: mm }) }; h.textContent = names[state.f04] + tr("help.rest", { day: state.day }); }
+    else if (state.k1) h.textContent = tr(state.layer === "k1p" ? "help.k1p" : "help.k1", { date: state.k1.date });
   }
-  const dayLabel = (t) => dayWord(t), hourLabel = (t) => t.toLocaleString(LOC(), { hour: "2-digit", minute: "2-digit" });
+
+  // ---- the chosen place: the 1 km daily means of the five days, the 40 km cell every 12 hours
+  const leadsOfDay = (day, iso) => { const out = []; for (let k = 0; k < 10; k++) { const t = validTime(day, k), s = t.toISOString().slice(0, 10); if (s === iso || (t.getUTCHours() === 0 && Math.round((Date.parse(s + "T00:00:00Z") - Date.parse(iso + "T00:00:00Z")) / 864e5) === 1)) out.push(k); } return out; };
+  function markerAt(lat, lon) {
+    if (!state.map) return;
+    if (!state.marker) { state.marker = new maplibregl.Marker({ color: isDark() ? "#7fb0ff" : "#1F5AA6" }); }
+    state.marker.setLngLat([lon, lat]).addTo(state.map);
+  }
+  async function pick(lat, lon, name, opts) {
+    opts = opts || {}; lon = ((lon + 180) % 360 + 360) % 360 - 180;
+    const my = { lat, lon, name: name || null }; state.pick = my; markerAt(lat, lon); syncUrl();
+    if (opts.fly && state.map) state.map.flyTo({ center: [lon, lat], zoom: Math.max(state.map.getZoom(), opts.zoom || 10), speed: 1.4 });
+    if (!name && opts.reverse !== false) placeName(lat, lon).then((nm) => { if (state.pick !== my) return; my.name = nm; if (state.place && state.place.lat === lat && state.place.lon === lon) { state.place.name = nm; renderPlace(state.place); } if (opts.remember) remember(nm, lat, lon); if (state.popupAt) readout(lon, lat); });
+    else if (opts.remember && name) remember(name, lat, lon);
+    readout(lon, lat);
+    const r = Math.round((LAT0 - lat) / DLAT), c = Math.round((lon - LON0) / DLON) % NLON;
+    const day = state.day; if (!day) return;
+    const [m, q, pr, k1] = await Promise.all([Promise.all([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => loadLayer(day, "mean", k))), Promise.all([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => loadLayer(day, "p90", k))),
+      Promise.all([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => loadLayer(day, "prob", k))), k1At(lon, lat).catch(() => null)]);
+    if (state.pick !== my) return;
+    let nodes = []; if (r >= 0 && r < NLAT) for (const R of [1, 2]) { if (nodes.length) break; for (let dr = -R; dr <= R; dr++) for (let dc = -R; dc <= R; dc++) { const rr = r + dr; if (rr < 0 || rr >= NLAT) continue; const ii = rr * NLON + (c + dc + NLON) % NLON; if (!isOceanPm(m[0][ii])) nodes.push(ii); } }
+    const hasK1 = k1 && Object.values(k1).some((x) => x.v != null);
+    if (!nodes.length && !hasK1) { $("pt-text").textContent = tr("sea.text"); $("point").hidden = false; $("welcome").hidden = true;
+      $("pt-title").textContent = my.name || coord(lat, lon); $("pt-sub").textContent = coord(lat, lon); $("pt-pill").textContent = tr("cls.sea"); $("pt-big").textContent = "—"; $("pt-when").textContent = ""; $("pt-range").textContent = ""; $("pt-days").innerHTML = ""; $("pt-strip").innerHTML = ""; $("series").innerHTML = ""; state.place = null; return; }
+    const avg = (a, f) => nodes.length ? nodes.reduce((t, ii) => t + f(a[ii]), 0) / nodes.length : null;
+    const mean = m.map((a) => avg(a, dec)), p90 = q.map((a) => avg(a, dec)), prob = pr.map((a) => { const v = avg(a, probOf); return v == null ? null : Math.round(v); });
+    state.place = { lat, lon, name: my.name, day, mean, p90, prob, k1: hasK1 ? k1 : null, land: nodes.length > 0 }; renderPlace(state.place);
+  }
+  function remember(name, lat, lon) { ls.set("otso-city", JSON.stringify({ name, lat, lon })); const cq = $("city-q"); if (cq && name) cq.value = name; }
   const lightText = (hex) => { const [r, g, b] = rgb(hex); return (0.299 * r + 0.587 * g + 0.114 * b) > 150; };
   function cityErrNote(name) {
     if (!LIVE_SC || !LIVE_SC.summary || !name) return "";
@@ -792,35 +1015,45 @@
   const ADVICE = [[15, "adv.good"], [25, "adv.fair"], [50, "adv.moderate"], [100, "adv.poor"], [1e9, "adv.very_poor"]];
   const adviceOf = (x) => tr(ADVICE.find((a) => x < a[0])[1]);
   function whenPhrase(t) { const w = dayLabel(t), h = hourLabel(t); return w === tr("w.today") ? tr("when.today", { h }) : w === tr("w.tomorrow") ? tr("when.tomorrow", { h }) : tr("when.on", { d: w, h }); }
-  function renderPlace(P) {
-    const { lat, lon, day, mean, p90, prob } = P; const name = P.name ? pol(P.name) : P.name; const el = document.getElementById("point"); el.hidden = false; document.getElementById("welcome").hidden = true;
+  function renderPlace(Pl) {
+    const { lat, lon, day, mean, p90, prob, k1, land } = Pl; const name = Pl.name ? pol(Pl.name) : Pl.name; const el = $("point"); el.hidden = false; $("welcome").hidden = true;
     const now = Date.now(); let kNow = 9; for (let k = 9; k >= 0; k--) if (validTime(day, k) >= now - 3 * 3600e3) kNow = k;   // the current or next valid time
-    const v0 = mean[kNow], c0 = pmClass(v0), pc = pmHex(v0), t0 = validTime(day, kNow), isNow = Math.abs(t0 - now) < 1.5 * 3600e3;
+    const kv = k1 && k1[state.kday] && k1[state.kday].v != null ? k1[state.kday] : null;                                   // the 1 km daily mean of the selected day
+    let v0, whenTxt, rangeTxt = "";
+    if (kv) { v0 = kv.v; whenTxt = relDay(kv.valid) + " · " + tr("k1.daily");
+      if (land) { const vs = leadsOfDay(day, kv.valid).map((k) => mean[k]).filter((v) => v != null); if (vs.length) rangeTxt = tr("k1.cell_range", { min: fmt(Math.min(...vs)), max: fmt(Math.max(...vs)) }); }
+      if (kv.k != null) rangeTxt += (rangeTxt ? " · " : "") + tr("k1.pbelow", { k: kv.k });
+      if (kv.src) rangeTxt += (rangeTxt ? " · " : "") + tr(["k1.src_1km", "k1.src_04", "k1.src_clim", "k1.src_int"][kv.src]); }
+    else if (land) { v0 = mean[kNow]; const t0 = validTime(day, kNow), isNow = Math.abs(t0 - now) < 1.5 * 3600e3; whenTxt = (isNow ? tr("w.now") : dayLabel(t0)) + " · " + hourLabel(t0) + " · " + tr("k1.cell");
+      const n24 = mean.slice(kNow, kNow + 2), hi = Math.max(...n24), lo = Math.min(...n24); rangeTxt = tr("hero.next24", { max: fmt(hi), min: fmt(lo) }); }
+    else { const x = Object.values(k1).find((q) => q.v != null); v0 = x.v; whenTxt = relDay(x.valid) + " · " + tr("k1.daily"); }
+    const c0 = pmClass(v0), pc = pmHex(v0);
     el.style.setProperty("--pc", pc); document.body.style.setProperty("--pc", pc);
     const nm = name || coord(lat, lon), parts = nm.split(","), city = parts[0].trim(), rest = parts.slice(1).join(",").trim();
-    document.getElementById("pt-title").textContent = city;
-    document.getElementById("pt-sub").textContent = (rest ? rest + " · " : "") + coord(lat, lon);
-    document.getElementById("pt-big").textContent = fmt(v0);
-    document.getElementById("pt-pill").textContent = clsName(c0);
-    document.getElementById("pt-when").textContent = (isNow ? tr("w.now") : dayLabel(t0)) + " · " + hourLabel(t0);
-    const n24 = mean.slice(kNow, kNow + 2), hi = Math.max(...n24), lo = Math.min(...n24);
-    document.getElementById("pt-range").textContent = tr("hero.next24", { max: fmt(hi), min: fmt(lo) });
-    const imax = mean.indexOf(Math.max(...mean)), tmax = validTime(day, imax);
-    document.getElementById("pt-text").innerHTML = adviceOf(v0) + (imax > kNow + 1 ? " " + tr("adv.peak", { v: fmt(mean[imax]), cls: clsName(pmClass(mean[imax])), when: whenPhrase(tmax) }) : "") +
-      "<br><span class='small'>" + tr("adv.research") + "</span>" + cityErrNote(name);
-    // 5-day list: the valid times grouped by local day, a range bar on a common log scale
-    const days = []; for (let k = kNow; k < 10; k++) { const t = validTime(day, k), key = t.toDateString(); let g = days.find((q) => q.key === key); if (!g) days.push(g = { key, t, ks: [] }); g.ks.push(k); }
-    const all = mean.slice(kNow).filter((v) => v > 0), gl = Math.log10(Math.max(Math.min(...all), 0.5)), gh = Math.log10(Math.max(...all) * 1.05), pos = (v) => gh > gl ? 100 * (Math.log10(Math.max(v, 0.5)) - gl) / (gh - gl) : 50;
-    document.getElementById("pt-days").innerHTML = days.map((g) => { const vs = g.ks.map((k) => mean[k]), mx = Math.max(...vs), mn = Math.min(...vs), kmx = g.ks[vs.indexOf(mx)];
-      return `<div class="drow" data-k="${kmx}"><span class="dname">${dayLabel(g.t)}</span><span class="ddot" style="background:${pmHex(mx)}"></span><span class="dmin">${fmt(mn)}</span>` +
-        `<span class="dbar"><i style="left:${pos(mn).toFixed(1)}%;right:${(100 - pos(mx)).toFixed(1)}%;background:linear-gradient(90deg, ${hexOf(rampPm(mn))}, ${hexOf(rampPm(mx))})"></i></span><span class="dmax">${fmt(mx)}</span></div>`; }).join("");
-    document.getElementById("pt-strip").innerHTML = mean.map((v, k) => { if (k < kNow) return ""; const t = validTime(day, k); return `<div class="sitem${k === state.lead ? " on" : ""}" data-k="${k}"><div class="d">${dayLabel(t)}</div><div class="h">${hourLabel(t)}</div><div class="dot" style="background:${pmHex(v)}"></div><div class="v">${fmt(v)}</div></div>`; }).join("");
-    series(mean, p90, prob);
+    $("pt-title").textContent = city; $("pt-sub").textContent = (rest ? rest + " · " : "") + coord(lat, lon);
+    $("pt-big").textContent = fmt(v0); $("pt-pill").textContent = clsName(c0); $("pt-when").textContent = whenTxt; $("pt-range").textContent = rangeTxt;
+    let peak = "";
+    if (k1) { let best = null; for (const L of state.k1.leads) { const x = k1[L]; if (x && x.v != null && (!best || x.v > best.v)) best = x; } if (best && kv && best.v > kv.v * 1.15 && best.valid !== kv.valid) peak = " " + tr("adv.peak_day", { v: fmt(best.v), cls: clsName(pmClass(best.v)), day: relDay(best.valid) }); }
+    else if (land) { const imax = mean.indexOf(Math.max(...mean)); if (imax > kNow + 1) peak = " " + tr("adv.peak", { v: fmt(mean[imax]), cls: clsName(pmClass(mean[imax])), when: whenPhrase(validTime(day, imax)) }); }
+    $("pt-text").innerHTML = adviceOf(v0) + peak + "<br><span class='small'>" + tr("adv.research") + "</span>" + cityErrNote(name);
+    // the five days: the 1 km daily mean (bold) and the range of the 40 km cell through the day, on a common log scale
+    const allv = []; if (k1) for (const L of state.k1.leads) if (k1[L].v != null) allv.push(k1[L].v); if (land) allv.push(...mean.slice(kNow).filter((v) => v > 0));
+    const gl = Math.log10(Math.max(Math.min(...allv), 0.5)), gh = Math.log10(Math.max(...allv) * 1.05), pos = (v) => gh > gl ? 100 * (Math.log10(Math.max(v, 0.5)) - gl) / (gh - gl) : 50;
+    const bar = (mn, mx) => `<span class="dbar"><i style="left:${pos(mn).toFixed(1)}%;right:${(100 - pos(mx)).toFixed(1)}%;background:linear-gradient(90deg, ${hexOf(rampPm(mn))}, ${hexOf(rampPm(mx))})"></i></span>`;
+    if (k1) $("pt-days").innerHTML = state.k1.leads.map((L) => { const x = k1[L]; const vs = land ? leadsOfDay(day, x.valid).map((k) => mean[k]) : []; const mn = vs.length ? Math.min(...vs) : null, mx = vs.length ? Math.max(...vs) : null;
+      return `<div class="drow${L === state.kday ? " on" : ""}" data-l="${L}"><span class="dname">${esc(relDay(x.valid))}</span><span class="ddot" style="background:${x.v != null ? pmHex(x.v) : "transparent"}"></span><span class="dk1">${x.v != null ? fmt(x.v) : "—"}</span>` +
+        (mn != null ? bar(mn, mx) + `<span class="dmax">${fmt(mn)}–${fmt(mx)}</span>` : `<span class="dbar"></span><span class="dmax"></span>`) + `</div>`; }).join("") + `<p class="small dnote">${esc(tr("k1.days_note"))}</p>`;
+    else { const dd = []; for (let k = kNow; k < 10; k++) { const t = validTime(day, k), key = t.toDateString(); let g = dd.find((q) => q.key === key); if (!g) dd.push(g = { key, t, ks: [] }); g.ks.push(k); }
+      $("pt-days").innerHTML = dd.map((g) => { const vs = g.ks.map((k) => mean[k]), mx = Math.max(...vs), mn = Math.min(...vs), kmx = g.ks[vs.indexOf(mx)];
+        return `<div class="drow" data-k="${kmx}"><span class="dname">${dayLabel(g.t)}</span><span class="ddot" style="background:${pmHex(mx)}"></span><span class="dk1">${fmt(mn)}</span>${bar(mn, mx)}<span class="dmax">${fmt(mx)}</span></div>`; }).join(""); }
+    if (land) { $("pt-strip").innerHTML = mean.map((v, k) => { if (k < kNow) return ""; const t = validTime(day, k); return `<div class="sitem${k === state.lead ? " on" : ""}" data-k="${k}"><div class="d">${dayLabel(t)}</div><div class="h">${hourLabel(t)}</div><div class="dot" style="background:${pmHex(v)}"></div><div class="v">${fmt(v)}</div></div>`; }).join("");
+      series(mean, p90, prob); $("acard-hours").hidden = false; }
+    else { $("pt-strip").innerHTML = ""; $("series").innerHTML = ""; $("acard-hours").hidden = true; }
   }
-  document.getElementById("pt-days").addEventListener("click", (ev) => { const r = ev.target.closest(".drow"); if (!r) return; state.lead = +r.dataset.k; document.getElementById("lead").value = state.lead; show(); });
-  document.getElementById("pt-strip").addEventListener("click", (ev) => { const it = ev.target.closest(".sitem"); if (!it) return; state.lead = +it.dataset.k; document.getElementById("lead").value = state.lead; show(); for (const x of document.querySelectorAll(".sitem")) x.classList.toggle("on", x === it); });
+  $("pt-days").addEventListener("click", (ev) => { const r = ev.target.closest(".drow"); if (!r) return; if (r.dataset.l) setKday(+r.dataset.l); else { state.lead = +r.dataset.k; $("lead").value = state.lead; show(); } });
+  $("pt-strip").addEventListener("click", (ev) => { const it = ev.target.closest(".sitem"); if (!it) return; state.lead = +it.dataset.k; $("lead").value = state.lead; show(); for (const x of document.querySelectorAll(".sitem")) x.classList.toggle("on", x === it); });
   function series(mean, p90, prob) {
-    const s = document.getElementById("series"); const cw = Math.round(s.getBoundingClientRect().width) || 560;     // drawn at the real width: text at its real size
+    const s = $("series"); const cw = Math.round(s.getBoundingClientRect().width) || 560;     // drawn at the real width: text at its real size
     const Wd = Math.max(280, Math.min(900, cw)), Hd = Wd < 480 ? 180 : 170, L = 34, R = 10, T = 12, B = 26; const top = Math.max(30, Math.ceil(Math.max(...p90) * 1.15 / 10) * 10);
     s.setAttribute("viewBox", `0 0 ${Wd} ${Hd}`); s.style.aspectRatio = `${Wd} / ${Hd}`;
     const X = (k) => L + (Wd - L - R) * k / 9, Y = (v) => T + (Hd - T - B) * (1 - Math.min(v, top) / top);
@@ -835,62 +1068,41 @@
     (Wd < 480 ? [0, 3, 5, 7, 9] : [0, 1, 3, 5, 7, 9]).forEach((k) => { h += `<text x="${X(k)}" y="${Hd - 8}" font-size="11" fill="${txtC}" text-anchor="${k === 0 ? "start" : k === 9 ? "end" : "middle"}">+${12 * (k + 1)} h</text>`; });
     s.innerHTML = h;
   }
-  // ---- zoom and pan
-  function zoomAt(f, fx, fy) {
-    const [l0, l1, a0, a1] = state.view; const lon = l0 + fx * (l1 - l0), lat = a1 - fy * (a1 - a0);
-    let w = (l1 - l0) / f, hgt = (a1 - a0) / f; w = Math.min(360, Math.max(4, w)); hgt = Math.min(144, Math.max(2, hgt));
-    let n0 = lon - fx * w, n1 = n0 + w, m1 = lat + fy * hgt, m0 = m1 - hgt;
-    if (w >= 360) { n0 = -180; n1 = 180; } else { if (n0 < -180) { n1 += -180 - n0; n0 = -180; } if (n1 > 180) { n0 -= n1 - 180; n1 = 180; } }
-    if (m1 > 84) { m0 -= m1 - 84; m1 = 84; } if (m0 < -60) { m1 += -60 - m0; m0 = -60; }
-    state.view = [n0, n1, m0, m1]; size();
+  // the box on the map: the 1 km value of the selected day, its class and source, the members above 15, the 40 km cell at the selected lead
+  async function readout(lng, lat) {
+    if (!state.map) return; state.popupAt = { lng, lat };
+    const nm = state.pick && state.pick.name ? pol(state.pick.name) : coord(lat, lng);
+    let html = `<div class="rn">${esc(nm.split(",")[0])}</div>`;
+    try {
+      if (state.k1) { const L = state.kday, valid = state.k1.layers.mean[L].valid; const im = decodeMean(await pixel("mean", L, lng, lat));
+        html += `<div class="rs">${esc(tr("k1.valid", { day: dfmt(valid, { weekday: "long", day: "numeric", month: "long" }) }))}</div>`;
+        if (!im) html += `<div class="rc">${esc(tr("k1.sea"))}</div>`;
+        else { const v = im.v, c = pmClass(v); html += `<div class="rv">≈ ${fmt(v)}<small>µg m⁻³</small></div><div class="rc"><i style="background:${pmHex(v)}"></i>${esc(clsName(c))}</div>`;
+          if (im.src) html += `<div class="rs">${esc(tr(["k1.src_1km", "k1.src_04", "k1.src_clim", "k1.src_int"][im.src]))}</div>`;
+          const ip = decodeProb(await pixel("prob15", L, lng, lat)); if (ip) html += `<div class="rs">${esc(tr("k1.pbelow", { k: ip.k }))}</div>`; } }
+      if (state.day) { const a = await loadLayer(state.day, "mean", state.lead); const r = Math.round((LAT0 - lat) / DLAT), c = Math.round((lng - LON0) / DLON) % NLON;
+        if (r >= 0 && r < NLAT) { const v = a[r * NLON + c]; if (!isOceanPm(v)) html += `<div class="rs">${esc(tr("k1.cell"))} · ${esc(fmtTime(validTime(state.day, state.lead)))}: <b>${fmt(dec(v))}</b> µg m⁻³</div>`; } }
+    } catch (e) { html += `<div class="rs">${esc(tr("map.failed"))}</div>`; }
+    if (!state.popup) state.popup = new maplibregl.Popup({ closeOnClick: false, maxWidth: "280px", offset: 12 }).on("close", () => { state.popupAt = null; });
+    state.popup.setLngLat([lng, lat]).setHTML(html); if (!state.popup.isOpen()) state.popup.addTo(state.map);
   }
-  cv.addEventListener("wheel", (ev) => { ev.preventDefault(); const b = cv.getBoundingClientRect(); zoomAt(ev.deltaY < 0 ? 1.25 : 0.8, (ev.clientX - b.left) / b.width, (ev.clientY - b.top) / b.height); }, { passive: false });
-  let drag = null, pinch = null;
-  cv.addEventListener("pointerdown", (ev) => { drag = { x: ev.clientX, y: ev.clientY, view: state.view.slice(), moved: false }; cv.setPointerCapture(ev.pointerId); });
-  cv.addEventListener("pointermove", (ev) => {
-    if (drag && (ev.buttons & 1)) { const b = cv.getBoundingClientRect(); const dx = (ev.clientX - drag.x) / b.width * (drag.view[1] - drag.view[0]), dy = (ev.clientY - drag.y) / b.height * (drag.view[3] - drag.view[2]);
-      if (Math.abs(ev.clientX - drag.x) + Math.abs(ev.clientY - drag.y) > 4) drag.moved = true;
-      let [l0, l1, a0, a1] = drag.view; const w = l1 - l0; if (w < 360) { l0 -= dx; l1 -= dx; if (l0 < -180) { l1 += -180 - l0; l0 = -180; } if (l1 > 180) { l0 -= l1 - 180; l1 = 180; } }
-      a0 += dy; a1 += dy; if (a1 > 84) { a0 -= a1 - 84; a1 = 84; } if (a0 < -60) { a1 += -60 - a0; a0 = -60; }
-      state.view = [l0, l1, a0, a1]; draw(true); tip.style.display = "none"; return; }
-    if (ev.pointerType === "mouse") hover(ev);
-  });
-  cv.addEventListener("pointerup", (ev) => { if (drag && !drag.moved) { const p = cellAt(ev); if (p.ok) pick(p.lat, p.lon); if (ev.pointerType !== "mouse") hover(ev); } drag = null; });
-  cv.addEventListener("pointerleave", () => { tip.style.display = "none"; });
-  cv.addEventListener("touchstart", (ev) => { if (ev.touches.length === 2) { pinch = Math.hypot(ev.touches[0].clientX - ev.touches[1].clientX, ev.touches[0].clientY - ev.touches[1].clientY); drag = null; } }, { passive: true });
-  cv.addEventListener("touchmove", (ev) => { if (ev.touches.length === 2 && pinch) { ev.preventDefault(); const d = Math.hypot(ev.touches[0].clientX - ev.touches[1].clientX, ev.touches[0].clientY - ev.touches[1].clientY);
-    const b = cv.getBoundingClientRect(); const cx = (ev.touches[0].clientX + ev.touches[1].clientX) / 2, cy = (ev.touches[0].clientY + ev.touches[1].clientY) / 2;
-    if (Math.abs(d / pinch - 1) > 0.05) { zoomAt(d / pinch, (cx - b.left) / b.width, (cy - b.top) / b.height); pinch = d; } } }, { passive: false });
-  cv.addEventListener("touchend", () => { pinch = null; });
-  document.getElementById("zin").addEventListener("click", () => zoomAt(1.6, 0.5, 0.5));
-  document.getElementById("zout").addEventListener("click", () => zoomAt(0.625, 0.5, 0.5));
-  document.getElementById("zreset").addEventListener("click", () => { state.view = REGIONS.world.slice(); document.getElementById("region").value = "world"; size(); });
-  document.getElementById("region").addEventListener("change", (ev) => { state.view = REGIONS[ev.target.value].slice(); size(); });
-  // ---- controls
-  document.getElementById("fields").addEventListener("click", (ev) => { const b = ev.target.closest("button"); if (!b) return; state.field = b.dataset.f;
-    for (const x of document.querySelectorAll("#fields button")) x.classList.toggle("on", x === b); show(); });
-  document.getElementById("lead").addEventListener("input", (ev) => { state.lead = +ev.target.value; show(); });
-  document.getElementById("play").addEventListener("click", () => { const b = document.getElementById("play");
-    if (state.timer) { clearInterval(state.timer); state.timer = null; b.textContent = "▶"; return; }
-    b.textContent = "❚❚"; state.timer = setInterval(() => { state.lead = (state.lead + 1) % 10; document.getElementById("lead").value = state.lead; show(); }, 900); });
-  document.getElementById("day").addEventListener("change", async (ev) => { state.day = ev.target.value; await loadDay(state.day); await loadCities(state.day); links(); show(); if (state.pick) pick(state.pick.lat, state.pick.lon, state.pick.name); });
-  window.addEventListener("keydown", (ev) => { if (ev.target.tagName === "INPUT" || ev.target.tagName === "SELECT") return;
-    if (ev.key === "ArrowRight") { state.lead = Math.min(9, state.lead + 1); document.getElementById("lead").value = state.lead; show(); }
-    if (ev.key === "ArrowLeft") { state.lead = Math.max(0, state.lead - 1); document.getElementById("lead").value = state.lead; show(); } });
-  function links() { const d = state.day, f = state.idx[d].files;
-    document.getElementById("dl-nc").href = BASE + d + "/" + (f.netcdf || ""); document.getElementById("dl-nc").textContent = f.netcdf || "(no NetCDF for this day)";
-    document.getElementById("dl-cities").href = BASE + d + "/cities.json"; document.getElementById("dl-index").href = BASE + d + "/index.json"; document.getElementById("dl-map").href = BASE + d + "/" + f.map[1]; }
-  // ---- live verification table (scores_live.json on the live branch), and the typical error of each city in the place card
+
+  // ---- data links, live verification table
+  function links() { const d = state.day; if (!d || !state.idx || !state.idx[d]) return; const f = state.idx[d].files;
+    $("dl-nc").href = BASE + d + "/" + (f.netcdf || ""); $("dl-nc").textContent = f.netcdf || "(no NetCDF for this day)";
+    $("dl-cities").href = BASE + d + "/cities.json"; $("dl-index").href = BASE + d + "/index.json"; $("dl-map").href = BASE + d + "/" + f.map[1];
+    if (state.k1latest) { $("dl-k1").href = BASE1 + state.k1latest.tiles_json; $("dl-k1").textContent = state.k1latest.tiles_json; $("dl-k1latest").href = BASE1 + "latest.json"; } }
   let LIVE_SC = null;
   fetch(BASE + "scores_live.json", { cache: "no-cache" }).then((r) => { if (!r.ok) throw 0; return r.json(); }).then((j) => {
     LIVE_SC = j; const S = j.summary || {}; const tb = document.querySelector("#live-table tbody"); const f = (x) => (x == null ? "–" : (+x).toFixed(1));
     tb.innerHTML = Object.entries(S.leads || {}).map(([L, v]) => `<tr><td>+${L} h</td><td>${v.n}</td><td><b>${f(v.otso && v.otso.rmse_land)}</b></td><td>${f(v.cams && v.cams.rmse_land)}${v.cams && v.n_cams < v.n ? ` <span class="small">(${v.n_cams} d)</span>` : ""}</td><td>${f(v.persistence && v.persistence.rmse_land)}</td><td>${f(v.city_mae_otso)}</td><td>${f(v.city_mae_cams)}</td></tr>`).join("") || `<tr><td colspan="7" class="small">No verified day yet.</td></tr>`;
-    document.getElementById("live-note").textContent = "Window " + (S.from || "") + " to " + (S.to || "") + ", updated " + (j.updated || "").replace("T", " ") + ". Days before 10 October 2026 come from the hindcast on live inputs.";
+    $("live-note").textContent = "Window " + (S.from || "") + " to " + (S.to || "") + ", updated " + (j.updated || "").replace("T", " ") + ". Days before 10 October 2026 come from the hindcast on live inputs.";
     if (state.place) renderPlace(state.place);
   }).catch(() => { document.querySelector("#live-table tbody").innerHTML = `<tr><td colspan="7" class="small">The verification file could not be loaded.</td></tr>`; });
-  // ---- cities
-  let MY = []; try { MY = JSON.parse(localStorage.getItem("otso-mycities") || "[]").map((x) => ({ ...x, name: pol(x.name) })); } catch (e) {}
-  async function cityRow(c) {                                                              // 3 x 3 cells around the place, from the layers of the shown day
+
+  // ---- cities: the published table (0.4°, 3 x 3 cells), the cities added here, and today's 1 km value at each city centre
+  let MY = []; try { MY = JSON.parse(ls.get("otso-mycities") || "[]").map((x) => ({ ...x, name: pol(x.name) })); } catch (e) {}
+  async function cityRow(c) {
     const day = state.day; const r = Math.round((LAT0 - c.lat) / DLAT), cc = Math.round(((((c.lon + 180) % 360 + 360) % 360 - 180) - LON0) / DLON) % NLON;
     const m = await Promise.all([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => loadLayer(day, "mean", k))); const pr = await Promise.all([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => loadLayer(day, "prob", k)));
     const mean = [], p = [];
@@ -900,35 +1112,43 @@
   }
   async function addCity(c) {
     const name = c.name + (c.country ? ", " + c.country : ""); const row = await cityRow(c);
-    if (!row) { document.getElementById("cities-note").textContent = tr("cities.noland", { name }); return; }
-    state.cities.cities[name] = row; if (!MY.some((x) => x.name === name)) { MY.unshift({ name, lat: c.lat, lon: c.lon }); MY = MY.slice(0, 30); try { localStorage.setItem("otso-mycities", JSON.stringify(MY)); } catch (e) {} }
-    document.getElementById("search").value = ""; table(); choose(c);
+    if (!row) { $("cities-note").textContent = tr("cities.noland", { name }); return; }
+    state.cities.cities[name] = row; if (!MY.some((x) => x.name === name)) { MY.unshift({ name, lat: c.lat, lon: c.lon }); MY = MY.slice(0, 30); ls.set("otso-mycities", JSON.stringify(MY)); }
+    $("search").value = ""; table(); k1Cities(); choose(c);
   }
   async function loadCities(day) { state.cities = await (await fetch(BASE + day + "/cities.json", { cache: "no-cache" })).json();
     for (const x of MY) { const row = await cityRow(x).catch(() => null); if (row) state.cities.cities[x.name] = row; }
-    table(); }
-  suggestBox(document.getElementById("search"), document.getElementById("search-list"), addCity);
-  const chip = (v) => `<span class="chip" style="background:${pmHex(v)};color:${pmClass(v) >= 3 && pmClass(v) <= 6 ? "#1c2530" : "#fff"}">${fmt(v)}</span>`;
+    table(); k1Cities(); }
+  let k1CitySeq = 0;
+  async function k1Cities() {                                                             // today's 1 km daily mean at the centre of every city of the table (one native tile per city)
+    if (!state.k1 || !state.cities) return; const seq = ++k1CitySeq, L = state.kday; if (state.k1city.L !== L || state.k1city.date !== state.k1.date) state.k1city = { L, date: state.k1.date, v: {} };
+    const todo = Object.entries(state.cities.cities).filter(([n]) => !(n in state.k1city.v)); let n = 0;
+    for (const [name, c] of todo) { if (seq !== k1CitySeq) return; try { const im = decodeMean(await pixel("mean", L, c.lon, c.lat)); state.k1city.v[name] = im ? im.v : null; } catch (e) { state.k1city.v[name] = null; } if (++n % 12 === 0) table(); }
+    table();
+  }
+  const chip = (v) => v == null ? `<span class="chip chip-none">—</span>` : `<span class="chip" style="background:${pmHex(v)};color:${pmClass(v) >= 3 && pmClass(v) <= 6 ? "#1c2530" : "#fff"}">${fmt(v)}</span>`;
   function table() {
-    if (!state.cities) return; const q = (document.getElementById("search").value || "").toLowerCase();
-    const rows = Object.entries(state.cities.cities).map(([name, c]) => ({ name, c, d1: c.mean[1], d3: c.mean[5], d5: c.mean[9], max: Math.max(...c.mean), pmax: Math.max(...c.p_above_25), added: !!c.added }))
+    if (!state.cities) return; const q = ($("search").value || "").toLowerCase(); const kv = state.k1city.v || {};
+    const rows = Object.entries(state.cities.cities).map(([name, c]) => ({ name, c, k1: kv[name] == null ? -1 : kv[name], d1: c.mean[1], d3: c.mean[5], d5: c.mean[9], max: Math.max(...c.mean), pmax: Math.max(...c.p_above_25), added: !!c.added }))
       .filter((r) => norm(r.name).includes(norm(q)));
     rows.sort((a, b) => state.sort === "name" ? (state.desc ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name)) : (state.desc ? b[state.sort] - a[state.sort] : a[state.sort] - b[state.sort]));
     const top = Math.max(50, ...rows.map((r) => r.max));
     rows.sort((a, b) => (b.added ? 1 : 0) - (a.added ? 1 : 0));                           // the cities added here first (stable sort keeps the chosen order inside)
-    document.querySelector("#ct tbody").innerHTML = rows.map((r) => `<tr data-n="${esc(r.name)}"><td><strong>${esc(r.name)}</strong>${r.added ? ` <button type="button" class="rm" data-rm="${esc(r.name)}" title="${tr("cities.remove")}">×</button>` : ""}</td><td>${chip(r.d1)}</td><td>${chip(r.d3)}</td><td>${chip(r.d5)}</td><td>${chip(r.max)}</td><td>${Math.round(100 * r.pmax)} %</td>` +
+    document.querySelector("#ct tbody").innerHTML = rows.map((r) => `<tr data-n="${esc(r.name)}"><td><strong>${esc(r.name)}</strong>${r.added ? ` <button type="button" class="rm" data-rm="${esc(r.name)}" title="${tr("cities.remove")}">×</button>` : ""}</td><td>${chip(r.k1 < 0 ? null : r.k1)}</td><td>${chip(r.d1)}</td><td>${chip(r.d3)}</td><td>${chip(r.d5)}</td><td>${chip(r.max)}</td><td>${Math.round(100 * r.pmax)} %</td>` +
       `<td><span class="bars">${r.c.mean.map((v) => `<i style="height:${Math.max(2, 22 * Math.min(v, top) / top)}px;background:${pmHex(v)}" title="${fmt(v)}"></i>`).join("")}</span></td></tr>`).join("");
     for (const th of document.querySelectorAll("#ct th[data-k]")) th.classList.toggle("on", th.dataset.k === state.sort);
-    document.getElementById("cities-note").textContent = tr("cities.note", { n: rows.length, day: state.cities.date });
+    $("cities-note").textContent = tr("cities.note", { n: rows.length, day: state.cities.date }) + (state.k1 ? " · " + tr("cities.k1_note", { day: relDay(state.k1.layers.mean[state.kday].valid) }) : "");
   }
-  document.getElementById("search").addEventListener("input", table);
-  document.getElementById("showall").addEventListener("click", () => { document.getElementById("tablewrap").classList.add("all"); });
-  document.querySelector("#ct tbody").addEventListener("click", (ev) => { const b = ev.target.closest("button.rm"); if (!b) return; ev.stopPropagation(); const n = b.dataset.rm; delete state.cities.cities[n]; MY = MY.filter((x) => x.name !== n); try { localStorage.setItem("otso-mycities", JSON.stringify(MY)); } catch (e) {} table(); }, true);
+  $("search").addEventListener("input", table);
+  $("showall").addEventListener("click", () => { $("tablewrap").classList.add("all"); });
+  document.querySelector("#ct tbody").addEventListener("click", (ev) => { const b = ev.target.closest("button.rm"); if (!b) return; ev.stopPropagation(); const n = b.dataset.rm; delete state.cities.cities[n]; MY = MY.filter((x) => x.name !== n); ls.set("otso-mycities", JSON.stringify(MY)); table(); }, true);
   document.querySelector("#ct thead").addEventListener("click", (ev) => { const th = ev.target.closest("th[data-k]"); if (!th) return; if (state.sort === th.dataset.k) state.desc = !state.desc; else { state.sort = th.dataset.k; state.desc = th.dataset.k !== "name"; } table(); });
-  document.querySelector("#ct tbody").addEventListener("click", (ev) => { const tr = ev.target.closest("tr"); if (!tr) return; const c = state.cities.cities[tr.dataset.n];
-    state.view = [c.lon - 22, c.lon + 22, c.lat - 9, c.lat + 9]; zoomAt(1, 0.5, 0.5); pick(c.lat, c.lon, tr.dataset.n); document.getElementById("map").scrollIntoView({ behavior: "smooth" }); });
-  // ---- your city: local gazetteer (GeoNames cities >= 15,000), searched by normalised prefix of words
-  let GAZ = null, gazLoading = null, sel = -1, hits = [];
+  document.querySelector("#ct tbody").addEventListener("click", (ev) => { const row = ev.target.closest("tr"); if (!row) return; const c = state.cities.cities[row.dataset.n]; if (!c) return;
+    goTo(c.lat, c.lon, 9.5); pick(c.lat, c.lon, row.dataset.n, { reverse: false }); $("map").scrollIntoView({ behavior: "smooth" }); });
+  function goTo(lat, lon, z) { if (!state.map) return; state.map.flyTo({ center: [lon, lat], zoom: z, speed: 1.6 }); }
+
+  // ---- your city or your street: local gazetteer (GeoNames cities >= 15,000), then any place or street from OpenStreetMap as you type
+  let GAZ = null, gazLoading = null;
   const norm = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   function loadGaz() { if (!gazLoading) gazLoading = fetch("gazetteer.json").then((r) => r.json()).then((g) => { GAZ = g.map((r) => ({ ...fixPlace(r[0], r[1]), lat: r[2], lon: r[3], pop: r[4], key: norm(r[0]) + (r[5] ? " " + norm(r[5]) : "") })); return GAZ; }); return gazLoading; }
   function search(q) {
@@ -937,21 +1157,22 @@
     for (const c of GAZ) { const k = c.key; let ok = true; for (const w of words) { if (!(k.startsWith(w) || k.includes(" " + w) || k.includes("-" + w))) { ok = false; break; } } if (ok) { out.push(c); if (out.length >= 8) break; } }
     return out;
   }
-  const list = document.getElementById("city-list"), cq = document.getElementById("city-q");
-  let onlineTimer = null, onlineSeq = 0;
-  async function searchOnline(q, box) {                                                  // any place on Earth: OpenStreetMap data
-    box = box || BOX; const seq = ++onlineSeq; let out = [];
-    try { const r = await fetch("https://photon.komoot.io/api/?q=" + encodeURIComponent(q) + "&limit=6&lang=en"); const j = await r.json();
-      out = j.features.map((f) => ({ ...fixPlace(f.properties.name || q, [f.properties.state, f.properties.country].filter(Boolean).join(", ")), lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0], pop: 0, online: true })); }
-    catch (e) { try { const r = await fetch("https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent(q) + "&format=jsonv2&limit=6"); const j = await r.json();
-      out = j.map((x) => ({ ...fixPlace(x.name || x.display_name.split(",")[0], x.display_name.split(",").slice(1, 3).join(",").trim()), lat: +x.lat, lon: +x.lon, pop: 0, online: true })); } catch (e2) {} }
+  const list = $("city-list"), cq = $("city-q");
+  const geoLang = () => (["en", "de", "fr", "it"].includes(LANG) ? LANG : "en");
+  const ctx = (q) => [q.city || q.town || q.village || q.municipality, q.state, q.country].filter(Boolean);
+  async function searchOnline(q, box) {                                                  // any place, street or address on Earth: OpenStreetMap data
+    box = box || BOX; box.seq = (box.seq || 0) + 1; const seq = box.seq; let out = [];
+    try { const r = await fetch("https://photon.komoot.io/api/?q=" + encodeURIComponent(q) + "&limit=7&lang=" + geoLang()); const j = await r.json();
+      out = j.features.map((f) => { const p = f.properties, street = p.osm_key === "highway" || p.street; const nm = p.name || p.street || q;
+        return { ...fixPlace(street && p.housenumber ? nm + " " + p.housenumber : nm, ctx(p).join(", ")), lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0], pop: 0, online: true, kind: p.osm_key || "", zoom: street || p.osm_key === "building" || p.osm_key === "amenity" ? 15 : p.osm_value === "neighbourhood" || p.osm_value === "suburb" ? 13 : 10.5 }; }); }
+    catch (e) { try { const r = await fetch("https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent(q) + "&format=jsonv2&limit=7"); const j = await r.json();
+      out = j.map((x) => ({ ...fixPlace(x.name || x.display_name.split(",")[0], x.display_name.split(",").slice(1, 3).join(",").trim()), lat: +x.lat, lon: +x.lon, pop: 0, online: true, zoom: /^(highway|building|amenity)$/.test(x.category) ? 15 : 10.5 })); } catch (e2) {} }
     out = out.filter((c) => c.name);                                                     // results without a name left (see fixPlace) are dropped
-    if (seq !== onlineSeq) return;                                                         // a newer query is running
+    if (seq !== box.seq) return;                                                           // a newer query is running, or a place was chosen meanwhile
     const seen = new Set(box.hits.map((c) => c.name.toLowerCase() + "|" + Math.round(c.lat) + "|" + Math.round(c.lon)));
     for (const c of out) { const k = c.name.toLowerCase() + "|" + Math.round(c.lat) + "|" + Math.round(c.lon); if (!seen.has(k) && c.lat > -60 && c.lat < 84) { box.hits.push(c); seen.add(k); } }
     if (box.sel < 0 && box.hits.length) box.sel = 0; renderList(box);
   }
-  const esc = (t) => String(t).replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
   function fixPlace(name, country) {                                                       // naming rules of the site owner
     name = String(name || "").replace(/\b(West|East)\s+Jerusalem\b/gi, "Jerusalem").replace(/ירושלים|القدس/g, "Jerusalem").trim();
     country = String(country || "").replace(/\b(Occupied Palestinian Territor(?:y|ies)|Palestinian Territor(?:y|ies)|State of Palestine)\b/gi, "Palestine")
@@ -962,80 +1183,128 @@
   }
   const pol = (t) => { t = String(t || ""); const i = t.indexOf(","); const f = i < 0 ? fixPlace(t, "") : fixPlace(t.slice(0, i), t.slice(i + 1)); return f.name ? f.name + (f.country ? ", " + f.country : "") : f.country; };
   function renderList(box) { const b = box || BOX; b.list.innerHTML = b.hits.map((c, i) => `<li data-i="${i}" class="${i === b.sel ? "sel" : ""}">${esc(c.name)}<span>${esc([c.country, c.pop ? (c.pop >= 1000 ? (c.pop / 1000).toFixed(1) + " M" : c.pop + " k") : (c.online ? tr("search.osm") : "")].filter(Boolean).join(" · "))}</span></li>`).join("") + (b.input.value.trim().length >= 2 ? `<li class="more"><span>${b.hits.some((c) => c.online) ? tr("search.osm_included") : tr("search.searching")}</span></li>` : ""); b.list.hidden = !b.hits.length && b.input.value.trim().length < 2; }
-  function choose(c) { list.hidden = true; cq.value = c.name + (c.country ? ", " + c.country : ""); try { localStorage.setItem("otso-city", JSON.stringify({ name: cq.value, lat: c.lat, lon: c.lon })); } catch (e) {} state.view = [c.lon - 22, c.lon + 22, c.lat - 9, c.lat + 9]; zoomAt(1, 0.5, 0.5); pick(c.lat, c.lon, c.name + (c.country ? ", " + c.country : "")); document.getElementById("map").scrollIntoView({ behavior: "smooth" }); }
+  function choose(c) { list.hidden = true; const nm = c.name + (c.country ? ", " + c.country : ""); cq.value = nm; ls.set("otso-city", JSON.stringify({ name: nm, lat: c.lat, lon: c.lon }));
+    goTo(c.lat, c.lon, c.zoom || 10.5); pick(c.lat, c.lon, nm, { reverse: false }); if (!document.body.classList.contains("app")) $("map").scrollIntoView({ behavior: "smooth" }); }
   function suggestBox(input, listEl, onChoose) {                                          // a search box with suggestions from the gazetteer and OpenStreetMap
-    const b = { input, list: listEl, hits: [], sel: -1, timer: null };
+    const b = { input, list: listEl, hits: [], sel: -1, timer: null, seq: 0 };
+    const done = (c) => { b.seq++; clearTimeout(b.timer); listEl.hidden = true; onChoose(c); };
     input.addEventListener("focus", loadGaz);
     input.addEventListener("input", async () => { await loadGaz(); b.hits = search(input.value); b.sel = b.hits.length ? 0 : -1; renderList(b);
-      clearTimeout(b.timer); const q = input.value.trim(); if (q.length >= 3) b.timer = setTimeout(() => searchOnline(q, b), 500); });
-    input.addEventListener("keydown", (ev) => { if (listEl.hidden) return; if (ev.key === "ArrowDown") { b.sel = Math.min(b.hits.length - 1, b.sel + 1); renderList(b); ev.preventDefault(); } else if (ev.key === "ArrowUp") { b.sel = Math.max(0, b.sel - 1); renderList(b); ev.preventDefault(); } else if (ev.key === "Enter") { if (b.sel >= 0) { listEl.hidden = true; onChoose(b.hits[b.sel]); } ev.preventDefault(); } else if (ev.key === "Escape") listEl.hidden = true; });
-    listEl.addEventListener("mousedown", (ev) => { const li = ev.target.closest("li[data-i]"); if (li) { ev.preventDefault(); listEl.hidden = true; onChoose(b.hits[+li.dataset.i]); } });
+      clearTimeout(b.timer); const q = input.value.trim(); if (q.length >= 3) b.timer = setTimeout(() => searchOnline(q, b), 450); });
+    input.addEventListener("keydown", (ev) => { if (listEl.hidden) return; if (ev.key === "ArrowDown") { b.sel = Math.min(b.hits.length - 1, b.sel + 1); renderList(b); ev.preventDefault(); } else if (ev.key === "ArrowUp") { b.sel = Math.max(0, b.sel - 1); renderList(b); ev.preventDefault(); } else if (ev.key === "Enter") { if (b.sel >= 0) done(b.hits[b.sel]); ev.preventDefault(); } else if (ev.key === "Escape") listEl.hidden = true; });
+    listEl.addEventListener("mousedown", (ev) => { const li = ev.target.closest("li[data-i]"); if (li) { ev.preventDefault(); done(b.hits[+li.dataset.i]); } });
     input.addEventListener("blur", () => setTimeout(() => { listEl.hidden = true; }, 150));
     return b;
   }
   const BOX = suggestBox(cq, list, choose);
-  async function placeName(lat, lon) {                                                  // a name for a position (OpenStreetMap data), or the coordinates
-    try { const r = await fetch("https://photon.komoot.io/reverse?lon=" + lon + "&lat=" + lat + "&lang=en"); const j = await r.json(); const f = j.features && j.features[0]; if (!f) throw 0;
-      const q = f.properties; return pol([q.city || q.town || q.village || q.name || q.county, q.country].filter(Boolean).join(", ")) || coord(lat, lon); } catch (e) { return coord(lat, lon); }
+  suggestBox($("search"), $("search-list"), addCity);
+  async function placeName(lat, lon) {                                                  // the street or the place at a position (OpenStreetMap data), or the coordinates
+    try { const r = await fetch("https://photon.komoot.io/reverse?lon=" + lon + "&lat=" + lat + "&lang=" + geoLang()); const j = await r.json(); const f = j.features && j.features[0]; if (!f) throw 0;
+      const q = f.properties, first = q.street || (q.osm_key === "highway" ? q.name : null) || q.name || q.district || q.suburb || q.locality || q.city || q.town || q.village || q.county;
+      const rest = [q.city || q.town || q.village || q.municipality || q.county, q.country].filter((x) => x && x !== first);
+      return pol([first].concat(rest).filter(Boolean).join(", ")) || coord(lat, lon); } catch (e) { return coord(lat, lon); }
   }
   function locate(scroll) {
     if (!navigator.geolocation) { cq.value = tr("geo.none"); return; }
     cq.value = tr("geo.locating");
     navigator.geolocation.getCurrentPosition(async (p) => { const lat = p.coords.latitude, lon = p.coords.longitude; const nm = await placeName(lat, lon); cq.value = nm;
-      try { localStorage.setItem("otso-geo", "1"); localStorage.setItem("otso-city", JSON.stringify({ name: nm, lat, lon })); } catch (e) {}
-      document.getElementById("welcome").hidden = true; state.view = [lon - 22, lon + 22, lat - 9, lat + 9]; zoomAt(1, 0.5, 0.5); pick(lat, lon, nm); if (scroll) document.getElementById("map").scrollIntoView({ behavior: "smooth" }); },
-      (err) => { cq.value = ""; cq.placeholder = err.code === 1 ? tr("geo.refused") : tr("geo.unavailable"); try { localStorage.removeItem("otso-geo"); } catch (e) {} if (!state.pick) cq.focus(); }, { timeout: 10000, maximumAge: 600000 });
+      ls.set("otso-geo", "1"); ls.set("otso-city", JSON.stringify({ name: nm, lat, lon }));
+      $("welcome").hidden = true; goTo(lat, lon, 12); pick(lat, lon, nm, { reverse: false }); if (scroll) $("map").scrollIntoView({ behavior: "smooth" }); },
+      (err) => { cq.value = ""; cq.placeholder = err.code === 1 ? tr("geo.refused") : tr("geo.unavailable"); ls.del("otso-geo"); if (!state.pick) cq.focus(); }, { timeout: 10000, maximumAge: 600000 });
   }
-  document.getElementById("city-geo").addEventListener("click", () => locate(true));
-  document.getElementById("welcome-geo").addEventListener("click", () => locate(false));
-  document.getElementById("welcome-type").addEventListener("click", () => { document.getElementById("welcome").hidden = true; cq.focus(); });
-  document.getElementById("tab-locate").addEventListener("click", (ev) => { ev.preventDefault(); locate(false); window.scrollTo({ top: 0, behavior: "smooth" }); });
+  $("city-geo").addEventListener("click", () => locate(true));
+  $("welcome-geo").addEventListener("click", () => locate(false));
+  $("welcome-type").addEventListener("click", () => { $("welcome").hidden = true; cq.focus(); });
+  $("tab-locate").addEventListener("click", (ev) => { ev.preventDefault(); locate(false); window.scrollTo({ top: 0, behavior: "smooth" }); });
+  let urlT = null;
+  function syncUrl() { clearTimeout(urlT); urlT = setTimeout(() => {                      // the view (c=lat,lon,zoom), the layer, the chosen place (lat, lon, name): a link that opens the same thing
+    const u = new URL(location.href); u.hash = "";
+    if (state.map) { const c = state.map.getCenter(); u.searchParams.set("c", c.lat.toFixed(4) + "," + c.lng.toFixed(4) + "," + state.map.getZoom().toFixed(1)); }
+    if (state.layer !== "k1") u.searchParams.set("layer", state.layer); else u.searchParams.delete("layer");
+    if (state.pick) { u.searchParams.set("lat", state.pick.lat.toFixed(4)); u.searchParams.set("lon", state.pick.lon.toFixed(4)); if (state.pick.name) u.searchParams.set("name", state.pick.name); else u.searchParams.delete("name"); }
+    else { u.searchParams.delete("lat"); u.searchParams.delete("lon"); u.searchParams.delete("name"); }
+    history.replaceState(null, "", u.pathname + u.search); }, 400); }
+
+  // ---- status lines
   function renderStatus() {
     const latest = state.latestMeta; if (!latest || !state.idx || !state.idx[state.day]) return; const ix = state.idx[state.day], day = state.day;
     const age = (Date.now() - new Date(day + "T00:00:00Z")) / 864e5, dshort = new Date(day + "T00:00:00Z").toLocaleString(LOC(), { weekday: "short", day: "numeric", month: "short" });
-    if (document.getElementById("app-meta")) document.getElementById("app-meta").textContent = tr("app.meta", { v: (ix.version || "1.2"), date: dshort });
-    document.getElementById("status-short").innerHTML = tr("status.short", { date: dshort, time: latest.updated.slice(11, 16), m: ix.members });
+    let k1s = "", k1short = "";
+    if (state.k1) { const l = state.k1latest || {}; const upd = l.updated ? new Date(l.updated.replace("Z", ":00Z")).toLocaleString(LOC(), { timeZone: "UTC", hour: "2-digit", minute: "2-digit" }) : "";
+      k1s = tr("status.k1", { date: dfmt(state.k1.date, { weekday: "short", day: "numeric", month: "short" }), time: upd }); const a1 = Math.round((Date.now() - Date.parse(state.k1.date + "T00:00:00Z")) / 864e5); if (a1 >= 2) k1s += " <span style='color:#8A5A00'>" + tr("k1.stale", { n: a1 }) + "</span>";
+      k1short = " · 1 km " + dfmt(state.k1.date, { day: "numeric", month: "short" }); }
+    else if (state.k1pending) k1s = "<span style='color:#8A5A00'>" + tr("k1.pending", { date: dfmt(todayIso(), { day: "numeric", month: "long" }) }) + "</span>";
+    if ($("app-meta")) $("app-meta").textContent = tr("app.meta", { v: (ix.version || "1.2"), date: dshort });
+    $("status-short").innerHTML = tr("status.short", { date: dshort, time: latest.updated.slice(11, 16), m: ix.members }) + k1short;
     setStatus(tr("status.long", { day, pub: latest.updated.replace("T", " "), m: ix.members, src: (ix.inputs.ifs_source || "").replace("https://", ""), ver: ix.inputs.gfas_version || "", gday: ix.inputs.gfas_day || "", inj: ix.inputs.fire_injection_variable || "" }) +
-      (age > 1.5 ? " <span style='color:#8A5A00'>" + tr("status.old", { n: Math.floor(age) }) + "</span>" : ""), age <= 1.5);
-    const tz = document.getElementById("tznote"); if (tz) tz.textContent = TZ === "UTC" ? tr("tz.utc") : tr("tz.local", { tz: TZ.replace(/_/g, " ") });
+      (age > 1.5 ? " <span style='color:#8A5A00'>" + tr("status.old", { n: Math.floor(age) }) + "</span>" : "") + (k1s ? "<br>" + k1s : ""), age <= 1.5);
+    const tz = $("tznote"); if (tz) tz.textContent = TZ === "UTC" ? tr("tz.utc") : tr("tz.local", { tz: TZ.replace(/_/g, " ") });
+    $("k1note").hidden = !state.k1pending || !!state.k1; if (state.k1pending && !state.k1) $("k1note").textContent = tr("k1.pending", { date: dfmt(todayIso(), { day: "numeric", month: "long" }) });
   }
+
+  // ---- the 1 km layer: latest.json and tiles.json of the live1km branch; retried every minute while the day's tiles are being published
+  async function loadK1(tries) {
+    try {
+      const r = await fetch(BASE1 + "latest.json", { cache: "no-cache" }); if (!r.ok) throw new Error("latest " + r.status);
+      const latest = await r.json(); const r2 = await fetch(BASE1 + latest.tiles_json, { cache: "no-cache" }); if (!r2.ok) throw new Error("tiles.json " + r2.status);
+      const meta = await r2.json();
+      state.k1latest = latest; state.k1 = meta; state.k1pending = false; state.dec.clear();
+      state.bits = {}; for (const [p, zz] of Object.entries(meta.tiles)) { state.bits[p] = {}; for (const [z, b64] of Object.entries(zz)) state.bits[p][z] = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0)); }
+      buildLut1();
+      const L0 = meta.leads.find((x) => meta.layers.mean[x].valid === todayIso()); state.kday = L0 || meta.leads[0];
+      if (state.day) { const k = leadOfKday(state.kday); if (k !== state.lead) { state.lead = k; $("lead").value = k; } }
+      if (!state.userLayer && state.layer === "o4") state.layer = "k1";
+      for (const b of document.querySelectorAll("#layers button")) b.classList.toggle("on", b.dataset.l === state.layer);
+      timeControls(); legend(); helpLine(); renderStatus(); addLayers(); if (state.map) noteText("", false); links();
+      if (state.pick) pick(state.pick.lat, state.pick.lon, state.pick.name, { reverse: false }); k1Cities();
+    } catch (e) {
+      state.k1pending = true; renderStatus();
+      ensureLayer();
+      if ((tries || 0) < 90) setTimeout(() => loadK1((tries || 0) + 1), 60000);
+    }
+  }
+
   // ---- start
   (async () => {
     await setLang(detectLang(), false);
+    state.gl = typeof maplibregl !== "undefined" && (() => { try { const c = document.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl")); } catch (e) { return false; } })();
+    const p1 = loadK1(0);
+    let ok = false;
     try {
-      const [latest, lines] = await Promise.all([fetch(BASE + "latest.json", { cache: "no-cache" }).then((r) => { if (!r.ok) throw new Error("latest.json " + r.status); return r.json(); }), fetch("lines.json").then((r) => r.json())]);
-      state.lines = lines; state.days = latest.days.slice().reverse(); state.idx = {}; state.day = latest.latest;
-      fetch("labels.json").then((r) => r.json()).then((j) => { LABELS = j; draw(); }).catch(() => {});
-      state.latestDay = latest.latest; state.latestMeta = latest;
-      const sel = document.getElementById("day"); sel.innerHTML = state.days.map((d) => `<option value="${d}">${d === latest.latest ? tr("day.latest") + ": " : ""}${d}</option>`).join("");
-      await loadDay(state.day); const ix = state.idx[state.day];
-      const age = (Date.now() - new Date(state.day + "T00:00:00Z")) / 864e5;
-      renderStatus();
-      if (window.innerWidth < 700) {                                                 // a phone starts on the visitor's own region (time zone); the world is one tap away
-        const tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || "");
-        const reg = /^Europe|^Atlantic\/(Canary|Madeira|Azores|Faroe|Reykjavik)/.test(tz) ? "europe" : /^Asia\/(Kolkata|Calcutta|Karachi|Dhaka|Kathmandu|Colombo|Thimphu|Kabul)/.test(tz) ? "sasia"
-          : /^Asia\/(Shanghai|Chongqing|Harbin|Urumqi|Hong_Kong|Macau|Taipei|Seoul|Pyongyang|Tokyo|Ulaanbaatar|Hovd|Choibalsan)/.test(tz) ? "easia" : /^Asia\/(Bangkok|Jakarta|Ho_Chi_Minh|Saigon|Manila|Singapore|Kuala_Lumpur|Kuching|Phnom_Penh|Vientiane|Yangon|Rangoon|Makassar|Jayapura|Pontianak|Brunei|Dili)/.test(tz) ? "seasia"
-          : /^Asia\/(Riyadh|Dubai|Tehran|Baghdad|Kuwait|Qatar|Bahrain|Muscat|Jerusalem|Tel_Aviv|Amman|Beirut|Damascus|Aden|Baku|Yerevan|Tbilisi)|^Europe\/Istanbul/.test(tz) ? "mideast" : /^Africa/.test(tz) ? "africa"
-          : /^America\/(Sao_Paulo|Buenos_Aires|Argentina|Santiago|Lima|Bogota|Caracas|La_Paz|Montevideo|Asuncion|Guayaquil|Quito|Recife|Fortaleza|Manaus|Belem|Bahia|Cuiaba|Campo_Grande|Paramaribo|Cayenne|Guyana|Punta_Arenas)/.test(tz) ? "samerica"
-          : /^America|^Canada|^US\//.test(tz) ? "namerica" : /^Australia|^Pacific\/(Auckland|Port_Moresby|Fiji)/.test(tz) ? "oceania" : /^Asia/.test(tz) ? "easia" : "world";
-        if (reg !== "world") { state.view = REGIONS[reg].slice(); document.getElementById("region").value = reg; }
-      }
-      renderStatus();
-      links(); size(); await show(); await loadCities(state.day);
-      const qs = new URLSearchParams(location.search);                                   // a shared place: ?lat=..&lon=..&name=.. or the same in the hash
-      const m = qs.get("lat") && qs.get("lon") ? [null, qs.get("lat"), qs.get("lon"), qs.get("name") ? encodeURIComponent(qs.get("name")) : undefined] : location.hash.match(/lat=(-?[\d.]+)&lon=(-?[\d.]+)(?:&name=([^&]+))?/);
-      let remembered = null; try { remembered = JSON.parse(localStorage.getItem("otso-city") || "null"); } catch (e) {}
-      if (m) { const nm = m[3] ? pol(decodeURIComponent(m[3])) : null; if (nm) cq.value = nm; state.view = [+m[2] - 22, +m[2] + 22, +m[1] - 9, +m[1] + 9]; zoomAt(1, 0.5, 0.5); pick(+m[1], +m[2], nm); }
-      else if (remembered && isFinite(remembered.lat)) { remembered.name = pol(remembered.name); cq.value = remembered.name; state.view = [remembered.lon - 22, remembered.lon + 22, remembered.lat - 9, remembered.lat + 9]; zoomAt(1, 0.5, 0.5); pick(remembered.lat, remembered.lon, remembered.name);
-        let geo = null; try { geo = localStorage.getItem("otso-geo"); } catch (e) {} if (geo === "1") locate(false); }         // the position is refreshed silently (permission already given)
-      else document.getElementById("welcome").hidden = false;
-    } catch (e) {
-      setStatus(tr("status.error", { e: e.message }), false);
-      document.getElementById("overlay").firstElementChild.textContent = navigator.onLine === false ? tr("map.offline_none") : tr("map.none");
-      cur = null; ctx.fillStyle = "#f6f8fa"; ctx.fillRect(0, 0, cv.width, cv.height); ctx.fillStyle = "#5b6977"; ctx.font = "16px Helvetica, Arial"; ctx.textAlign = "center"; ctx.fillText(tr("map.none"), cv.width / 2, cv.height / 2);
+      const latest = await fetch(BASE + "latest.json", { cache: "no-cache" }).then((r) => { if (!r.ok) throw new Error("latest.json " + r.status); return r.json(); });
+      state.days = latest.days.slice().reverse(); state.idx = {}; state.day = latest.latest; state.latestDay = latest.latest; state.latestMeta = latest;
+      daySelect(); await loadDay(state.day); renderStatus(); links(); ok = true;
+    } catch (e) { setStatus(tr("status.error", { e: e.message }), false); }
+    // the view: a shared link (c=lat,lon,zoom), else the chosen place, else the visitor's region on a phone, else the world
+    let center = [12, 28], zoom = 1.5, fit = null, pin = null;
+    const cc = (P.get("c") || "").split(","); const hasC = cc.length === 3 && isFinite(+cc[0]) && isFinite(+cc[1]) && isFinite(+cc[2]);
+    if (hasC) { center = [+cc[1], +cc[0]]; zoom = +cc[2]; }
+    const hm = location.hash.match(/lat=(-?[\d.]+)&lon=(-?[\d.]+)(?:&name=([^&]+))?/);
+    if (P.get("lat") && P.get("lon")) pin = { lat: +P.get("lat"), lon: +P.get("lon"), name: P.get("name") ? pol(P.get("name")) : null };
+    else if (hm) pin = { lat: +hm[1], lon: +hm[2], name: hm[3] ? pol(decodeURIComponent(hm[3])) : null };
+    let remembered = null; try { remembered = JSON.parse(ls.get("otso-city") || "null"); } catch (e) {}
+    if (!pin && remembered && isFinite(remembered.lat)) { pin = { lat: +remembered.lat, lon: +remembered.lon, name: pol(remembered.name || "") || null, remembered: true }; }
+    if (pin && !hasC) { center = [pin.lon, pin.lat]; zoom = pin.remembered ? 9.5 : 10; }
+    if (!pin && !hasC && window.innerWidth < 700) {                                        // a phone starts on the visitor's own region (time zone); the world is one pinch away
+      const tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || "");
+      const reg = /^Europe|^Atlantic\/(Canary|Madeira|Azores|Faroe|Reykjavik)/.test(tz) ? "europe" : /^Asia\/(Kolkata|Calcutta|Karachi|Dhaka|Kathmandu|Colombo|Thimphu|Kabul)/.test(tz) ? "sasia"
+        : /^Asia\/(Shanghai|Chongqing|Harbin|Urumqi|Hong_Kong|Macau|Taipei|Seoul|Pyongyang|Tokyo|Ulaanbaatar|Hovd|Choibalsan)/.test(tz) ? "easia" : /^Asia\/(Bangkok|Jakarta|Ho_Chi_Minh|Saigon|Manila|Singapore|Kuala_Lumpur|Kuching|Phnom_Penh|Vientiane|Yangon|Rangoon|Makassar|Jayapura|Pontianak|Brunei|Dili)/.test(tz) ? "seasia"
+        : /^Asia\/(Riyadh|Dubai|Tehran|Baghdad|Kuwait|Qatar|Bahrain|Muscat|Jerusalem|Tel_Aviv|Amman|Beirut|Damascus|Aden|Baku|Yerevan|Tbilisi)|^Europe\/Istanbul/.test(tz) ? "mideast" : /^Africa/.test(tz) ? "africa"
+        : /^America\/(Sao_Paulo|Buenos_Aires|Argentina|Santiago|Lima|Bogota|Caracas|La_Paz|Montevideo|Asuncion|Guayaquil|Quito|Recife|Fortaleza|Manaus|Belem|Bahia|Cuiaba|Campo_Grande|Paramaribo|Cayenne|Guyana|Punta_Arenas)/.test(tz) ? "samerica"
+        : /^America|^Canada|^US\//.test(tz) ? "namerica" : /^Australia|^Pacific\/(Auckland|Port_Moresby|Fiji)/.test(tz) ? "oceania" : /^Asia/.test(tz) ? "easia" : "world";
+      if (reg !== "world") fit = REGIONS[reg];
     }
+    if (state.gl) { try { createMap(center, zoom); if (fit) state.map.fitBounds([[fit[0], fit[2]], [fit[1], fit[3]]], { animate: false, padding: 10 }); } catch (e) { state.gl = false; } }
+    if (!state.gl) { const n = $("note"); n.innerHTML = `<span>${esc(tr("k1.nogl"))}</span> <a href="classic/">${esc(tr("k1.classic"))}</a>`; n.hidden = false; }
+    const ql = P.get("layer"); if (ql === "o4") { state.layer = "o4"; state.userLayer = true; } else if (ql === "k1p") { state.layer = "k1p"; state.userLayer = true; }
+    for (const b of document.querySelectorAll("#layers button")) b.classList.toggle("on", b.dataset.l === state.layer);
+    if (ok) { state.lead = state.k1 ? leadOfKday(state.kday) : 0; $("lead").value = state.lead; timeControls(); await show(); helpLine(); await loadCities(state.day); }
+    await p1;
+    if (pin) { if (pin.name) cq.value = pin.name; await pick(pin.lat, pin.lon, pin.name, { reverse: !pin.name }); if (pin.remembered && ls.get("otso-geo") === "1") locate(false); }   // the position is refreshed silently (permission already given)
+    else $("welcome").hidden = false;
+    if (!ok && !state.k1) noteText(navigator.onLine === false ? tr("map.offline_none") : tr("map.none"), true);
   })();
-  window.addEventListener("resize", () => { if (cur) size(); if (state.place) series(state.place.mean, state.place.p90, state.place.prob); });
+  window.addEventListener("resize", () => { if (state.place && state.place.land) series(state.place.mean, state.place.p90, state.place.prob); });
   if (/[?&]debug=1/.test(location.search)) setTimeout(() => {                                // layout test: elements wider than the screen, outside a scroller
     const iw = document.documentElement.clientWidth, bad = [];
     const clipped = (el) => { for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) { const o = getComputedStyle(a).overflowX; if (o === "auto" || o === "scroll" || o === "hidden") return true; } return false; };
@@ -1044,32 +1313,29 @@
     const box = document.createElement("div"); box.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:999;background:" + (bad.length ? "#b00020" : "#1e7d32") + ";color:#fff;font:13px/1.35 monospace;padding:8px;word-break:break-all";
     box.textContent = "viewport " + iw + " px, page " + document.documentElement.scrollWidth + " px · overflow: " + (bad.slice(0, 30).join(" ; ") || "none"); document.body.appendChild(box);
   }, 12000);
-  const offlineNote = () => { document.getElementById("offline").hidden = navigator.onLine !== false; };
+  const offlineNote = () => { $("offline").hidden = navigator.onLine !== false; };
   window.addEventListener("online", offlineNote); window.addEventListener("offline", offlineNote); offlineNote();
-  // ---- theme: the system's preference, or the remembered choice (button in the top bar)
-  function isDark() { return document.documentElement.dataset.theme === "dark"; }
-  function applyTheme(t, save) { document.documentElement.dataset.theme = t; document.getElementById("theme").textContent = t === "dark" ? "☀️" : "🌙"; const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = t === "dark" ? "#0f1720" : "#1F5AA6";
-    if (save) { try { localStorage.setItem("otso-theme", t); } catch (e) {} } if (cur) { draw(); drawCbar(); } if (state.place) renderPlace(state.place); }
-  (() => { let t = new URLSearchParams(location.search).get("theme"); if (t !== "dark" && t !== "light") { t = null; try { t = localStorage.getItem("otso-theme"); } catch (e) {} } applyTheme(t || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"), false);
-    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (ev) => { let saved = null; try { saved = localStorage.getItem("otso-theme"); } catch (e) {} if (!saved) applyTheme(ev.matches ? "dark" : "light", false); }); })();
-  document.getElementById("theme").addEventListener("click", () => applyTheme(isDark() ? "light" : "dark", true));
+  // ---- theme: the system's preference, or the remembered choice (button in the top bar); the basemap follows unless chosen
+  function applyTheme(t, save) { const changed = document.documentElement.dataset.theme && document.documentElement.dataset.theme !== t;
+    document.documentElement.dataset.theme = t; $("theme").textContent = t === "dark" ? "☀️" : "🌙"; const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = t === "dark" ? "#0f1720" : "#1F5AA6";
+    if (save) ls.set("otso-theme", t); if (cur) drawCbar(); if (state.place) renderPlace(state.place);
+    if (changed && state.map && !state.basemap) setStyle(); if (state.marker) { state.marker.remove(); state.marker = null; if (state.pick) markerAt(state.pick.lat, state.pick.lon); } }
+  (() => { let t = P.get("theme"); if (t !== "dark" && t !== "light") t = ls.get("otso-theme"); applyTheme(t || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"), false);
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (ev) => { if (!ls.get("otso-theme")) applyTheme(ev.matches ? "dark" : "light", false); }); })();
+  $("theme").addEventListener("click", () => applyTheme(isDark() ? "light" : "dark", true));
   // ---- app mode: installed on the home screen (standalone), or opened from the manifest's start_url
   const APP = !/[?&]full=1/.test(location.search) && (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true || /[?&]source=pwa/.test(location.search) || location.hash === "#app");
   if (APP) {
     document.body.classList.add("app");
-    document.querySelector("footer .wrap").insertBefore(document.getElementById("stats"), document.querySelector("footer .fine"));
+    document.querySelector("footer .wrap").insertBefore($("stats"), document.querySelector("footer .fine"));
     const am = document.createElement("p"); am.className = "app-meta"; am.id = "app-meta"; document.querySelector(".air-hero").appendChild(am);
-    const mapSec = document.querySelector("#map .wrap"), mapcard = document.querySelector(".mapcard"), point = document.getElementById("point");
-    mapSec.insertBefore(document.getElementById("welcome"), mapcard); mapSec.insertBefore(point, mapcard);   // the welcome card and the selected place right under the search box
-    document.title = "Otso 1.2 — PM2.5 forecast";
-    const cq0 = document.getElementById("city-q"); let rem = null; try { rem = JSON.parse(localStorage.getItem("otso-city") || "null"); } catch (e) {}
-    if (!rem) setTimeout(() => { cq0.placeholder = tr("city.ph_app"); }, 0);
+    let rem = null; try { rem = JSON.parse(ls.get("otso-city") || "null"); } catch (e) {}
+    if (!rem) setTimeout(() => { cq.placeholder = tr("city.ph_app"); }, 0);
   }
   // ---- usage counters (abacus.jasoncameron.dev, a public hit counter: no cookies, no personal data; "unique" = per device,
   //      remembered in this browser; a count by IP address needs a server, which a static site has not)
   (async () => {
-    const CNT = "https://abacus.jasoncameron.dev", NS = "foehn-otso", today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-    const ls = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
+    const CNT = "https://abacus.jasoncameron.dev", NS = "foehn-otso", today = todayIso().replace(/-/g, "");
     const hit = (k) => fetch(`${CNT}/hit/${NS}/${k}`).then((r) => r.json()).then((j) => j.value).catch(() => null);
     const get = (k) => fetch(`${CNT}/get/${NS}/${k}`).then((r) => r.json()).then((j) => j.value).catch(() => null);
     const v = {};
@@ -1085,27 +1351,27 @@
     USAGE = v; renderUsage();
   })();
   if (APP && "IntersectionObserver" in window) {
-    const secOf = { city: document.getElementById("city"), map: document.querySelector(".mapcard"), cities: document.getElementById("cities") };
+    const secOf = { city: $("city"), map: document.querySelector(".mapcard"), cities: $("cities") };
     const io = new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { const k = Object.keys(secOf).find((k) => secOf[k] === e.target); for (const a of document.querySelectorAll(".tabbar a[data-sec]")) a.classList.toggle("on", a.dataset.sec === k); } }, { rootMargin: "-40% 0px -50% 0px" });
     for (const el of Object.values(secOf)) if (el) io.observe(el);
   }
   let USAGE = null;
   function renderUsage() {
-    if (!USAGE) return; const v = USAGE, n = (x) => Number(x || 0).toLocaleString(LOC()), el = document.getElementById("stats");
+    if (!USAGE) return; const v = USAGE, n = (x) => Number(x || 0).toLocaleString(LOC()), el = $("stats");
     el.innerHTML = `<span>👥 <b>${n(v.visitors)}</b> ${tr("usage.visitors")}</span> · <span><b>${n(v.visitorsDay)}</b> ${tr("usage.today")}</span> · <span>📲 <b>${n(v.installs)}</b> ${tr("usage.installed")}</span> · <span>📱 <b>${n(v.appUsers)}</b> ${tr("usage.appusers")}</span> · <span><b>${n(v.appDay)}</b> ${tr("usage.apptoday")}</span> <span class="small">${tr("usage.note")}</span>`;
     el.hidden = false;
   }
-  document.getElementById("lang").addEventListener("change", (ev) => setLang(ev.target.value, true));
-  (() => { const lf = document.getElementById("lang-foot"); lf.innerHTML = document.getElementById("lang").innerHTML; lf.value = LANG; lf.addEventListener("change", (ev) => { setLang(ev.target.value, true); window.scrollTo({ top: 0, behavior: "smooth" }); }); })();
+  $("lang").addEventListener("change", (ev) => setLang(ev.target.value, true));
+  (() => { const lf = $("lang-foot"); lf.innerHTML = $("lang").innerHTML; lf.value = LANG; lf.addEventListener("change", (ev) => { setLang(ev.target.value, true); window.scrollTo({ top: 0, behavior: "smooth" }); }); })();
   // ---- install tutorial: the tab of the visitor's system is opened first
   const ua = navigator.userAgent || ""; const os = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) ? "ios" : /Android/.test(ua) ? "android" : "desktop";
   function showOs(o) { for (const b of document.querySelectorAll(".ostabs button")) b.classList.toggle("on", b.dataset.os === o); for (const d of document.querySelectorAll(".istep[data-os]")) d.hidden = d.dataset.os !== o; }
   document.querySelector(".ostabs").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-os]"); if (b) showOs(b.dataset.os); }); showOs(os);
-  if (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone) { const i = document.getElementById("install"); if (i) { const sb = i.querySelector(".sub"); sb.removeAttribute("data-i18n-html"); sb.textContent = tr("install.done"); } }
+  if (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone) { const i = $("install"); if (i) { const sb = i.querySelector(".sub"); sb.removeAttribute("data-i18n-html"); sb.textContent = tr("install.done"); } }
   // ---- PWA: service worker and the install prompt (Chrome / Edge / Android)
-  if ("serviceWorker" in navigator) { navigator.serviceWorker.register("sw.js").then((reg) => { reg.addEventListener("updatefound", () => { const nw = reg.installing; if (!nw) return; nw.addEventListener("statechange", () => { if (nw.state === "installed" && navigator.serviceWorker.controller) { const t = document.getElementById("toast"); t.hidden = false; } }); }); }).catch(() => {}); }
-  document.getElementById("toast-reload").addEventListener("click", () => location.reload());
-  let installEvt = null; const ib = document.getElementById("install-btn");
+  if ("serviceWorker" in navigator) { navigator.serviceWorker.register("sw.js").then((reg) => { reg.addEventListener("updatefound", () => { const nw = reg.installing; if (!nw) return; nw.addEventListener("statechange", () => { if (nw.state === "installed" && navigator.serviceWorker.controller) { $("toast").hidden = false; } }); }); }).catch(() => {}); }
+  $("toast-reload").addEventListener("click", () => location.reload());
+  let installEvt = null; const ib = $("install-btn");
   window.addEventListener("beforeinstallprompt", (ev) => { ev.preventDefault(); installEvt = ev; ib.hidden = false; });
   ib.addEventListener("click", async () => { if (!installEvt) return; installEvt.prompt(); await installEvt.userChoice; installEvt = null; ib.hidden = true; });
   window.addEventListener("appinstalled", () => { ib.hidden = true; });

@@ -1,11 +1,11 @@
-/* Otso 1.1 service worker.
+/* Otso service worker (1.3: the 1 km street map is the main page; vendor/maplibre-gl in the shell; classic/ is the previous page).
    - the page itself (navigations) is fetched from the network first, so an online visitor always gets the latest version;
      the cached copy is the offline fallback
    - static assets (style, gazetteer, coastlines, icons) are served from the cache and refreshed in the background
    - the live forecast (raw.githubusercontent.com) is network first; the last successful copy is kept for offline use
-   - the 1 km map (1km/): its page like the main page; its tiles (live1km branch) are not stored by the worker */
-const VERSION = "otso-1.2-20261028k1";
-const SHELL = ["./", "./index.html", "./assets/style.css?v=20261012o", "./lines.json", "./gazetteer.json", "./manifest.webmanifest",
+   - the 1 km tiles (live1km branch, thousands, new every day) are not stored by the worker; the basemap (tiles.openfreemap.org) neither */
+const VERSION = "otso-1.3-20261104a";
+const SHELL = ["./", "./index.html", "./assets/style.css?v=20261012o", "./lines.json", "./gazetteer.json", "./manifest.webmanifest", "./vendor/maplibre-gl.js", "./vendor/maplibre-gl.css",
                "./icon-192.png", "./icon-512.png", "./assets/logo_mark.svg", "./assets/favicon.png", "./qr.svg", "./labels.json", "./i18n/en.json", "./assets/amc_logo_full.png", "./assets/lumi_logo.png", "./assets/csc_logo.svg"];
 self.addEventListener("install", (ev) => { ev.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", (ev) => { ev.waitUntil(caches.keys().then(async (ks) => {

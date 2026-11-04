@@ -1,7 +1,7 @@
 {
-  "name": "Otso 1.2 — PM2.5 forecast",
+  "name": "Otso — PM2.5 forecast at 1 km",
   "short_name": "Otso",
-  "description": "Where will the fine particles be tomorrow? Daily research forecast of PM2.5, 12 h to 5 days ahead, for any city. Not an official alert.",
+  "description": "Where will the fine particles be tomorrow, down to your street? Daily research forecast of PM2.5 at 1 km on a street map, five days ahead. Not an official alert.",
   "id": "/Otso/",
   "start_url": "/Otso/?source=pwa",
   "scope": "/Otso/",
@@ -11,7 +11,6 @@
   "theme_color": "#1F5AA6",
   "lang": "en",
   "categories": ["weather", "health", "education"],
-  "shortcuts": [{ "name": "Otso 1 km map", "short_name": "1 km map", "url": "/Otso/1km/?source=pwa", "icons": [{ "src": "icon-192.png", "sizes": "192x192" }] }],
   "icons": [
     { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
