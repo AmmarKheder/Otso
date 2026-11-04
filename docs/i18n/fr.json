@@ -169,7 +169,7 @@
 "i18n.note": "Traduction automatique ; les corrections sont bienvenues.",
 "nav.k1": "Carte 1 km",
 "k1.h2": "Otso 1 km",
-"k1.sub": "La même prévision, affinée à 1 km par un modèle génératif et dessinée sur un plan des rues : zoomez jusqu'à votre quartier, cinq jours à l'avance. Au nord de 60° N, où le modèle 1 km n'a pas de données, la carte montre la prévision 0,4° corrigée vers GHAP.",
+"k1.sub": "La même prévision, affinée à 1 km par un modèle génératif et dessinée sur un plan des rues : zoomez jusqu'à votre quartier, cinq jours à l'avance. Le modèle 1 km couvre les terres de 60° S à 84° N.",
 "k1.btn": "Ouvrir la carte 1 km",
 "tab.k1": "1 km"
 }
