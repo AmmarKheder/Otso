@@ -2,7 +2,6 @@
   "appId": "com.ammarkheder.otso",
   "appName": "Otso 2.0",
   "webDir": "www",
-  "bundledWebRuntime": false,
   "server": {
     "iosScheme": "capacitor"
   },
@@ -10,16 +9,15 @@
     "contentInset": "never",
     "scrollEnabled": true,
     "limitsNavigationsToAppBoundDomains": false,
-    "preferredContentMode": "mobile"
+    "preferredContentMode": "mobile",
+    "appendUserAgent": "Otso/2.0 (+https://ammarkheder.com/Otso/)"
   },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 1500,
       "launchAutoHide": true,
       "backgroundColor": "#ffffff",
-      "showSpinner": false,
-      "splashFullScreen": true,
-      "splashImmersive": true
+      "showSpinner": false
     },
     "StatusBar": {
       "overlaysWebView": true,

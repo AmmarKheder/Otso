@@ -9,9 +9,9 @@ Everything here is in English (the primary language of the listing); add a Frenc
 - **Category:** Weather (primary), Education (secondary)
 - **Copyright:** 2026 Ammar Kheder
 - **Privacy policy URL:** https://ammarkheder.com/Otso/privacy/
-- **Support URL:** https://github.com/AmmarKheder/Otso/issues
+- **Support URL:** https://ammarkheder.com/Otso/privacy/#contact (e-mail and the GitHub issues, no account needed)
 - **Marketing URL:** https://ammarkheder.com/Otso/
-- **Age rating:** 4+ (no objectionable content; answer "No" to everything; "Unrestricted web access": No, the app only loads its own page and opens external links in Safari)
+- **Age rating:** 4+. In the 2025 questionnaire answer "None" to Medical/Treatment Information and Health/Wellness topics (an air-quality research forecast, not health advice), "No" to "Shared Location" (the position never leaves the device except the one place search, nothing is shared with other users), "No" to "Unrestricted Web Access" (the app loads only its own bundled page; every link opens in Safari, outside the app), "No" to everything else.
 - **Price:** Free · no in-app purchases · no ads
 
 ## Promotional text (170 chars max)
@@ -42,20 +42,22 @@ First App Store release: the Otso forecast drawn at 1 km on a street map, search
 ## App Privacy (App Store Connect → App Privacy)
 Answer: **data is collected** = No for everything that is not listed; declare only:
 - **Location → Precise Location**: used for **App Functionality**; **Not linked** to the user's identity; **Not used for tracking**.
-  Reason: when the user taps "My location", the coordinates are used on the device to centre the map, and are sent once to the
-  place-search service (Photon, OpenStreetMap data) to display the street name; nothing is stored off the device.
-  (If you prefer the strictest reading, "Data Not Collected" is defensible: the transmission only serves the request in real
-  time. Declaring Precise Location is the safer choice with reviewers.)
-- No other data type: no identifiers, no contact info, no usage data, no diagnostics (the anonymous visit counter of the
-  website stores a per-device flag locally and sends no identifier; it is a public counter, not analytics).
-- **Tracking:** No. The privacy manifest `PrivacyInfo.xcprivacy` says the same (NSPrivacyTracking = false).
+  Reason: when the user taps "My location", the coordinates are used on the device to centre the map, and are sent once,
+  rounded to about 100 m, to the place-search service (Photon, OpenStreetMap data) to display the street name; nothing is
+  stored off the device. The privacy manifest `PrivacyInfo.xcprivacy` declares the same (precise location, not linked, not
+  for tracking, purpose app functionality).
+- No other data type: no identifiers, no contact info, no usage data (the app does not call the website's visit counter),
+  no diagnostics.
+- **Tracking:** No (NSPrivacyTracking = false in the manifest).
 
 ## Export compliance
 The app uses only HTTPS (standard encryption of the system): `ITSAppUsesNonExemptEncryption = false` is set in Info.plist,
 so App Store Connect will not ask the encryption questions at each upload.
 
 ## Screenshots to take (on the iPhone or the simulator, in Xcode: ⌘S saves a PNG)
-Required set: **6.9-inch iPhone** (e.g. iPhone 16 Pro Max / 17 Pro Max simulator, 1320 × 2868 px portrait). Three to six
+Required set (App Store Connect, November 2026): **iPhone with Dynamic Island, medium display**: 1206 × 2622 px portrait
+(iPhone 17 / 17 Pro simulator) or 1179 × 2556 px (iPhone 16 simulator). Optional second set for the Plus / Pro Max / Air
+product pages: large display, 1320 × 2868 px (iPhone 17 Pro Max simulator). No iPad set (iPhone-only app). Three to six
 images, in this order:
 1. the map at 1 km over a polluted region at country scale (e.g. northern India or eastern China), layer "1 km · daily mean";
 2. a street-level view with the popup (value, class, members above 15, 40 km cell);
@@ -71,14 +73,20 @@ Otso 2.0 is a research forecast of fine particulate matter (PM2.5) from a univer
 Lahti, University of Helsinki / LUT University). There is no account and no sign-in: the app works as soon as it opens.
 Tap "My location" or search a city (for instance "Helsinki" or "Lahti") to see the forecast for that place; tap the map to
 read any square kilometre. The forecast data is fetched from GitHub (raw.githubusercontent.com) and the street map from
-OpenFreeMap; both are public. The app is not a medical or safety app: every screen says that it is a research forecast
-and does not replace official air-quality alerts. Location is used only on the device to centre the map (see the privacy
-policy at https://ammarkheder.com/Otso/privacy/). Contact: https://github.com/AmmarKheder/Otso/issues
+OpenFreeMap; both are public. The app is not a medical or safety app and gives no health advice: every screen says that it
+is an experimental research forecast that does not replace official air-quality alerts; it does not diagnose, treat or
+prevent any disease. Location is used on the device to centre the map; its coordinates, rounded to about 100 m, are sent
+once to the OpenStreetMap place search (Photon) to name the street, and never to us (privacy policy:
+https://ammarkheder.com/Otso/privacy/). Native features: position (system prompt), share sheet on the place card,
+haptics on the day and layer chips, status bar following the theme, launch screen. Contact: ammar.kheder@lut.fi,
+https://github.com/AmmarKheder/Otso/issues
 
 ## Checklist before "Submit for Review"
 - [ ] Build uploaded from Xcode (Archive → Distribute → App Store Connect), processed, visible in TestFlight.
 - [ ] Tested on a real iPhone through TestFlight: map, search, position prompt text, share sheet, dark mode, external links.
-- [ ] Listing: name, subtitle, description, keywords, promotional text, screenshots 6.9", support URL, marketing URL,
-      privacy policy URL, copyright, category, age rating, App Privacy answers.
+- [ ] Listing: name, subtitle, description, keywords, promotional text, screenshots (Dynamic Island medium display),
+      support URL, marketing URL, privacy policy URL, copyright, category, age rating, App Privacy answers.
+- [ ] Apple Developer Program enrollment done (web, 99 USD/year; from a few days to several weeks: start now); Agreements,
+      Tax and Banking: the free-apps agreement accepted in App Store Connect; DSA: "not a trader" if the app stays free.
 - [ ] Version 2.0.0, build number increased at each upload.
 - [ ] Contact information for App Review (name, phone, e-mail) filled in; sign-in not required (tick "Sign-in not required").

@@ -25,11 +25,11 @@
 
 <section id="en">
 <h1>Privacy policy</h1>
-<p class="updated">Otso 2.0 (the website ammarkheder.com/Otso and the Otso 2.0 app). Last updated 4 November 2026.</p>
+<p class="updated">Otso 2.0 (the website ammarkheder.com/Otso and the Otso 2.0 app). Last updated 5 November 2026.</p>
 <p>Otso is a research forecast of fine particulate matter (PM<sub>2.5</sub>) developed by Ammar Kheder (Atmospheric Modelling Centre Lahti, University of Helsinki and LUT University). It has no accounts, no advertising, no analytics SDK and no tracking. This page says what the app and the website do with data.</p>
 <h2>What stays on your device</h2>
 <ul>
-  <li><strong>Your position.</strong> If you tap "My location", the app asks the system for your position and uses it only to centre the map and read the forecast there. The position is never sent to us. It is kept on your device so that the app opens on the same place next time; you can replace it by searching another place.</li>
+  <li><strong>Your position.</strong> If you tap "My location", the app asks the system for your position, centres the map on it and reads the forecast there. Its coordinates, rounded to about 100 m, are sent once to the place search (Photon, see below) to name your street; we never receive them. The position is kept on your device so that the app opens on the same place next time, and is read again each time the app opens, until you replace it by searching another place or withdraw the permission (iOS: Settings → Privacy & Security → Location Services → Otso; browsers: the site's permissions). Deleting the app, or clearing the site's data in your browser, removes everything the app stored.</li>
   <li><strong>Your places and settings.</strong> The place you chose, the cities you added to the table, the language, the theme and the map opacity are stored locally on your device (local storage of the app or browser). Nothing is synchronised to a server.</li>
 </ul>
 <h2>What the app downloads from the internet</h2>
@@ -37,30 +37,31 @@
 <ul>
   <li><strong>Forecast data</strong> from GitHub (raw.githubusercontent.com): the daily forecast files and map tiles published by the Otso chain.</li>
   <li><strong>Street map</strong> from OpenFreeMap (tiles.openfreemap.org), © OpenMapTiles, data © OpenStreetMap contributors: the background map tiles for the area you look at.</li>
-  <li><strong>Place and street search</strong> from Photon (photon.komoot.io) and, as a fallback, Nominatim (nominatim.openstreetmap.org): the text you type in the search box, and the coordinates of a tapped point for the reverse search of its street name, are sent to these services to find the place. Nothing else is sent.</li>
-  <li><strong>Anonymous visit counter</strong> (abacus.jasoncameron.dev): the website increments a public counter of visits; the counter stores no personal data and sets no cookie. A flag kept in your local storage avoids counting the same device twice.</li>
+  <li><strong>Place and street search</strong> from Photon (photon.komoot.io, OpenStreetMap data, operated by komoot): the text you type in the search box, and the coordinates (rounded to about 100 m) of a tapped point or of your position for the reverse search of its street name, are sent to this service to find the place. Nothing else is sent. Photon's own data handling is described by its operator (<a href="https://github.com/komoot/photon">github.com/komoot/photon</a>); OpenFreeMap's by <a href="https://openfreemap.org/tos/">openfreemap.org/tos</a>; GitHub's by <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">GitHub's privacy statement</a>.</li>
+  <li><strong>Anonymous visit counter, website only</strong> (abacus.jasoncameron.dev): the website increments a public counter of visits; the counter stores no personal data and sets no cookie, and a flag kept in your local storage avoids counting the same device twice. The Otso 2.0 app sends nothing to this counter.</li>
 </ul>
 <h2>What we do not do</h2>
 <ul>
   <li>We do not collect names, e-mail addresses, contacts, photos, or any identifier.</li>
   <li>We do not sell, share or use data for advertising, and we do not track you across apps or websites.</li>
   <li>The app sends no notifications and runs nothing in the background.</li>
+  <li>We keep no data about you, so there is nothing we could give you access to, correct or delete; everything the app stores is on your device and under your control.</li>
 </ul>
 <h2>Children</h2>
 <p>The app is suitable for all ages and collects no personal data from anyone.</p>
 <h2>Health notice</h2>
 <p>Otso is a research forecast, not an official air-quality alert. For health decisions, use the air-quality service of your national or local authorities.</p>
-<h2>Contact</h2>
-<p>Questions or problems: open an issue on <a href="https://github.com/AmmarKheder/Otso/issues">github.com/AmmarKheder/Otso/issues</a>, or write to the author through <a href="https://ammarkheder.com/">ammarkheder.com</a>.</p>
+<h2 id="contact">Contact and support</h2>
+<p>Questions or problems: write to <a href="mailto:ammar.kheder@lut.fi">ammar.kheder@lut.fi</a>, or open an issue on <a href="https://github.com/AmmarKheder/Otso/issues">github.com/AmmarKheder/Otso/issues</a>.</p>
 </section>
 
 <section id="fr" hidden>
 <h1>Politique de confidentialité</h1>
-<p class="updated">Otso 2.0 (le site ammarkheder.com/Otso et l'application Otso 2.0). Dernière mise à jour : 4 novembre 2026.</p>
+<p class="updated">Otso 2.0 (le site ammarkheder.com/Otso et l'application Otso 2.0). Dernière mise à jour : 5 novembre 2026.</p>
 <p>Otso est une prévision de recherche des particules fines (PM<sub>2.5</sub>) développée par Ammar Kheder (Atmospheric Modelling Centre Lahti, Université d'Helsinki et Université LUT). Pas de compte, pas de publicité, pas de kit d'analyse, pas de pistage. Cette page dit ce que l'application et le site font des données.</p>
 <h2>Ce qui reste sur votre appareil</h2>
 <ul>
-  <li><strong>Votre position.</strong> Si vous touchez « Ma position », l'application demande votre position au système et ne s'en sert que pour centrer la carte et y lire la prévision. La position ne nous est jamais envoyée. Elle est gardée sur votre appareil pour rouvrir l'application au même endroit ; vous pouvez la remplacer en cherchant un autre lieu.</li>
+  <li><strong>Votre position.</strong> Si vous touchez « Ma position », l'application demande votre position au système, centre la carte dessus et y lit la prévision. Ses coordonnées, arrondies à 100 m environ, sont envoyées une fois à la recherche de lieux (Photon, voir plus bas) pour nommer votre rue ; nous ne les recevons jamais. La position est gardée sur votre appareil pour rouvrir l'application au même endroit, et relue à chaque ouverture, jusqu'à ce que vous la remplaciez en cherchant un autre lieu ou retiriez l'autorisation (iOS : Réglages → Confidentialité et sécurité → Service de localisation → Otso ; navigateurs : les autorisations du site). Supprimer l'application, ou effacer les données du site dans votre navigateur, efface tout ce que l'application a stocké.</li>
   <li><strong>Vos lieux et réglages.</strong> Le lieu choisi, les villes ajoutées au tableau, la langue, le thème et l'opacité de la carte sont stockés localement sur votre appareil (stockage local de l'application ou du navigateur). Rien n'est synchronisé vers un serveur.</li>
 </ul>
 <h2>Ce que l'application télécharge</h2>
@@ -68,21 +69,22 @@
 <ul>
   <li><strong>Données de prévision</strong> depuis GitHub (raw.githubusercontent.com) : les fichiers de prévision et les tuiles de carte publiés chaque jour par la chaîne Otso.</li>
   <li><strong>Plan des rues</strong> depuis OpenFreeMap (tiles.openfreemap.org), © OpenMapTiles, données © contributeurs OpenStreetMap : le fond de carte de la zone regardée.</li>
-  <li><strong>Recherche de lieux et de rues</strong> via Photon (photon.komoot.io) et, en secours, Nominatim (nominatim.openstreetmap.org) : le texte tapé dans la recherche, et les coordonnées d'un point touché pour retrouver le nom de sa rue, sont envoyés à ces services. Rien d'autre.</li>
-  <li><strong>Compteur de visites anonyme</strong> (abacus.jasoncameron.dev) : le site incrémente un compteur public de visites ; il ne stocke aucune donnée personnelle et ne pose aucun cookie. Un indicateur gardé dans votre stockage local évite de compter deux fois le même appareil.</li>
+  <li><strong>Recherche de lieux et de rues</strong> via Photon (photon.komoot.io, données OpenStreetMap, exploité par komoot) : le texte tapé dans la recherche, et les coordonnées (arrondies à 100 m environ) d'un point touché ou de votre position pour retrouver le nom de sa rue, sont envoyés à ce service. Rien d'autre. Le traitement des données par Photon est décrit par son exploitant (<a href="https://github.com/komoot/photon">github.com/komoot/photon</a>) ; celui d'OpenFreeMap sur <a href="https://openfreemap.org/tos/">openfreemap.org/tos</a> ; celui de GitHub dans sa <a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement">déclaration de confidentialité</a>.</li>
+  <li><strong>Compteur de visites anonyme, site seulement</strong> (abacus.jasoncameron.dev) : le site incrémente un compteur public de visites ; il ne stocke aucune donnée personnelle et ne pose aucun cookie, et un indicateur gardé dans votre stockage local évite de compter deux fois le même appareil. L'application Otso 2.0 n'envoie rien à ce compteur.</li>
 </ul>
 <h2>Ce que nous ne faisons pas</h2>
 <ul>
   <li>Nous ne collectons ni nom, ni adresse e-mail, ni contacts, ni photos, ni identifiant.</li>
   <li>Nous ne vendons, ne partageons ni n'utilisons de données à des fins publicitaires, et nous ne vous suivons pas d'une application ou d'un site à l'autre.</li>
   <li>L'application n'envoie aucune notification et ne fait rien en arrière-plan.</li>
+  <li>Nous ne gardons aucune donnée sur vous : il n'y a donc rien à quoi nous pourrions vous donner accès, ni à corriger ou effacer ; tout ce que l'application stocke est sur votre appareil, sous votre contrôle.</li>
 </ul>
 <h2>Enfants</h2>
 <p>L'application convient à tous les âges et ne collecte de données personnelles auprès de personne.</p>
 <h2>Avertissement santé</h2>
 <p>Otso est une prévision de recherche, pas une alerte officielle de qualité de l'air. Pour votre santé, suivez le service de qualité de l'air de vos autorités nationales ou locales.</p>
-<h2>Contact</h2>
-<p>Questions ou problèmes : ouvrez un ticket sur <a href="https://github.com/AmmarKheder/Otso/issues">github.com/AmmarKheder/Otso/issues</a>, ou écrivez à l'auteur via <a href="https://ammarkheder.com/">ammarkheder.com</a>.</p>
+<h2 id="contact-fr">Contact et assistance</h2>
+<p>Questions ou problèmes : écrivez à <a href="mailto:ammar.kheder@lut.fi">ammar.kheder@lut.fi</a>, ou ouvrez un ticket sur <a href="https://github.com/AmmarKheder/Otso/issues">github.com/AmmarKheder/Otso/issues</a>.</p>
 </section>
 <footer>Otso 2.0 · research forecast, not an official alert · © 2026 Ammar Kheder</footer>
 </main>

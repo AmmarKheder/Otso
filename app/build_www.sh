@@ -7,6 +7,8 @@ HERE=$(cd "$(dirname "$0")" && pwd); DOCS=$HERE/../docs; WWW=$HERE/www
 rm -rf "$WWW"; mkdir -p "$WWW"
 rsync -a --exclude classic --exclude 1km --exclude 'qr.*' --exclude 'lines*.json' --exclude labels.json --exclude sw.js --exclude '.nojekyll' "$DOCS/" "$WWW/"
 cp "$HERE/native.js" "$WWW/native.js"; cp "$HERE/plugins.js" "$WWW/plugins.js"
-sed -i 's|<script src="vendor/maplibre-gl.js"></script>|<script src="plugins.js"></script>\n<script src="native.js"></script>\n<script src="vendor/maplibre-gl.js"></script>|' "$WWW/index.html"
-grep -c 'plugins.js\|native.js' "$WWW/index.html"
+sed -i.bak 's|<script src="vendor/maplibre-gl.js"></script>|<script src="plugins.js"></script>\
+<script src="native.js"></script>\
+&|' "$WWW/index.html" && rm -f "$WWW/index.html.bak"                              # GNU and BSD sed: suffix glued to -i, newline = backslash + real line break
+grep -q -F '<script src="plugins.js">' "$WWW/index.html" && grep -q -F '<script src="native.js">' "$WWW/index.html" && echo "plugins.js + native.js injected"
 du -sh "$WWW"; find "$WWW" -type f | wc -l

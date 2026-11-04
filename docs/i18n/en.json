@@ -213,5 +213,6 @@
 "help.k1p": "Number of members (of 8) whose daily mean at 1 km is above 15 µg m⁻³, the WHO 24-hour guideline; issued from the 00 UTC run of {date}.",
 "adv.peak_day": "The highest of the five days at 1 km, <strong>{v}</strong> ({cls}), is expected {day}.",
 "share.btn": "Share",
-"share.copied": "Link copied"
+"share.copied": "Link copied",
+"foot.privacy": "Privacy policy"
 }

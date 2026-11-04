@@ -23,7 +23,9 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Otso uses your position only to centre the map where you are and read the forecast there. It stays on your device.</string>
+	<string>Otso uses your position to centre the map where you are and read the forecast there. The coordinates, rounded to about 100 m, are sent once to the OpenStreetMap place search (Photon) to name your street, never to us, and are kept only on your device.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Otso uses your position to centre the map where you are and read the forecast there. The coordinates, rounded to about 100 m, are sent once to the OpenStreetMap place search (Photon) to name your street, never to us, and are kept only on your device.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>UIRequiresFullScreen</key>

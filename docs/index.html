@@ -357,7 +357,10 @@
   .toast-msg { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 31; background: var(--ink); color: var(--bg); padding: 9px 14px; border-radius: 999px; font-size: 13.5px; box-shadow: var(--shadow); }
   /* the native app (Capacitor shell): status-bar inset, no install paperwork, no "full site" */
   html.native .topbar { padding-top: env(safe-area-inset-top); }
-  html.native #install, html.native .hero .cta a[href="#install"], html.native .full-site, html.native #install-btn { display: none !important; }
+  html.native #install, html.native .hero .cta a[href="#install"], html.native .full-site, html.native #install-btn, html.native #stats { display: none !important; }
+  html.native .wrap { padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
+  html.native .tabbar { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+  @media (max-width: 600px) { html.native .wrap { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); } }
 </style>
 </head>
 <body>
@@ -591,7 +594,7 @@
       <tr><td>Maps</td><td><a id="dl-map" href="#">map_&lt;lead&gt;.png</a> — the rendered map of each lead; the <code>mean_</code>, <code>p90_</code> and <code>prob_</code> PNGs are 8-bit data layers (see <code>png</code> in index.json)</td></tr>
       <tr><td>1 km tiles</td><td><a id="dl-k1" href="https://github.com/AmmarKheder/Otso/tree/live1km">tiles.json</a> — the encoding (the palette index of each pixel is the value, the class and the source), the existing tiles, the domain; the tiles are <code>&lt;day&gt;/&lt;product&gt;/&lt;lead&gt;/&lt;z&gt;/&lt;x&gt;/&lt;y&gt;.png</code> (Web Mercator, 256 px, zoom 0–7); <a id="dl-k1latest" href="https://raw.githubusercontent.com/AmmarKheder/Otso/live1km/latest.json">latest.json</a> names the day</td></tr>
       <tr><td>Branches</td><td><a href="https://github.com/AmmarKheder/Otso/tree/live">github.com/AmmarKheder/Otso/tree/live</a> (<code>latest.json</code> lists the available days) · <a href="https://github.com/AmmarKheder/Otso/tree/live1km">tree/live1km</a></td></tr>
-      <tr><td>Basemap</td><td><a href="https://openfreemap.org">OpenFreeMap</a>, © <a href="https://www.openmaptiles.org/">OpenMapTiles</a>, data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>. Land and lakes of the 1 km tiles: Natural Earth. Place and street search: GeoNames (CC BY 4.0) and OpenStreetMap through Photon (komoot).</td></tr>
+      <tr><td>Basemap</td><td><a href="https://openfreemap.org">OpenFreeMap</a>, © <a href="https://www.openmaptiles.org/">OpenMapTiles</a>, data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>. Land and lakes of the 1 km tiles: Natural Earth. Place and street search: GeoNames (CC BY 4.0) and OpenStreetMap data through Photon (komoot).</td></tr>
       <tr><td>Sources</td><td>Contains modified Copernicus Atmosphere Monitoring Service information 2026 (CAMS analysis, GFAS). ECMWF open data, CC BY 4.0. GHAP V1 (Wei et al. 2023). Neither the European Commission nor ECMWF is responsible for any use of this forecast.</td></tr>
       <tr><td>Citing</td><td>Please cite the Foehn paper (see the <a href="https://ammarkheder.com/Foehn/#cite">main page</a>) and name the day's forecast by its issue date.</td></tr>
     </table>
@@ -608,11 +611,11 @@
     <div class="foot-text">
       <div class="credit-by"><span data-i18n="foot.dev">Developed by</span> <a href="https://ammarkheder.com/">Ammar Kheder</a></div>
       <div class="credit-org"><a href="https://www.amc-lahti.fi/">Atmospheric Modelling Centre Lahti</a> (AMC-Lahti) · University of Helsinki · LUT University</div>
-      <div class="credit-links"><a href="https://ammarkheder.com/Foehn/" data-i18n="foot.paper">The Foehn paper</a> · <a href="https://github.com/AmmarKheder/Otso" data-i18n="foot.code">Code and data</a> · <a href="https://github.com/AmmarKheder/Otso/issues" data-i18n="foot.report">Report a problem</a> · <a href="classic/" data-i18n="k1.classic">Classic 0.4° map</a> · <span class="i18n-note" data-i18n="i18n.note"></span></div>
+      <div class="credit-links"><a href="https://ammarkheder.com/Foehn/" data-i18n="foot.paper">The Foehn paper</a> · <a href="https://github.com/AmmarKheder/Otso" data-i18n="foot.code">Code and data</a> · <a href="https://github.com/AmmarKheder/Otso/issues" data-i18n="foot.report">Report a problem</a> · <a href="privacy/" data-i18n="foot.privacy">Privacy policy</a> · <a href="classic/" data-i18n="k1.classic">Classic 0.4° map</a> · <span class="i18n-note" data-i18n="i18n.note"></span></div>
     </div>
   </div>
   <label class="lang-foot-wrap"><span aria-hidden="true">🌐</span><span data-i18n="lang.aria">Language</span><select id="lang-foot" aria-label="Language"></select></label>
-  <p class="fine">Otso runs every morning on <strong>LUMI</strong>, the EuroHPC supercomputer hosted by <strong>CSC</strong> in Kajaani, Finland. Otso 2.0 (the Otso 1.2 model at 0.4° and its 1 km layer) · Foehn project · Institute for Atmospheric and Earth System Research (INAR), University of Helsinki · LUT University · AMC-Lahti. Research forecast, not an official alert. Contains modified Copernicus Atmosphere Monitoring Service information 2026; ECMWF open data (CC BY 4.0); GHAP V1 (Wei et al.); basemap © OpenMapTiles, data © OpenStreetMap contributors; city list © GeoNames (CC BY 4.0). © 2026 Ammar Kheder.</p>
+  <p class="fine">Otso runs every morning on <strong>LUMI</strong>, the EuroHPC supercomputer hosted by <strong>CSC</strong> in Kajaani, Finland. Otso 2.0 (the Otso 1.2 model at 0.4° and its 1 km layer) · Foehn project · Institute for Atmospheric and Earth System Research (INAR), University of Helsinki · LUT University · AMC-Lahti. Research forecast, not an official alert. Contains modified Copernicus Atmosphere Monitoring Service information 2026; ECMWF open data (CC BY 4.0); GHAP V1 (Wei et al.); basemap © OpenMapTiles, data © OpenStreetMap contributors; city list © GeoNames (CC BY 4.0). © 2026 Ammar Kheder. <a href="privacy/" data-i18n="foot.privacy">Privacy policy</a>.</p>
 </div></footer>
 <script src="vendor/maplibre-gl.js"></script>
 <script>
@@ -889,7 +892,8 @@
   function setOpacity() { const m = state.map; if (!m) return; for (const id of ["pm", "o4"]) if (m.getLayer(id)) m.setPaintProperty(id, "raster-opacity", state.opacity); }
   function noteText(t, show) { const n = $("note"); n.firstElementChild.textContent = t; n.hidden = !show; }
   function createMap(center, zoom) {
-    const map = new maplibregl.Map({ container: "k1map", style: styleUrl(), center, zoom, minZoom: 1, maxZoom: 17.5, attributionControl: { compact: true }, dragRotate: false, pitchWithRotate: false, cooperativeGestures: false });
+    const map = new maplibregl.Map({ container: "k1map", style: styleUrl(), center, zoom, minZoom: 1, maxZoom: 17.5, attributionControl: { compact: true }, dragRotate: false, pitchWithRotate: false, cooperativeGestures: false,
+      pixelRatio: Math.min(2, window.devicePixelRatio || 1), maxTileCacheZoomLevels: 3 });                                  // memory: iOS kills web views above ~2 GB
     state.map = map; map.touchZoomRotate.disableRotation();
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
     const geo = new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }, trackUserLocation: false, showUserLocation: true, fitBoundsOptions: { maxZoom: 12 } });
@@ -1173,8 +1177,7 @@
     try { const r = await fetch("https://photon.komoot.io/api/?q=" + encodeURIComponent(q) + "&limit=7&lang=" + geoLang()); const j = await r.json();
       out = j.features.map((f) => { const p = f.properties, street = p.osm_key === "highway" || p.street; const nm = p.name || p.street || q;
         return { ...fixPlace(street && p.housenumber ? nm + " " + p.housenumber : nm, ctx(p).join(", ")), lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0], pop: 0, online: true, kind: p.osm_key || "", zoom: street || p.osm_key === "building" || p.osm_key === "amenity" ? 15 : p.osm_value === "neighbourhood" || p.osm_value === "suburb" ? 13 : 10.5 }; }); }
-    catch (e) { try { const r = await fetch("https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent(q) + "&format=jsonv2&limit=7"); const j = await r.json();
-      out = j.map((x) => ({ ...fixPlace(x.name || x.display_name.split(",")[0], x.display_name.split(",").slice(1, 3).join(",").trim()), lat: +x.lat, lon: +x.lon, pop: 0, online: true, zoom: /^(highway|building|amenity)$/.test(x.category) ? 15 : 10.5 })); } catch (e2) {} }
+    catch (e) {}                                                                           // Photon only: Nominatim's policy forbids autocomplete
     out = out.filter((c) => c.name);                                                     // results without a name left (see fixPlace) are dropped
     if (seq !== box.seq) return;                                                           // a newer query is running, or a place was chosen meanwhile
     const seen = new Set(box.hits.map((c) => c.name.toLowerCase() + "|" + Math.round(c.lat) + "|" + Math.round(c.lon)));
@@ -1207,7 +1210,7 @@
   const BOX = suggestBox(cq, list, choose);
   suggestBox($("search"), $("search-list"), addCity);
   async function placeName(lat, lon) {                                                  // the street or the place at a position (OpenStreetMap data), or the coordinates
-    try { const r = await fetch("https://photon.komoot.io/reverse?lon=" + lon + "&lat=" + lat + "&lang=" + geoLang()); const j = await r.json(); const f = j.features && j.features[0]; if (!f) throw 0;
+    try { const r = await fetch("https://photon.komoot.io/reverse?lon=" + lon.toFixed(3) + "&lat=" + lat.toFixed(3) + "&lang=" + geoLang()); const j = await r.json(); const f = j.features && j.features[0]; if (!f) throw 0;   // rounded to ~100 m: enough for the street, less than the position
       const q = f.properties, first = q.street || (q.osm_key === "highway" ? q.name : null) || q.name || q.district || q.suburb || q.locality || q.city || q.town || q.village || q.county;
       const rest = [q.city || q.town || q.village || q.municipality || q.county, q.country].filter((x) => x && x !== first);
       return pol([first].concat(rest).filter(Boolean).join(", ")) || coord(lat, lon); } catch (e) { return coord(lat, lon); }
@@ -1355,6 +1358,7 @@
   // ---- usage counters (abacus.jasoncameron.dev, a public hit counter: no cookies, no personal data; "unique" = per device,
   //      remembered in this browser; a count by IP address needs a server, which a static site has not)
   (async () => {
+    if (NATIVE) return;                                                                    // the app sends nothing to the counter (no usage data to declare); the website counts
     const CNT = "https://abacus.jasoncameron.dev", NS = "foehn-otso", today = todayIso().replace(/-/g, "");
     const hit = (k) => fetch(`${CNT}/hit/${NS}/${k}`).then((r) => r.json()).then((j) => j.value).catch(() => null);
     const get = (k) => fetch(`${CNT}/get/${NS}/${k}`).then((r) => r.json()).then((j) => j.value).catch(() => null);

@@ -11,16 +11,23 @@ Ce qui est natif dans l'app, en plus du site :
 - barre d'état qui suit le thème clair/sombre, encoche et bords gérés (safe areas) ;
 - écran de lancement et icône (générés depuis `../docs/assets/logo_mark.svg`) ;
 - lieu mémorisé aussi dans les préférences natives (si le stockage web est vidé) ;
-- les liens externes (article Foehn, GitHub, OSM) s'ouvrent dans une feuille Safari, pas dans l'app ;
-- pas de service worker dans l'app (WKWebView met en cache les requêtes HTTP ; le hors-ligne complet viendra plus tard).
+- les liens externes (article Foehn, GitHub, OSM) et les autres pages du site (politique de confidentialité, carte
+  classique, onglet « À propos ») s'ouvrent dans Safari, hors de l'app : l'app n'a pas de navigation web interne, ce qui
+  permet la classification 4+ ;
+- pas de service worker dans l'app (WKWebView met en cache les requêtes HTTP ; le hors-ligne complet viendra plus tard) ;
+- le compteur de visites du site n'est pas appelé depuis l'app (aucune donnée d'usage à déclarer) ;
+- après plus de 15 min en arrière-plan, la page se recharge à la reprise (iOS peut avoir tué les workers de la carte).
 
 Identifiant : `com.ammarkheder.otso` · nom affiché : **Otso 2.0** · version 2.0.0 (build 1) · iOS 15 et plus · iPhone
 (l'iPad en mode compatibilité ; passer `TARGETED_DEVICE_FAMILY` à `"1,2"` pour une vraie version iPad, avec ses captures).
 
 ## Sur le Mac : de zéro à TestFlight
 
-Prérequis : Xcode à jour (App Store), Node 20 ou plus (`brew install node`), un compte
-[Apple Developer Program](https://developer.apple.com/programs/) (99 USD par an ; l'inscription demande quelques jours).
+Prérequis : **Xcode 26 ou plus** (exigé par Capacitor 8, et par Apple pour tout envoi vers App Store Connect depuis le
+28 avril 2026 ; macOS 15.6 ou plus ; si l'App Store ne propose pas le dernier Xcode sur ce Mac, un Xcode 26.x depuis
+developer.apple.com/download suffit), **Node 22 ou plus** (`brew install node` ; avec Node 20 la commande `npx cap` refuse
+de démarrer), un compte [Apple Developer Program](https://developer.apple.com/programs/) (99 USD par an ; l'inscription se
+fait sur le web, et le délai de validation va de quelques jours à plusieurs semaines : la lancer tout de suite).
 CocoaPods n'est pas nécessaire : les plugins sont en Swift Package Manager.
 
 ```bash
@@ -68,10 +75,11 @@ jour de l'app.
   position, préférences, barre d'état, navigateur intégré. Sur le site, ce fichier n'existe pas et la page l'ignore.
 - `make_icons.js` → `assets/` : sources de l'icône (1024 px) et des écrans de lancement, puis
   `npm run assets` (ou `npx capacitor-assets generate --ios`) remplit `ios/App/App/Assets.xcassets/`.
-- `ios/App/App/Info.plist` : texte de la demande de position, `ITSAppUsesNonExemptEncryption = false` (HTTPS seulement :
-  pas de déclaration d'export à faire), orientations.
-- `ios/App/App/PrivacyInfo.xcprivacy` : manifeste de confidentialité (pas de pistage, pas de donnée collectée ;
-  UserDefaults via le plugin Preferences, raison CA92.1).
+- `ios/App/App/Info.plist` : texte de la demande de position (les deux clés `NSLocationWhenInUse…` et
+  `NSLocationAlwaysAndWhenInUse…`, exigées ensemble par le plugin ; une seule invite s'affiche), `ITSAppUsesNonExemptEncryption
+  = false` (HTTPS seulement : pas de déclaration d'export à faire), orientations.
+- `ios/App/App/PrivacyInfo.xcprivacy` : manifeste de confidentialité (pas de pistage ; position précise déclarée, non
+  liée à l'identité, pour la fonction de l'app ; UserDefaults via le plugin Preferences, raison CA92.1).
 - `ios/App/CapApp-SPM/Package.swift` : les plugins (géré par `cap sync`, ne pas modifier à la main).
 - `STORE.md` : textes de la fiche App Store, réponses *App Privacy*, notes pour la relecture, captures.
 
@@ -83,6 +91,12 @@ a une icône et un écran de lancement propres, une politique de confidentialit�
 l'app dit partout « prévision de recherche, pas une alerte officielle » : ce n'est pas une app médicale ni une alerte
 (règles 1.4 et 5.1.3), et aucune donnée de santé n'est manipulée.
 
-Si la relecture renvoie malgré tout un 4.2, les ajouts les plus efficaces sont, dans l'ordre : un widget d'écran
-d'accueil (WidgetKit, Swift) avec la valeur du jour pour le lieu mémorisé ; une notification locale quotidienne quand
-la prévision du jour est en ligne ; le hors-ligne complet (les dernières tuiles 1 km du lieu mémorisé).
+Si la relecture renvoie malgré tout un 4.2 (le motif type dit que « position, notifications et partage » ne suffisent
+pas), les ajouts les plus efficaces sont, dans l'ordre : le hors-ligne démontrable (dernière prévision et tuiles du lieu
+mémorisé gardées avec les plugins Preferences et Filesystem, testable en mode avion) ; une notification locale
+quotidienne quand la prévision du jour est en ligne ; un widget d'écran d'accueil (WidgetKit, Swift, ~150 lignes) avec la
+valeur du jour. Compter un ou deux cycles de resoumission : c'est normal pour une première app de ce type.
+
+Note technique : la carte embarque MapLibre GL JS 4.7.1 ; iOS peut tuer ses workers en arrière-plan (corrigé seulement
+dans MapLibre 6.16, module ES et WebGL 2), d'où le rechargement à la reprise. Passer à MapLibre 6 est une évolution
+possible du site, pas un préalable.
