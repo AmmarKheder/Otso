@@ -4,8 +4,9 @@
   "private": true,
   "description": "Otso 2.0: the native shell (Capacitor) of the Otso web app for the App Store",
   "scripts": {
-    "www": "bash build_www.sh",
-    "sync": "bash build_www.sh && npx cap sync ios",
+    "bundle": "npx esbuild plugins.src.js --bundle --format=iife --minify --target=safari15 --outfile=plugins.js",
+    "www": "npm run bundle && bash build_www.sh",
+    "sync": "npm run www && npx cap sync ios",
     "open": "npx cap open ios",
     "assets": "npx capacitor-assets generate --ios --iconBackgroundColor '#1F5AA6' --iconBackgroundColorDark '#0f1720' --splashBackgroundColor '#ffffff' --splashBackgroundColorDark '#0f1720'"
   },
@@ -24,6 +25,7 @@
   },
   "devDependencies": {
     "@capacitor/assets": "^4.0.0",
-    "@capacitor/cli": "^8.6.0"
+    "@capacitor/cli": "^8.6.0",
+    "esbuild": "^0.25.10"
   }
 }

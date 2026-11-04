@@ -1,8 +1,8 @@
 // Otso 2.0 native shell (Capacitor, iOS): the small bridge the page uses when it runs inside the app.
-// Loaded before the page's script; does nothing on the website (no window.Capacitor there).
+// Loaded after plugins.js and before the page's script; does nothing on the website (no Capacitor there).
 (() => {
-  const C = window.Capacitor; if (!C || !C.isNativePlatform || !C.isNativePlatform()) return;
-  const P = C.Plugins || {};
+  const B = window.OTSO_PLUGINS || {}, C = B.Capacitor || window.Capacitor; if (!C || !C.isNativePlatform || !C.isNativePlatform()) return;
+  const P = Object.keys(B).length ? B : (C.Plugins || {});                                   // plugins.js (bundled) first, the runtime's global as a fallback
   document.documentElement.classList.add("native");
   const N = window.OTSO_NATIVE = {
     platform: C.getPlatform(),

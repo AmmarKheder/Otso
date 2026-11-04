@@ -6,7 +6,7 @@ set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd); DOCS=$HERE/../docs; WWW=$HERE/www
 rm -rf "$WWW"; mkdir -p "$WWW"
 rsync -a --exclude classic --exclude 1km --exclude 'qr.*' --exclude 'lines*.json' --exclude labels.json --exclude sw.js --exclude '.nojekyll' "$DOCS/" "$WWW/"
-cp "$HERE/native.js" "$WWW/native.js"
-sed -i 's|<script src="vendor/maplibre-gl.js"></script>|<script src="native.js"></script>\n<script src="vendor/maplibre-gl.js"></script>|' "$WWW/index.html"
-grep -c native.js "$WWW/index.html"
+cp "$HERE/native.js" "$WWW/native.js"; cp "$HERE/plugins.js" "$WWW/plugins.js"
+sed -i 's|<script src="vendor/maplibre-gl.js"></script>|<script src="plugins.js"></script>\n<script src="native.js"></script>\n<script src="vendor/maplibre-gl.js"></script>|' "$WWW/index.html"
+grep -c 'plugins.js\|native.js' "$WWW/index.html"
 du -sh "$WWW"; find "$WWW" -type f | wc -l
