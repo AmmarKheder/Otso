@@ -17,6 +17,7 @@ fires of the previous day, with the FLEXGREEN transport recomputed for each day.
   hindcast and fine-tuning). It uses the model code of the [Foehn repository](https://github.com/AmmarKheder/Foehn).
 - **The page:** `docs/`, served by GitHub Pages (`docs/index.html`; MapLibre GL in `docs/vendor/`; basemap tiles from
   OpenFreeMap).
+- **The iOS app (Otso 2.0):** `app/`, a Capacitor shell around the same page, for the App Store (see `app/README.md`).
 
 Otso is a research forecast. It is not an official product and does not replace the air-quality forecasts and alerts of
 national or local authorities. It is not part of the Foehn paper, whose kilometre-scale forecasts are retrospective.

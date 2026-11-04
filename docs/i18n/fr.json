@@ -172,7 +172,7 @@
 "k1.sub": "La même prévision, affinée à 1 km par un modèle génératif et dessinée sur un plan des rues : zoomez jusqu'à votre quartier, cinq jours à l'avance. Le modèle 1 km couvre les terres de 60° S à 84° N.",
 "k1.btn": "Ouvrir la carte 1 km",
 "tab.k1": "1 km",
-"page.title": "Otso — prévision PM2,5 à 1 km (bêta)",
+"page.title": "Otso 2.0 — prévision PM2,5 à 1 km (bêta)",
 "th.k1_full": "1 km · jour",
 "th.k1": "1 km",
 "cities.k1_note": "colonne 1 km : {day}",
@@ -211,5 +211,7 @@
 "k1.caveat": "GHAP est lui-même ajusté aux stations (2017–2022) ; la qualité de la prévision d'un jour donné n'est pas connue à l'avance.",
 "help.k1": "Moyenne journalière (00–24 UTC) des 8 membres à 1 km, émise par le run de 00 UTC du {date}. Hachures : hors du masque du modèle 1 km. Mer : pas de prévision.",
 "help.k1p": "Nombre de membres (sur 8) dont la moyenne journalière à 1 km dépasse 15 µg m⁻³, la valeur guide de l'OMS sur 24 heures ; émis par le run de 00 UTC du {date}.",
-"adv.peak_day": "Le maximum des cinq jours à 1 km, <strong>{v}</strong> ({cls}), est attendu {day}."
+"adv.peak_day": "Le maximum des cinq jours à 1 km, <strong>{v}</strong> ({cls}), est attendu {day}.",
+"share.btn": "Partager",
+"share.copied": "Lien copié"
 }

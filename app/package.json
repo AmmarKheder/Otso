@@ -1,0 +1,29 @@
+{
+  "name": "otso-app",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Otso 2.0: the native shell (Capacitor) of the Otso web app for the App Store",
+  "scripts": {
+    "www": "bash build_www.sh",
+    "sync": "bash build_www.sh && npx cap sync ios",
+    "open": "npx cap open ios",
+    "assets": "npx capacitor-assets generate --ios --iconBackgroundColor '#1F5AA6' --iconBackgroundColorDark '#0f1720' --splashBackgroundColor '#ffffff' --splashBackgroundColorDark '#0f1720'"
+  },
+  "dependencies": {
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/browser": "^8.0.5",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/geolocation": "^8.0.0",
+    "@capacitor/haptics": "^8.0.0",
+    "@capacitor/ios": "^8.6.0",
+    "@capacitor/preferences": "^8.0.0",
+    "@capacitor/share": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^4.0.0",
+    "@capacitor/cli": "^8.6.0"
+  }
+}

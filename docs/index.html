@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Otso — PM2.5 forecast at 1 km (beta)</title>
+<title>Otso 2.0 — PM2.5 forecast at 1 km (beta)</title>
 <meta name="description" content="Otso runs the 0.4° Foehn model every morning on the live CAMS analysis, the ECMWF forecast and the GFAS fires, downscales it to 1 km with a generative model, and shows on a street map where the fine particles from all sources (traffic, industry, heating, dust, sea salt, fires) will be up to five days ahead. Research forecast, not an official alert." />
-<meta property="og:title" content="Otso — PM2.5 forecast at 1 km (beta)" />
+<meta property="og:title" content="Otso 2.0 — PM2.5 forecast at 1 km (beta)" />
 <meta property="og:description" content="Where will the fine particles be tomorrow, down to your street? A daily research forecast at 1 km on a street map." />
 <meta property="og:type" content="website" />
 <link rel="icon" type="image/png" href="assets/favicon.png" />
@@ -353,13 +353,18 @@
     .daysrow.seg { width: 100%; } .daysrow.seg button { flex: 1; padding: 7px 4px; }
     .lscale div, .lscale i { min-width: 0; width: 28px; } .lscale b { font-size: 10px; }
   }
+  .ah-actions { margin-top: 12px; } .share-btn { border-radius: 999px; padding: 8px 18px; font-size: 14px; }
+  .toast-msg { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 31; background: var(--ink); color: var(--bg); padding: 9px 14px; border-radius: 999px; font-size: 13.5px; box-shadow: var(--shadow); }
+  /* the native app (Capacitor shell): status-bar inset, no install paperwork, no "full site" */
+  html.native .topbar { padding-top: env(safe-area-inset-top); }
+  html.native #install, html.native .hero .cta a[href="#install"], html.native .full-site, html.native #install-btn { display: none !important; }
 </style>
 </head>
 <body>
 
 <header class="topbar">
   <div class="wrap topbar-row">
-    <a class="brand" href="#top"><img src="assets/logo_mark.svg" alt="" style="height:28px;width:28px" /><span>Otso</span><span style="color:var(--muted);font-weight:400">1 km</span></a>
+    <a class="brand" href="#top"><img src="assets/logo_mark.svg" alt="" style="height:28px;width:28px" /><span>Otso</span><span style="color:var(--muted);font-weight:400">2.0</span></a>
     <nav class="nav">
       <a href="#install" data-i18n="nav.install">Install</a>
       <a href="#map" data-i18n="nav.map">Map</a>
@@ -382,7 +387,7 @@
   <div class="wrap">
     <div class="hero-text">
       <p class="kicker" data-i18n="hero.kicker">Foehn project · live research forecast</p>
-      <div class="otso-head"><h1 style="margin:0">Otso <span style="font-weight:500;color:var(--blue)">1 km</span></h1><span class="pill pill-beta" data-i18n="hero.beta">beta</span><span class="pill pill-live" id="pill-live" data-i18n="hero.updated" hidden>updated today</span></div>
+      <div class="otso-head"><h1 style="margin:0">Otso <span style="font-weight:500;color:var(--blue)">2.0</span></h1><span class="pill pill-beta" data-i18n="hero.beta">beta</span><span class="pill pill-live" id="pill-live" data-i18n="hero.updated" hidden>updated today</span></div>
       <p class="tag" style="margin-top:10px" data-i18n="hero.tag">Where will the fine particles be tomorrow, down to your street?</p>
       <p class="lede" data-i18n-html="hero.lede">Every morning Otso takes the 00 UTC analysis of the Copernicus Atmosphere Monitoring Service, the ECMWF weather forecast of the same hour and the fires seen by satellite, computes the transport of the air with FLEXGREEN and forecasts PM<sub>2.5</sub> from all its sources (traffic, industry, heating, agriculture, dust, sea salt and fires) over all land, 12 hours to 5 days ahead, as an ensemble of 8 members at 0.4° (about 40 km). A generative model then draws the same forecast at 1 km, conditioned on each member, on the weather and on the transport, and the map puts it on a street map. Otso is the coarse model of the <a href="https://ammarkheder.com/Foehn/">Foehn paper</a>, fine-tuned on the live inputs of 2026; the 1 km model is trained on GHAP V1, a satellite–station PM<sub>2.5</sub> record.</p>
       <p class="status" id="status" data-i18n="hero.loading">Loading the latest forecast…</p>
@@ -443,6 +448,7 @@
         <div class="ah-class"><span class="ah-dot"></span><span id="pt-pill">—</span></div>
         <div class="ah-line" id="pt-when"></div>
         <div class="ah-range" id="pt-range"></div>
+        <div class="ah-actions"><button type="button" class="btn btn-ghost share-btn" id="share-btn" data-i18n="share.btn">Share</button></div>
       </div>
       <div class="acards">
         <div class="acard acard-days"><div class="acard-h"><span>📅</span><span data-i18n="card.days">Five days at 1 km</span></div><div class="days" id="pt-days"></div></div>
@@ -606,7 +612,7 @@
     </div>
   </div>
   <label class="lang-foot-wrap"><span aria-hidden="true">🌐</span><span data-i18n="lang.aria">Language</span><select id="lang-foot" aria-label="Language"></select></label>
-  <p class="fine">Otso runs every morning on <strong>LUMI</strong>, the EuroHPC supercomputer hosted by <strong>CSC</strong> in Kajaani, Finland. Otso 1.2 and its 1 km layer · Foehn project · Institute for Atmospheric and Earth System Research (INAR), University of Helsinki · LUT University · AMC-Lahti. Research forecast, not an official alert. Contains modified Copernicus Atmosphere Monitoring Service information 2026; ECMWF open data (CC BY 4.0); GHAP V1 (Wei et al.); basemap © OpenMapTiles, data © OpenStreetMap contributors; city list © GeoNames (CC BY 4.0). © 2026 Ammar Kheder.</p>
+  <p class="fine">Otso runs every morning on <strong>LUMI</strong>, the EuroHPC supercomputer hosted by <strong>CSC</strong> in Kajaani, Finland. Otso 2.0 (the Otso 1.2 model at 0.4° and its 1 km layer) · Foehn project · Institute for Atmospheric and Earth System Research (INAR), University of Helsinki · LUT University · AMC-Lahti. Research forecast, not an official alert. Contains modified Copernicus Atmosphere Monitoring Service information 2026; ECMWF open data (CC BY 4.0); GHAP V1 (Wei et al.); basemap © OpenMapTiles, data © OpenStreetMap contributors; city list © GeoNames (CC BY 4.0). © 2026 Ammar Kheder.</p>
 </div></footer>
 <script src="vendor/maplibre-gl.js"></script>
 <script>
@@ -619,6 +625,7 @@
   const PM_COLORS = ["#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8", "#ffffbf", "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"];
   const PM_BOUNDS = [0, 5, 10, 15, 25, 37.5, 50, 75, 100, 150, 250];
   const $ = (id) => document.getElementById(id);
+  const NATIVE = !!(window.OTSO_NATIVE), NAT = window.OTSO_NATIVE || null;                   // the app (Capacitor shell) or the website
   const ls = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} }, del: (k) => { try { localStorage.removeItem(k); } catch (e) {} } };
   // ---- languages: one dictionary per language (i18n/<code>.json), English as the fallback; RTL for Arabic, Persian, Urdu
   const RTL = new Set(["ar", "fa", "ur"]), LANG_CODES = [...document.querySelectorAll("#lang option[value]")].map((o) => o.value);
@@ -886,7 +893,7 @@
     state.map = map; map.touchZoomRotate.disableRotation();
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
     const geo = new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 }, trackUserLocation: false, showUserLocation: true, fitBoundsOptions: { maxZoom: 12 } });
-    map.addControl(geo, "top-right");
+    if (!NATIVE) map.addControl(geo, "top-right");                                        // in the app the 📍 button uses the native position plugin
     geo.on("geolocate", (p) => { const lat = p.coords.latitude, lon = p.coords.longitude; ls.set("otso-geo", "1"); pick(lat, lon, null, { reverse: true, remember: true }); });
     map.addControl(new maplibregl.ScaleControl({ maxWidth: 100 }), "bottom-left");
     map.on("style.load", () => { state.styleReady = true; addLayers(); if (state.k1 || cur) noteText("", false); });
@@ -1004,7 +1011,8 @@
     const mean = m.map((a) => avg(a, dec)), p90 = q.map((a) => avg(a, dec)), prob = pr.map((a) => { const v = avg(a, probOf); return v == null ? null : Math.round(v); });
     state.place = { lat, lon, name: my.name, day, mean, p90, prob, k1: hasK1 ? k1 : null, land: nodes.length > 0 }; renderPlace(state.place);
   }
-  function remember(name, lat, lon) { ls.set("otso-city", JSON.stringify({ name, lat, lon })); const cq = $("city-q"); if (cq && name) cq.value = name; }
+  function saveCity(o) { const j = JSON.stringify(o); ls.set("otso-city", j); if (NAT) NAT.prefsSet("otso-city", j); }
+  function remember(name, lat, lon) { saveCity({ name, lat, lon }); const cq = $("city-q"); if (cq && name) cq.value = name; }
   const lightText = (hex) => { const [r, g, b] = rgb(hex); return (0.299 * r + 0.587 * g + 0.114 * b) > 150; };
   function cityErrNote(name) {
     if (!LIVE_SC || !LIVE_SC.summary || !name) return "";
@@ -1031,7 +1039,7 @@
     el.style.setProperty("--pc", pc); document.body.style.setProperty("--pc", pc);
     const nm = name || coord(lat, lon), parts = nm.split(","), city = parts[0].trim(), rest = parts.slice(1).join(",").trim();
     $("pt-title").textContent = city; $("pt-sub").textContent = (rest ? rest + " · " : "") + coord(lat, lon);
-    $("pt-big").textContent = fmt(v0); $("pt-pill").textContent = clsName(c0); $("pt-when").textContent = whenTxt; $("pt-range").textContent = rangeTxt;
+    $("pt-big").textContent = fmt(v0); $("pt-pill").textContent = clsName(c0); $("pt-when").textContent = whenTxt; $("pt-range").textContent = rangeTxt; Pl.headline = { v: v0, cls: clsName(c0), when: whenTxt };
     let peak = "";
     if (k1) { let best = null; for (const L of state.k1.leads) { const x = k1[L]; if (x && x.v != null && (!best || x.v > best.v)) best = x; } if (best && kv && best.v > kv.v * 1.15 && best.valid !== kv.valid) peak = " " + tr("adv.peak_day", { v: fmt(best.v), cls: clsName(pmClass(best.v)), day: relDay(best.valid) }); }
     else if (land) { const imax = mean.indexOf(Math.max(...mean)); if (imax > kNow + 1) peak = " " + tr("adv.peak", { v: fmt(mean[imax]), cls: clsName(pmClass(mean[imax])), when: whenPhrase(validTime(day, imax)) }); }
@@ -1183,7 +1191,7 @@
   }
   const pol = (t) => { t = String(t || ""); const i = t.indexOf(","); const f = i < 0 ? fixPlace(t, "") : fixPlace(t.slice(0, i), t.slice(i + 1)); return f.name ? f.name + (f.country ? ", " + f.country : "") : f.country; };
   function renderList(box) { const b = box || BOX; b.list.innerHTML = b.hits.map((c, i) => `<li data-i="${i}" class="${i === b.sel ? "sel" : ""}">${esc(c.name)}<span>${esc([c.country, c.pop ? (c.pop >= 1000 ? (c.pop / 1000).toFixed(1) + " M" : c.pop + " k") : (c.online ? tr("search.osm") : "")].filter(Boolean).join(" · "))}</span></li>`).join("") + (b.input.value.trim().length >= 2 ? `<li class="more"><span>${b.hits.some((c) => c.online) ? tr("search.osm_included") : tr("search.searching")}</span></li>` : ""); b.list.hidden = !b.hits.length && b.input.value.trim().length < 2; }
-  function choose(c) { list.hidden = true; const nm = c.name + (c.country ? ", " + c.country : ""); cq.value = nm; ls.set("otso-city", JSON.stringify({ name: nm, lat: c.lat, lon: c.lon }));
+  function choose(c) { list.hidden = true; const nm = c.name + (c.country ? ", " + c.country : ""); cq.value = nm; saveCity({ name: nm, lat: c.lat, lon: c.lon });
     goTo(c.lat, c.lon, c.zoom || 10.5); pick(c.lat, c.lon, nm, { reverse: false }); if (!document.body.classList.contains("app")) $("map").scrollIntoView({ behavior: "smooth" }); }
   function suggestBox(input, listEl, onChoose) {                                          // a search box with suggestions from the gazetteer and OpenStreetMap
     const b = { input, list: listEl, hits: [], sel: -1, timer: null, seq: 0 };
@@ -1204,11 +1212,12 @@
       const rest = [q.city || q.town || q.village || q.municipality || q.county, q.country].filter((x) => x && x !== first);
       return pol([first].concat(rest).filter(Boolean).join(", ")) || coord(lat, lon); } catch (e) { return coord(lat, lon); }
   }
+  const getPosition = (ok, err, opts) => { if (NAT && NAT.getPosition) NAT.getPosition(opts).then(ok, (e) => err(e || {})); else navigator.geolocation.getCurrentPosition(ok, err, opts); };
   function locate(scroll) {
-    if (!navigator.geolocation) { cq.value = tr("geo.none"); return; }
+    if (!navigator.geolocation && !NATIVE) { cq.value = tr("geo.none"); return; }
     cq.value = tr("geo.locating");
-    navigator.geolocation.getCurrentPosition(async (p) => { const lat = p.coords.latitude, lon = p.coords.longitude; const nm = await placeName(lat, lon); cq.value = nm;
-      ls.set("otso-geo", "1"); ls.set("otso-city", JSON.stringify({ name: nm, lat, lon }));
+    getPosition(async (p) => { const lat = p.coords.latitude, lon = p.coords.longitude; const nm = await placeName(lat, lon); cq.value = nm;
+      ls.set("otso-geo", "1"); saveCity({ name: nm, lat, lon });
       $("welcome").hidden = true; goTo(lat, lon, 12); pick(lat, lon, nm, { reverse: false }); if (scroll) $("map").scrollIntoView({ behavior: "smooth" }); },
       (err) => { cq.value = ""; cq.placeholder = err.code === 1 ? tr("geo.refused") : tr("geo.unavailable"); ls.del("otso-geo"); if (!state.pick) cq.focus(); }, { timeout: 10000, maximumAge: 600000 });
   }
@@ -1216,6 +1225,16 @@
   $("welcome-geo").addEventListener("click", () => locate(false));
   $("welcome-type").addEventListener("click", () => { $("welcome").hidden = true; cq.focus(); });
   $("tab-locate").addEventListener("click", (ev) => { ev.preventDefault(); locate(false); window.scrollTo({ top: 0, behavior: "smooth" }); });
+  function toastMsg(t) { const d = document.createElement("div"); d.className = "toast-msg"; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 2600); }
+  async function sharePlace() {
+    const q = new URLSearchParams(); if (state.map) { const c = state.map.getCenter(); q.set("c", c.lat.toFixed(4) + "," + c.lng.toFixed(4) + "," + state.map.getZoom().toFixed(1)); }
+    if (state.pick) { q.set("lat", state.pick.lat.toFixed(4)); q.set("lon", state.pick.lon.toFixed(4)); if (state.pick.name) q.set("name", state.pick.name); }
+    const url = "https://ammarkheder.com/Otso/?" + q.toString(), title = tr("page.title");
+    const P0 = state.place, text = P0 && P0.headline ? `${pol(P0.name || "") || coord(P0.lat, P0.lon)} · PM2.5 ${fmt(P0.headline.v)} µg/m³ (${P0.headline.cls}) · ${P0.headline.when} · Otso 2.0` : title;
+    try { if (NAT) await NAT.share({ title, text, url, dialogTitle: title }); else if (navigator.share) await navigator.share({ title, text, url }); else { await navigator.clipboard.writeText(url); toastMsg(tr("share.copied")); } } catch (e) {}
+  }
+  $("share-btn").addEventListener("click", sharePlace);
+  document.addEventListener("click", (ev) => { if (NAT && ev.target.closest(".seg button, .tl, .drow, .sitem, .tabbar a, #layers button")) NAT.haptic("select"); }, true);
   let urlT = null;
   function syncUrl() { clearTimeout(urlT); urlT = setTimeout(() => {                      // the view (c=lat,lon,zoom), the layer, the chosen place (lat, lon, name): a link that opens the same thing
     const u = new URL(location.href); u.hash = "";
@@ -1234,7 +1253,7 @@
       k1s = tr("status.k1", { date: dfmt(state.k1.date, { weekday: "short", day: "numeric", month: "short" }), time: upd }); const a1 = Math.round((Date.now() - Date.parse(state.k1.date + "T00:00:00Z")) / 864e5); if (a1 >= 2) k1s += " <span style='color:#8A5A00'>" + tr("k1.stale", { n: a1 }) + "</span>";
       k1short = " · 1 km " + dfmt(state.k1.date, { day: "numeric", month: "short" }); }
     else if (state.k1pending) k1s = "<span style='color:#8A5A00'>" + tr("k1.pending", { date: dfmt(todayIso(), { day: "numeric", month: "long" }) }) + "</span>";
-    if ($("app-meta")) $("app-meta").textContent = tr("app.meta", { v: (ix.version || "1.2"), date: dshort });
+    if ($("app-meta")) $("app-meta").textContent = tr("app.meta", { v: "2.0", date: dshort });
     $("status-short").innerHTML = tr("status.short", { date: dshort, time: latest.updated.slice(11, 16), m: ix.members }) + k1short;
     setStatus(tr("status.long", { day, pub: latest.updated.replace("T", " "), m: ix.members, src: (ix.inputs.ifs_source || "").replace("https://", ""), ver: ix.inputs.gfas_version || "", gday: ix.inputs.gfas_day || "", inj: ix.inputs.fire_injection_variable || "" }) +
       (age > 1.5 ? " <span style='color:#8A5A00'>" + tr("status.old", { n: Math.floor(age) }) + "</span>" : "") + (k1s ? "<br>" + k1s : ""), age <= 1.5);
@@ -1283,6 +1302,7 @@
     if (P.get("lat") && P.get("lon")) pin = { lat: +P.get("lat"), lon: +P.get("lon"), name: P.get("name") ? pol(P.get("name")) : null };
     else if (hm) pin = { lat: +hm[1], lon: +hm[2], name: hm[3] ? pol(decodeURIComponent(hm[3])) : null };
     let remembered = null; try { remembered = JSON.parse(ls.get("otso-city") || "null"); } catch (e) {}
+    if (!remembered && NAT) { try { remembered = JSON.parse(await NAT.prefsGet("otso-city") || "null"); } catch (e) {} }
     if (!pin && remembered && isFinite(remembered.lat)) { pin = { lat: +remembered.lat, lon: +remembered.lon, name: pol(remembered.name || "") || null, remembered: true }; }
     if (pin && !hasC) { center = [pin.lon, pin.lat]; zoom = pin.remembered ? 9.5 : 10; }
     if (!pin && !hasC && window.innerWidth < 700) {                                        // a phone starts on the visitor's own region (time zone); the world is one pinch away
@@ -1318,13 +1338,13 @@
   // ---- theme: the system's preference, or the remembered choice (button in the top bar); the basemap follows unless chosen
   function applyTheme(t, save) { const changed = document.documentElement.dataset.theme && document.documentElement.dataset.theme !== t;
     document.documentElement.dataset.theme = t; $("theme").textContent = t === "dark" ? "☀️" : "🌙"; const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = t === "dark" ? "#0f1720" : "#1F5AA6";
-    if (save) ls.set("otso-theme", t); if (cur) drawCbar(); if (state.place) renderPlace(state.place);
+    if (save) ls.set("otso-theme", t); if (cur) drawCbar(); if (state.place) renderPlace(state.place); if (NAT) NAT.statusBar(t === "dark");
     if (changed && state.map && !state.basemap) setStyle(); if (state.marker) { state.marker.remove(); state.marker = null; if (state.pick) markerAt(state.pick.lat, state.pick.lon); } }
   (() => { let t = P.get("theme"); if (t !== "dark" && t !== "light") t = ls.get("otso-theme"); applyTheme(t || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"), false);
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (ev) => { if (!ls.get("otso-theme")) applyTheme(ev.matches ? "dark" : "light", false); }); })();
   $("theme").addEventListener("click", () => applyTheme(isDark() ? "light" : "dark", true));
   // ---- app mode: installed on the home screen (standalone), or opened from the manifest's start_url
-  const APP = !/[?&]full=1/.test(location.search) && (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true || /[?&]source=pwa/.test(location.search) || location.hash === "#app");
+  const APP = NATIVE || !/[?&]full=1/.test(location.search) && (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true || /[?&]source=pwa/.test(location.search) || location.hash === "#app");
   if (APP) {
     document.body.classList.add("app");
     document.querySelector("footer .wrap").insertBefore($("stats"), document.querySelector("footer .fine"));
@@ -1369,7 +1389,7 @@
   document.querySelector(".ostabs").addEventListener("click", (ev) => { const b = ev.target.closest("button[data-os]"); if (b) showOs(b.dataset.os); }); showOs(os);
   if (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone) { const i = $("install"); if (i) { const sb = i.querySelector(".sub"); sb.removeAttribute("data-i18n-html"); sb.textContent = tr("install.done"); } }
   // ---- PWA: service worker and the install prompt (Chrome / Edge / Android)
-  if ("serviceWorker" in navigator) { navigator.serviceWorker.register("sw.js").then((reg) => { reg.addEventListener("updatefound", () => { const nw = reg.installing; if (!nw) return; nw.addEventListener("statechange", () => { if (nw.state === "installed" && navigator.serviceWorker.controller) { $("toast").hidden = false; } }); }); }).catch(() => {}); }
+  if ("serviceWorker" in navigator && !NATIVE) { navigator.serviceWorker.register("sw.js").then((reg) => { reg.addEventListener("updatefound", () => { const nw = reg.installing; if (!nw) return; nw.addEventListener("statechange", () => { if (nw.state === "installed" && navigator.serviceWorker.controller) { $("toast").hidden = false; } }); }); }).catch(() => {}); }
   $("toast-reload").addEventListener("click", () => location.reload());
   let installEvt = null; const ib = $("install-btn");
   window.addEventListener("beforeinstallprompt", (ev) => { ev.preventDefault(); installEvt = ev; ib.hidden = false; });

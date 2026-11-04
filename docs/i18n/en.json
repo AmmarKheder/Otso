@@ -172,7 +172,7 @@
 "k1.sub": "The same forecast, downscaled to 1 km by a generative model and drawn on a street map: zoom into your neighbourhood, five days ahead. The 1 km model covers land from 60° S to 84° N.",
 "k1.btn": "Open the 1 km map",
 "tab.k1": "1 km",
-"page.title": "Otso — PM2.5 forecast at 1 km (beta)",
+"page.title": "Otso 2.0 — PM2.5 forecast at 1 km (beta)",
 "th.k1_full": "1 km · day",
 "th.k1": "1 km",
 "cities.k1_note": "1 km column: {day}",
@@ -211,5 +211,7 @@
 "k1.caveat": "GHAP is itself fitted to monitors (2017–2022); the skill of each day's forecast is not known in advance.",
 "help.k1": "Daily mean (00–24 UTC) of the 8 members at 1 km, issued from the 00 UTC run of {date}. Hatched: outside the 1 km model's mask. Sea: no forecast.",
 "help.k1p": "Number of members (of 8) whose daily mean at 1 km is above 15 µg m⁻³, the WHO 24-hour guideline; issued from the 00 UTC run of {date}.",
-"adv.peak_day": "The highest of the five days at 1 km, <strong>{v}</strong> ({cls}), is expected {day}."
+"adv.peak_day": "The highest of the five days at 1 km, <strong>{v}</strong> ({cls}), is expected {day}.",
+"share.btn": "Share",
+"share.copied": "Link copied"
 }
