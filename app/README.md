@@ -9,7 +9,8 @@ Ce qui est natif dans l'app, en plus du site :
 - partage natif (feuille de partage iOS) du lieu choisi, bouton « Partager » dans la fiche ;
 - retour haptique sur les puces (jours, couches, lignes de la fiche) ;
 - barre d'état qui suit le thème clair/sombre, encoche et bords gérés (safe areas) ;
-- écran de lancement et icône (générés depuis `../docs/assets/logo_mark.svg`) ;
+- icône (Otava, la Grande Ourse : ses sept étoiles en particules aux couleurs de l'échelle PM2.5, `../docs/assets/logo_icon.svg`),
+  écran de lancement bleu nuit et animation d'ouverture (les étoiles s'allument une à une, `#intro` dans `../docs/index.html`) ;
 - lieu mémorisé aussi dans les préférences natives (si le stockage web est vidé) ;
 - les liens externes (article Foehn, GitHub, OSM) et les autres pages du site (politique de confidentialité, carte
   classique, onglet « À propos ») s'ouvrent dans Safari, hors de l'app : l'app n'a pas de navigation web interne, ce qui
@@ -73,8 +74,8 @@ jour de l'app.
   côtes de la carte classique, le service worker) et insère `native.js` dans la page.
 - `native.js` : le pont utilisé par la page quand elle tourne dans l'app (`window.OTSO_NATIVE`) : partage, haptique,
   position, préférences, barre d'état, ouverture des liens dans Safari (hors de l'app). Sur le site, ce fichier n'existe pas et la page l'ignore.
-- `make_icons.js` → `assets/` : sources de l'icône (1024 px) et des écrans de lancement, puis
-  `npm run assets` (ou `npx capacitor-assets generate --ios`) remplit `ios/App/App/Assets.xcassets/`.
+- `make_icons.js` : `node make_icons.js` produit l'icône iOS et l'écran de lancement (`ios/App/App/Assets.xcassets/`), les sources
+  de `assets/`, et les icônes du site (favicon, apple-touch-icon, icônes PWA) depuis `../docs/assets/logo_icon.svg` et `logo_mark.svg`.
 - `ios/App/App/Info.plist` : texte de la demande de position (les deux clés `NSLocationWhenInUse…` et
   `NSLocationAlwaysAndWhenInUse…`, exigées ensemble par le plugin ; une seule invite s'affiche), `ITSAppUsesNonExemptEncryption
   = false` (HTTPS seulement : pas de déclaration d'export à faire), orientations.

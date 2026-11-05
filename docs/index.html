@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<script>/* opening animation: once per visit (in the app: at every launch), never with reduced motion */
+(function () { try { var d = document.documentElement; if (matchMedia("(prefers-reduced-motion: reduce)").matches || sessionStorage.getItem("otso-intro")) return;
+  sessionStorage.setItem("otso-intro", "1"); d.classList.add("intro"); if (/Otso\/2/.test(navigator.userAgent)) d.classList.add("intro-app"); } catch (e) {} })();</script>
 <title>Otso 2.0 — PM2.5 forecast at 1 km (beta)</title>
 <meta name="description" content="Otso runs the 0.4° Foehn model every morning on the live CAMS analysis, the ECMWF forecast and the GFAS fires, downscales it to 1 km with a generative model, and shows on a street map where the fine particles from all sources (traffic, industry, heating, dust, sea salt, fires) will be up to five days ahead. Research forecast, not an official alert." />
 <meta property="og:title" content="Otso 2.0 — PM2.5 forecast at 1 km (beta)" />
@@ -361,9 +364,51 @@
   html.native .wrap { padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
   html.native .tabbar { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
   @media (max-width: 600px) { html.native .wrap { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); } }
+  /* opening animation (#intro, top of <body>): the app's launch screen is the same night blue, so the stars light up on it seamlessly */
+  #intro { display: none; }
+  html.intro { background: #0F1B3D; }
+  html.intro #intro { --k: 1; display: flex; position: fixed; inset: 0; z-index: 2000; align-items: center; justify-content: center; cursor: pointer;
+    background: radial-gradient(120% 75% at 50% 42%, #18306A 0%, #0F1B3D 58%, #0A1430 100%);
+    animation: introOut calc(.5s * var(--k)) cubic-bezier(.4,0,.2,1) calc(1.8s * var(--k)) forwards; }
+  html.intro:not(.intro-app) #intro { --k: .8; }
+  html.intro-app:not(.go) #intro, html.intro-app:not(.go) #intro * { animation-play-state: paused; }
+  #intro.skip { animation: introOut .28s ease-in 0s forwards !important; }
+  .intro-in { display: flex; flex-direction: column; align-items: center; gap: min(5vw, 26px); animation: introAway calc(.5s * var(--k)) cubic-bezier(.4,0,.2,1) calc(1.8s * var(--k)) forwards; }
+  .intro-mark { width: min(62vw, 46vh, 330px); height: auto; overflow: visible; }
+  .intro-mark .il { fill: none; stroke: #fff; stroke-opacity: .22; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1;
+    animation: introLine calc(.85s * var(--k)) cubic-bezier(.65,0,.25,1) calc(.35s * var(--k)) forwards; }
+  .intro-mark circle { transform-box: fill-box; transform-origin: center; }
+  .intro-mark .id { opacity: 0; transform: scale(0); animation: introStar calc(.6s * var(--k)) cubic-bezier(.34,1.56,.64,1) calc((.12s + var(--i) * .11s) * var(--k)) forwards; }
+  .intro-mark .ih { opacity: 0; animation: introHalo calc(.9s * var(--k)) ease-out calc((.12s + var(--i) * .11s) * var(--k)) forwards; }
+  .intro-word { color: #fff; font: 700 clamp(28px, 8.5vw, 44px)/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: .38em; margin-right: -.38em; opacity: 0; transform: translateY(12px);
+    animation: introWord calc(.6s * var(--k)) cubic-bezier(.2,.8,.2,1) calc(1s * var(--k)) forwards; }
+  .intro-word span { font-weight: 400; opacity: .55; margin-left: .3em; }
+  @keyframes introStar { 0% { opacity: 0; transform: scale(0); } 55% { opacity: 1; transform: scale(1.22); } 100% { opacity: 1; transform: scale(1); } }
+  @keyframes introHalo { 0% { opacity: 0; transform: scale(.7); } 25% { opacity: .5; } 100% { opacity: 0; transform: scale(2.6); } }
+  @keyframes introLine { to { stroke-dashoffset: 0; } }
+  @keyframes introWord { to { opacity: 1; transform: none; letter-spacing: .08em; margin-right: -.08em; } }
+  @keyframes introOut { to { opacity: 0; visibility: hidden; } }
+  @keyframes introAway { to { transform: scale(1.14); filter: blur(10px); } }
 </style>
 </head>
 <body>
+<!-- opening animation: Otava's seven stars light up as particles in the PM2.5 colours, then dissolve into the page (see the "intro" class set in <head>) -->
+<div id="intro" aria-hidden="true"><div class="intro-in">
+  <svg class="intro-mark" viewBox="0 0 1024 1024"><path class="il" pathLength="1" d="M190 245.8 L369 243.3 L468.7 359 L571.1 490.8 L524.9 617.3 L696 778.2 L834 698.7 L571.1 490.8"/><g class="is" style="--i:0"><circle class="ih" cx="190" cy="245.8" r="61.1" fill="#4575b4"/><circle class="id" cx="190" cy="245.8" r="61.1" fill="#4575b4"/></g><g class="is" style="--i:1"><circle class="ih" cx="369" cy="243.3" r="55.8" fill="#74add1"/><circle class="id" cx="369" cy="243.3" r="55.8" fill="#74add1"/></g><g class="is" style="--i:2"><circle class="ih" cx="468.7" cy="359" r="62.4" fill="#abd9e9"/><circle class="id" cx="468.7" cy="359" r="62.4" fill="#abd9e9"/></g><g class="is" style="--i:3"><circle class="ih" cx="571.1" cy="490.8" r="40.4" fill="#fee090"/><circle class="id" cx="571.1" cy="490.8" r="40.4" fill="#fee090"/></g><g class="is" style="--i:4"><circle class="ih" cx="524.9" cy="617.3" r="52.8" fill="#fdae61"/><circle class="id" cx="524.9" cy="617.3" r="52.8" fill="#fdae61"/></g><g class="is" style="--i:5"><circle class="ih" cx="696" cy="778.2" r="53.8" fill="#f46d43"/><circle class="id" cx="696" cy="778.2" r="53.8" fill="#f46d43"/></g><g class="is" style="--i:6"><circle class="ih" cx="834" cy="698.7" r="62.1" fill="#d73027"/><circle class="id" cx="834" cy="698.7" r="62.1" fill="#d73027"/></g></svg>
+  <div class="intro-word">Otso<span>2.0</span></div>
+</div></div>
+<script>(function () {
+  var d = document.documentElement, o = document.getElementById("intro");
+  if (!d.classList.contains("intro")) { o.remove(); return; }
+  var skip = function () { d.classList.add("go"); o.classList.add("skip"); };
+  var end = function () { if (!o.parentNode) return; o.remove(); d.classList.remove("intro", "intro-app", "go");
+    removeEventListener("keydown", skip); removeEventListener("wheel", skip); dispatchEvent(new Event("otso-intro-done")); };
+  o.addEventListener("animationend", function (e) { if (e.target === o) end(); });
+  o.addEventListener("pointerdown", skip); addEventListener("keydown", skip); addEventListener("wheel", skip, { passive: true });
+  setTimeout(function () { d.classList.add("go"); }, 1500);                              // the app starts it when the launch screen goes; this is the safety net
+  setTimeout(end, 6000);
+})();</script>
 
 <header class="topbar">
   <div class="wrap topbar-row">
@@ -870,9 +915,14 @@
   const styleUrl = () => "https://tiles.openfreemap.org/styles/" + (state.basemap === "streets" ? "liberty" : state.basemap === "light" ? "positron" : state.basemap === "dark" ? "dark" : isDark() ? "dark" : "positron");
   function underRoads(map) { for (const l of map.getStyle().layers) if (l.type === "symbol" || (l.type === "line" && /tunnel|aeroway|road|highway|railway|bridge|boundary/.test(l.id))) return l.id; return undefined; }
   function stripCountries(map) { for (const l of map.getStyle().layers) if (/country/i.test(l.id) && l.type === "symbol") map.removeLayer(l.id); }   // no country names (site rule)
+  // a calmer basemap under the forecast: no road shields, airports, railways, footpaths, piers, minor places, river names or inner boundaries
+  const CLUTTER = /shield|airport|aeroway|railway|highway_path|highway-name-path|road_pier|road_area_pier|label_other|waterway_line_label|boundary_3|boundary_disputed/;
+  function cleanBasemap(map) { for (const l of map.getStyle().layers) if (CLUTTER.test(l.id) && map.getLayer(l.id)) map.removeLayer(l.id);
+    if (map.getLayer("building")) map.setPaintProperty("building", "fill-opacity", 0.35); }
   function addLayers() {
     const map = state.map; if (!map || !state.styleReady) return;
     try { stripCountries(map); } catch (e) {}
+    if (state.basemap !== "streets") try { cleanBasemap(map); } catch (e) {}           // "Map: streets" (site only) keeps the full OpenFreeMap detail
     for (const id of ["pm", "o4"]) { if (map.getLayer(id)) map.removeLayer(id); if (map.getSource(id)) map.removeSource(id); }
     if (state.layer !== "o4") {
       if (!state.k1) return;                                                               // the 1 km layer is not online yet
