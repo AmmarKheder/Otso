@@ -11,7 +11,7 @@ Everything here is in English (the primary language of the listing); add a Frenc
 - **Privacy policy URL:** https://ammarkheder.com/Otso/privacy/
 - **Support URL:** https://ammarkheder.com/Otso/privacy/#contact (e-mail and the GitHub issues, no account needed)
 - **Marketing URL:** https://ammarkheder.com/Otso/
-- **Age rating:** 4+. In the 2025 questionnaire answer "None" to Medical/Treatment Information and Health/Wellness topics (an air-quality research forecast, not health advice), "No" to "Shared Location" (the position never leaves the device except the one place search, nothing is shared with other users), "No" to "Unrestricted Web Access" (the app loads only its own bundled page; every link opens in Safari, outside the app), "No" to everything else.
+- **Age rating:** 4+. In the questionnaire answer "None" to "Medical or Treatment Information" and "No" to "Health or Wellness Topics" (an air-quality research forecast, not health advice), "No" to "Unrestricted Web Access" (the app loads only its own bundled page; every link opens in Safari, outside the app), "No" or "None" to everything else.
 - **Price:** Free · no in-app purchases · no ads
 
 ## Promotional text (170 chars max)

@@ -17,7 +17,7 @@
     prefsGet: async (k) => { try { return P.Preferences ? (await P.Preferences.get({ key: k })).value : null; } catch (e) { return null; } },
     prefsSet: async (k, v) => { try { if (P.Preferences) await P.Preferences.set({ key: k, value: v }); } catch (e) {} },
     statusBar: async (dark) => { try { if (P.StatusBar) await P.StatusBar.setStyle({ style: dark ? "DARK" : "LIGHT" }); } catch (e) {} },
-    openExternal: (url) => { try { if (P.App && P.App.openUrl) return P.App.openUrl({ url }); } catch (e) {} window.open(url, "_blank"); },   // the system browser (outside the app): no in-app web browsing
+    openExternal: (url) => { window.open(url, "_blank"); },   // a new-window request: Capacitor hands it to the system browser (Safari, outside the app); always called from a click
     hideSplash: () => { try { P.SplashScreen && P.SplashScreen.hide(); } catch (e) {} },
   };
   // links: other sites, and the site's other pages (classic/, privacy/, scores, the full site behind the About tab) open in Safari;

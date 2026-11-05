@@ -72,7 +72,7 @@ jour de l'app.
 - `build_www.sh` : construit `www/` depuis `../docs/` (sans la page classique, l'ancienne redirection 1km/, le QR, les
   côtes de la carte classique, le service worker) et insère `native.js` dans la page.
 - `native.js` : le pont utilisé par la page quand elle tourne dans l'app (`window.OTSO_NATIVE`) : partage, haptique,
-  position, préférences, barre d'état, navigateur intégré. Sur le site, ce fichier n'existe pas et la page l'ignore.
+  position, préférences, barre d'état, ouverture des liens dans Safari (hors de l'app). Sur le site, ce fichier n'existe pas et la page l'ignore.
 - `make_icons.js` → `assets/` : sources de l'icône (1024 px) et des écrans de lancement, puis
   `npm run assets` (ou `npx capacitor-assets generate --ios`) remplit `ios/App/App/Assets.xcassets/`.
 - `ios/App/App/Info.plist` : texte de la demande de position (les deux clés `NSLocationWhenInUse…` et

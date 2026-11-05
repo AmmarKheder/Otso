@@ -560,7 +560,7 @@
     </div>
   </div>
   <label class="lang-foot-wrap"><span aria-hidden="true">🌐</span><span data-i18n="lang.aria">Language</span><select id="lang-foot" aria-label="Language"></select></label>
-  <p class="fine">Otso runs every morning on <strong>LUMI</strong>, the EuroHPC supercomputer hosted by <strong>CSC</strong> in Kajaani, Finland. Otso 1.2 · Foehn project · Institute for Atmospheric and Earth System Research (INAR), University of Helsinki · LUT University · AMC-Lahti. Research forecast, not an official alert. Contains modified Copernicus Atmosphere Monitoring Service information 2026; ECMWF open data (CC BY 4.0); city list © GeoNames (CC BY 4.0) and © OpenStreetMap contributors. © 2026 Ammar Kheder.</p>
+  <p class="fine">Otso runs every morning on <strong>LUMI</strong>, the EuroHPC supercomputer hosted by <strong>CSC</strong> in Kajaani, Finland. Otso 1.2 · Foehn project · Institute for Atmospheric and Earth System Research (INAR), University of Helsinki · LUT University · AMC-Lahti. Research forecast, not an official alert. Contains modified Copernicus Atmosphere Monitoring Service information 2026; ECMWF open data (CC BY 4.0); city list © GeoNames (CC BY 4.0) and © OpenStreetMap contributors. © 2026 Ammar Kheder. <a href="../privacy/" data-i18n="foot.privacy">Privacy policy</a>.</p>
 </div></footer>
 
 <script>
@@ -946,8 +946,7 @@
     box = box || BOX; const seq = ++onlineSeq; let out = [];
     try { const r = await fetch("https://photon.komoot.io/api/?q=" + encodeURIComponent(q) + "&limit=6&lang=en"); const j = await r.json();
       out = j.features.map((f) => ({ ...fixPlace(f.properties.name || q, [f.properties.state, f.properties.country].filter(Boolean).join(", ")), lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0], pop: 0, online: true })); }
-    catch (e) { try { const r = await fetch("https://nominatim.openstreetmap.org/search?q=" + encodeURIComponent(q) + "&format=jsonv2&limit=6"); const j = await r.json();
-      out = j.map((x) => ({ ...fixPlace(x.name || x.display_name.split(",")[0], x.display_name.split(",").slice(1, 3).join(",").trim()), lat: +x.lat, lon: +x.lon, pop: 0, online: true })); } catch (e2) {} }
+    catch (e) {}                                                                           // Photon only: Nominatim's policy forbids autocomplete
     out = out.filter((c) => c.name);                                                     // results without a name left (see fixPlace) are dropped
     if (seq !== onlineSeq) return;                                                         // a newer query is running
     const seen = new Set(box.hits.map((c) => c.name.toLowerCase() + "|" + Math.round(c.lat) + "|" + Math.round(c.lon)));
@@ -978,7 +977,7 @@
   }
   const BOX = suggestBox(cq, list, choose);
   async function placeName(lat, lon) {                                                  // a name for a position (OpenStreetMap data), or the coordinates
-    try { const r = await fetch("https://photon.komoot.io/reverse?lon=" + lon + "&lat=" + lat + "&lang=en"); const j = await r.json(); const f = j.features && j.features[0]; if (!f) throw 0;
+    try { const r = await fetch("https://photon.komoot.io/reverse?lon=" + lon.toFixed(3) + "&lat=" + lat.toFixed(3) + "&lang=en"); const j = await r.json(); const f = j.features && j.features[0]; if (!f) throw 0;
       const q = f.properties; return pol([q.city || q.town || q.village || q.name || q.county, q.country].filter(Boolean).join(", ")) || coord(lat, lon); } catch (e) { return coord(lat, lon); }
   }
   function locate(scroll) {

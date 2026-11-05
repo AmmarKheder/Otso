@@ -10,5 +10,7 @@ cp "$HERE/native.js" "$WWW/native.js"; cp "$HERE/plugins.js" "$WWW/plugins.js"
 sed -i.bak 's|<script src="vendor/maplibre-gl.js"></script>|<script src="plugins.js"></script>\
 <script src="native.js"></script>\
 &|' "$WWW/index.html" && rm -f "$WWW/index.html.bak"                              # GNU and BSD sed: suffix glued to -i, newline = backslash + real line break
-grep -q -F '<script src="plugins.js">' "$WWW/index.html" && grep -q -F '<script src="native.js">' "$WWW/index.html" && echo "plugins.js + native.js injected"
+grep -q -F '<script src="plugins.js">' "$WWW/index.html" || { echo "plugins.js not injected: the <script src=\"vendor/maplibre-gl.js\"> tag was not found in docs/index.html" >&2; exit 1; }
+grep -q -F '<script src="native.js">' "$WWW/index.html" || { echo "native.js not injected" >&2; exit 1; }
+echo "plugins.js + native.js injected"
 du -sh "$WWW"; find "$WWW" -type f | wc -l
