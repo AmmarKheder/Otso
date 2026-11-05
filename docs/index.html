@@ -1066,7 +1066,8 @@
     state.place = { lat, lon, name: my.name, day, mean, p90, prob, k1: hasK1 ? k1 : null, land: nodes.length > 0 }; renderPlace(state.place);
   }
   function saveCity(o) { const j = JSON.stringify(o); ls.set("otso-city", j); if (NAT) NAT.prefsSet("otso-city", j); }
-  function remember(name, lat, lon) { saveCity({ name, lat, lon }); const cq = $("city-q"); if (cq && name) cq.value = name; }
+  function remember(name, lat, lon) { saveCity({ name, lat, lon }); const cq = $("city-q"); if (cq && name) cq.value = name;
+    if (state.place && Math.abs(state.place.lat - lat) < 1e-6 && Math.abs(state.place.lon - lon) < 1e-6) snapSave(state.place, true); }
   const lightText = (hex) => { const [r, g, b] = rgb(hex); return (0.299 * r + 0.587 * g + 0.114 * b) > 150; };
   function cityErrNote(name) {
     if (!LIVE_SC || !LIVE_SC.summary || !name) return "";
@@ -1111,6 +1112,41 @@
     if (land) { $("pt-strip").innerHTML = mean.map((v, k) => { if (k < kNow) return ""; const t = validTime(day, k); return `<div class="sitem${k === state.lead ? " on" : ""}" data-k="${k}"><div class="d">${dayLabel(t)}</div><div class="h">${hourLabel(t)}</div><div class="dot" style="background:${pmHex(v)}"></div><div class="v">${fmt(v)}</div></div>`; }).join("");
       series(mean, p90, prob); $("acard-hours").hidden = false; }
     else { $("pt-strip").innerHTML = ""; $("series").innerHTML = ""; $("acard-hours").hidden = true; }
+    snapSave(Pl);
+  }
+  // ---- offline: the card of the remembered place is kept on the device (localStorage, and the native preferences in the app);
+  // when the forecast cannot be fetched at the next start it is shown again, its day names recomputed for the day it is read
+  const SNAP = ["pt-title", "pt-sub", "pt-big", "pt-pill", "pt-text", "pt-days", "pt-strip", "series"];
+  function snapSave(Pl, force) {
+    try {
+      const c = JSON.parse(ls.get("otso-city") || "null");
+      if (!force && (!c || Math.abs(c.lat - Pl.lat) > 1e-4 || Math.abs(c.lon - Pl.lon) > 1e-4)) return;          // only the remembered place
+      const kv = Pl.k1 && state.k1 && Pl.k1[state.kday] && Pl.k1[state.kday].v != null ? Pl.k1[state.kday] : null;
+      const s = { v: 1, at: Date.now(), day: Pl.day, valid: kv ? kv.valid : null, when: $("pt-when").textContent,
+        rows: Pl.k1 && state.k1 ? Object.fromEntries(state.k1.leads.map((L) => [L, Pl.k1[L] && Pl.k1[L].valid])) : null,
+        vals: Pl.k1 && state.k1 ? Object.fromEntries(state.k1.leads.map((L) => [L, Pl.k1[L] ? Pl.k1[L].v : null])) : null,
+        pc: $("point").style.getPropertyValue("--pc"), hours: !$("acard-hours").hidden, meta: $("app-meta") ? $("app-meta").textContent : "", html: {} };
+      for (const id of SNAP) s.html[id] = $(id).innerHTML;
+      const j = JSON.stringify(s); ls.set("otso-last", j); if (NAT) NAT.prefsSet("otso-last", j);
+    } catch (e) {}
+  }
+  async function snapShow() {
+    let j = ls.get("otso-last"); if (!j && NAT) j = await NAT.prefsGet("otso-last");
+    let s = null; try { s = JSON.parse(j || "null"); } catch (e) {} if (!s || !s.html) return false;
+    for (const id of SNAP) if (s.html[id] != null) $(id).innerHTML = s.html[id];
+    for (const r of $("pt-days").querySelectorAll(".drow")) { const n = r.querySelector(".dname"); if (!n) continue;
+      if (r.dataset.l && s.rows && s.rows[r.dataset.l]) n.textContent = relDay(s.rows[r.dataset.l]); else if (r.dataset.k) n.textContent = dayLabel(validTime(s.day, +r.dataset.k)); }
+    for (const it of $("pt-strip").querySelectorAll(".sitem")) { const d = it.querySelector(".d"); if (d) d.textContent = dayLabel(validTime(s.day, +it.dataset.k)); }
+    $("pt-when").textContent = s.valid ? relDay(s.valid) + " · " + tr("k1.daily") : s.when; $("pt-range").textContent = tr("map.offline");
+    if (s.pc) { $("point").style.setProperty("--pc", s.pc); document.body.style.setProperty("--pc", s.pc); }
+    const Lt = s.rows && s.vals ? Object.keys(s.rows).find((L) => s.rows[L] === todayIso() && s.vals[L] != null) : null;   // a day later: the headline is today's value of the kept five days
+    if (Lt && s.rows[Lt] !== s.valid) { const v = s.vals[Lt], pc = pmHex(v);
+      $("pt-big").textContent = fmt(v); $("pt-pill").textContent = clsName(pmClass(v)); $("pt-when").textContent = relDay(s.rows[Lt]) + " · " + tr("k1.daily");
+      $("pt-text").innerHTML = adviceOf(v) + "<br><span class='small'>" + tr("adv.research") + "</span>";
+      $("point").style.setProperty("--pc", pc); document.body.style.setProperty("--pc", pc);
+      for (const r of $("pt-days").querySelectorAll(".drow")) r.classList.toggle("on", r.dataset.l === Lt); }
+    $("acard-hours").hidden = !s.hours; if ($("app-meta") && s.meta) $("app-meta").textContent = s.meta;
+    $("point").hidden = false; $("welcome").hidden = true; $("offline").hidden = false; return true;
   }
   $("pt-days").addEventListener("click", (ev) => { const r = ev.target.closest(".drow"); if (!r) return; if (r.dataset.l) setKday(+r.dataset.l); else { state.lead = +r.dataset.k; $("lead").value = state.lead; show(); } });
   $("pt-strip").addEventListener("click", (ev) => { const it = ev.target.closest(".sitem"); if (!it) return; state.lead = +it.dataset.k; $("lead").value = state.lead; show(); for (const x of document.querySelectorAll(".sitem")) x.classList.toggle("on", x === it); });
@@ -1375,7 +1411,8 @@
     await p1;
     if (pin) { if (pin.name) cq.value = pin.name; await pick(pin.lat, pin.lon, pin.name, { reverse: !pin.name }); if (pin.remembered && ls.get("otso-geo") === "1") locate(false); }   // the position is refreshed silently (permission already given)
     else $("welcome").hidden = false;
-    if (!ok && !state.k1) noteText(navigator.onLine === false ? tr("map.offline_none") : tr("map.none"), true);
+    const snap = !ok && await snapShow();
+    if (!ok && !state.k1) noteText(snap ? tr("map.offline") : navigator.onLine === false ? tr("map.offline_none") : tr("map.none"), true);
   })();
   window.addEventListener("resize", () => { if (state.place && state.place.land) series(state.place.mean, state.place.p90, state.place.prob); });
   if (/[?&]debug=1/.test(location.search)) setTimeout(() => {                                // layout test: elements wider than the screen, outside a scroller

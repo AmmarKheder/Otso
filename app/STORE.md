@@ -26,6 +26,7 @@ Every morning, a deep-learning model runs on the day's atmospheric analysis of t
 • Five days ahead: the daily mean at 1 km, how the day evolves every 12 hours, and what it means in plain words.
 • Three map layers: the 1 km daily mean, the number of ensemble members above the WHO 24-hour guideline (15 µg/m³), and the 40 km forecast every 12 hours.
 • A table of sixty cities, to which you can add your own.
+• Works offline: the last forecast of your place stays on your phone and is shown when there is no network.
 • Dark mode, 37 languages, share a place with a link.
 • Scores: how the forecast compares with air-quality monitors and with the Copernicus analysis, updated every day.
 
@@ -37,7 +38,7 @@ Contains modified Copernicus Atmosphere Monitoring Service information 2026; ECM
 air quality,PM2.5,pollution,forecast,particulate,smog,AQI,dust,wildfire smoke,weather,map
 
 ## What's new (version 2.0.0)
-First App Store release: the Otso forecast drawn at 1 km on a street map, search of streets and addresses, five-day place card, native share and position.
+First App Store release: the Otso forecast drawn at 1 km on a street map, search of streets and addresses, five-day place card, native share and position, the last forecast of your place kept for offline use.
 
 ## App Privacy (App Store Connect → App Privacy)
 Answer: **data is collected** = No for everything that is not listed; declare only:
@@ -78,7 +79,9 @@ is an experimental research forecast that does not replace official air-quality 
 prevent any disease. Location is used on the device to centre the map; its coordinates, rounded to about 100 m, are sent
 once to the OpenStreetMap place search (Photon) to name the street, and never to us (privacy policy:
 https://ammarkheder.com/Otso/privacy/). Native features: position (system prompt), share sheet on the place card,
-haptics on the day and layer chips, status bar following the theme, launch screen. Contact: ammar.kheder@lut.fi,
+haptics on the day and layer chips, status bar following the theme, launch screen and opening animation. Offline: once a place
+is remembered (search it or tap "My location"), its last forecast is kept on the device in the native preferences; with
+airplane mode on, reopen the app and that forecast is shown with an "offline" notice. Contact: ammar.kheder@lut.fi,
 https://github.com/AmmarKheder/Otso/issues
 
 ## Checklist before "Submit for Review"
