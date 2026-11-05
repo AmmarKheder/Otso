@@ -9,7 +9,8 @@
   // clip keeps the sideways cut without breaking sticky (iOS 16+); the band behind the status bar covers iOS 15 too
   const st = document.createElement("style");
   st.textContent = "html.native,html.native body{overflow-x:clip}" +
-    "html.native body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top);background:var(--bg);z-index:40;pointer-events:none}";
+    "html.native body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top);background:var(--bg);z-index:40;pointer-events:none}" +
+    "html.native [id]{scroll-margin-top:calc(env(safe-area-inset-top) + 58px)}";                 // the tabs jump to anchors: keep the section title below the sticky bar
   document.head.appendChild(st);
   const N = window.OTSO_NATIVE = {
     platform: C.getPlatform(),

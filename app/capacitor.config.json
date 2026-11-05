@@ -2,6 +2,7 @@
   "appId": "com.ammarkheder.otso",
   "appName": "Otso 2.0",
   "webDir": "www",
+  "backgroundColor": "#0F1B3D",
   "server": {
     "iosScheme": "capacitor"
   },
