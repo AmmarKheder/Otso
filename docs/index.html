@@ -61,6 +61,18 @@
   body.app .place-foot { display: none; }
   table.scores td, table.scores th { text-align: right; } table.scores td:first-child, table.scores th:first-child { text-align: left; }
   .scores-notes { margin: 14px 0 0; padding-left: 20px; } .scores-notes li { font-size: 14px; margin-bottom: 8px; }
+  .k1v-ctl { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0 6px; }
+  .k1v-ctl select { border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; font-size: 13px; background: var(--card); color: var(--ink); max-width: 100%; }
+  .k1v-chart { width: 100%; height: auto; aspect-ratio: 560 / 210; display: block; }
+  @media (max-width: 600px) { #k1v-table th:nth-child(2), #k1v-table td:nth-child(2), #k1v-table th:nth-child(3), #k1v-table td:nth-child(3), #k1v-table th:nth-child(5), #k1v-table td:nth-child(5) { display: none; } }
+  .k1v-chart .ax { stroke: var(--line); stroke-width: 1; } .k1v-chart .zero { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 3; }
+  .k1v-chart text { fill: var(--muted); font-size: 11px; } .k1v-chart .sys { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; }
+  .k1v-chart polyline.rmse { fill: none; stroke: var(--blue); stroke-width: 2; } .k1v-chart polyline.bias { fill: none; stroke: var(--pink); stroke-width: 1.6; stroke-dasharray: 5 3; }
+  .k1v-chart circle.fin { fill: var(--blue); } .k1v-chart circle.prov { fill: var(--card); stroke: var(--blue); stroke-width: 1.5; }
+  .k1v-legend { margin: 4px 0 10px; display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; }
+  .k1v-key { display: inline-block; width: 18px; height: 0; border-top: 2px solid var(--blue); vertical-align: middle; margin-right: 5px; }
+  .k1v-key.bias { border-top: 2px dashed var(--pink); } .k1v-key.prov { width: 8px; height: 8px; border: 1.5px solid var(--blue); border-radius: 50%; }
+  #k1v-table tr.on td { background: var(--bg-soft); }
   body.app #scores { display: none !important; }
   body.app #tablewrap:not(.all) table.ct tbody tr:nth-child(n+13) { display: none; } body.app .showall { display: block !important; width: 100%; margin-top: 10px; }
   body.app #tablewrap.all + .showall { display: none !important; }
@@ -573,7 +585,18 @@
       <tbody><tr><td>2022</td><td>1,495</td><td><b>−8 %</b></td><td>−24 %</td><td>−17 %</td></tr><tr><td>2023</td><td>805</td><td><b>−11 %</b></td><td>−24 %</td><td>−14 %</td></tr><tr><td>2024</td><td>757</td><td><b>−12 %</b></td><td>−25 %</td><td>−15 %</td></tr><tr><td>2025</td><td>759</td><td><b>−11 %</b></td><td>−25 %</td><td>−16 %</td></tr><tr><td>2026 (Jan–Oct)</td><td>716</td><td><b>−14 %</b></td><td>−31 %</td><td>−20 %</td></tr></tbody></table></div>
     <ul class="scores-notes">
       <li><strong>The 1 km forecast is closer to the monitors than the 40 km analysis it starts from</strong>, by 8 to 14 % every year, and the probabilistic score (CRPS) follows. The monitors are in China (CNEMC), Europe, North America and elsewhere (OpenAQ); 2022 also includes AirKorea, Japan and India.</li>
-      <li><strong>Read with care.</strong> GHAP, the record the 1 km model learnt from, is itself fitted to about 9,500 monitors of 2017–2022, so a monitor-pixel comparison is favourable to any model trained on it; the gain is smaller one pixel away. The forecast skill of a given day is not known in advance, and the live 1 km chain has no verification yet (the 0.4° chain has one, below).</li>
+      <li><strong>Read with care.</strong> GHAP, the record the 1 km model learnt from, is itself fitted to about 9,500 monitors of 2017–2022, so a monitor-pixel comparison is favourable to any model trained on it; the gain is smaller one pixel away. The forecast skill of a given day is not known in advance; the live 1 km forecast is checked every day at the monitors (below).</li>
+    </ul>
+    <h3 style="margin-top:26px" id="k1v">Live verification of the 1 km forecast at the monitors</h3>
+    <p class="sub">Every day the published 1 km forecast is kept at the pixels of about 12,000 OpenAQ monitors, then compared with their daily means once these reach the OpenAQ public archive, about four days later. Every day counts and nothing is removed afterwards; the monitors are never an input of Otso. <span id="k1v-note"></span></p>
+    <div class="k1v-ctl"><div class="seg" id="k1v-lead" role="group" aria-label="Forecast day"></div><select id="k1v-region" aria-label="Region"></select></div>
+    <svg class="k1v-chart" id="k1v-chart" viewBox="0 0 560 210" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Error of the 1 km forecast at the monitors, day by day"></svg>
+    <div class="k1v-legend small"><span><span class="k1v-key"></span>RMSE</span><span><span class="k1v-key bias"></span>bias (forecast − monitors)</span><span><span class="k1v-key prov"></span>provisional: late measurements may still arrive</span></div>
+    <div class="tablewrap"><table class="ct scores" id="k1v-table"><thead><tr><th>Forecast day</th><th>days</th><th>monitors / day</th><th>RMSE</th><th>MAE</th><th>bias</th><th>in 10–90 %</th></tr></thead><tbody><tr><td colspan="7" class="small">Loading…</td></tr></tbody></table></div>
+    <ul class="scores-notes">
+      <li><strong>What is compared.</strong> The forecast daily mean at the monitor's 1 km pixel (mean of the members) with the UTC daily mean of the monitor (at least 18 valid hours). Day 1 is the day the forecast is issued, day 5 four days later. Errors in µg m⁻³, pooled over all verified days; the last column (share of the measurements inside the 10–90 % range of the members) should be close to 80 % if the spread of the members is right.</li>
+      <li><strong>Read with care.</strong> OpenAQ gathers official and low-cost monitors, which are not harmonised, and one monitor can differ from the mean of its 1 km pixel (a busy street, a courtyard). The 1 km model learnt from GHAP, itself fitted to monitors of 2017–2022, some of which are verified here. The 1 km model changed on 3 November 2026 (LGHAP → GHAP downscaler): the dotted line.</li>
+      <li>All numbers: <a id="k1v-file" href="https://raw.githubusercontent.com/AmmarKheder/Otso/verif/history.json">history.json</a>, rebuilt every day.</li>
     </ul>
     <h3 style="margin-top:26px">Otso 1.2 (0.4°): fine-tuned on 2026</h3>
     <p class="sub">Otso 1.2 keeps the network of the paper and learns, for six passes, from the live inputs of January to August 2026 (243 days). Scored on 6–20 September, after its training period (no day in common with its training targets), against the CAMS analysis. RMSE of the ensemble mean over land, µg m⁻³.</p>
@@ -1197,6 +1220,65 @@
     $("live-note").textContent = "Window " + (S.from || "") + " to " + (S.to || "") + ", updated " + (j.updated || "").replace("T", " ") + ". Days before 10 October 2026 come from the hindcast on live inputs.";
     if (state.place) renderPlace(state.place);
   }).catch(() => { document.querySelector("#live-table tbody").innerHTML = `<tr><td colspan="7" class="small">The verification file could not be loaded.</td></tr>`; });
+
+  // ---- live verification of the 1 km forecast at the monitors (branch verif, built on LUMI by otso_1km/verif/verif.py):
+  //      only Otso's own errors; rows = (verified day, lead, region) with n, rmse, mae, bias, in1090, final
+  const K1V = { h: null, lead: 1, region: "all" };
+  const K1V_REG = { all: "All monitors", Other: "Elsewhere" };
+  const k1vT = (d) => Date.parse(d + "T00:00:00Z");
+  const k1vDay = (d) => new Date(k1vT(d)).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+  const k1vAdd = (d, k) => new Date(k1vT(d) + k * 86400000).toISOString().slice(0, 10);
+  const k1vStep = (r) => { const p = Math.pow(10, Math.floor(Math.log10(Math.max(r, 1e-6)))); const q = r / p; return (q <= 1 ? 1 : q <= 2 ? 2 : q <= 5 ? 5 : 10) * p; };
+  function k1vDraw() {
+    const h = K1V.h; if (!h) return;
+    const f1 = (x) => (+x).toFixed(1), sg = (x) => (x >= 0 ? "+" : "−") + Math.abs(x).toFixed(1);
+    const sel = h.rows.filter((r) => r.region === K1V.region);
+    $("k1v-lead").innerHTML = [1, 2, 3, 4, 5].map((L) => `<button type="button" data-l="${L}" class="${L === K1V.lead ? "on" : ""}">Day ${L}</button>`).join("");
+    document.querySelector("#k1v-table tbody").innerHTML = [1, 2, 3, 4, 5].map((L) => {
+      const R = sel.filter((r) => r.lead === L);
+      if (!R.length) return `<tr><td>Day ${L}</td><td></td><td></td><td colspan="4" class="small" style="text-align:left">not verified yet</td></tr>`;
+      const n = R.reduce((s, r) => s + r.n, 0), w = (k) => R.reduce((s, r) => s + r.n * r[k], 0) / n;
+      const ns = R.map((r) => r.n).sort((a, b) => a - b);
+      return `<tr${L === K1V.lead ? ' class="on"' : ""}><td>Day ${L}</td><td>${R.length}</td><td>${ns[Math.floor(ns.length / 2)].toLocaleString("en")}</td>` +
+        `<td><b>${f1(Math.sqrt(R.reduce((s, r) => s + r.n * r.rmse * r.rmse, 0) / n))}</b></td><td>${f1(w("mae"))}</td><td>${sg(w("bias"))}</td><td>${Math.round(100 * w("in1090"))} %</td></tr>`;
+    }).join("");
+    const svg = $("k1v-chart"), Wd = Math.round(Math.min(1200, Math.max(300, svg.getBoundingClientRect().width || 560)));
+    const Ht = Math.round(Wd < 520 ? Wd * 0.62 : Math.max(230, Wd * 0.3)), m = { l: 36, r: 12, t: 18, b: 26 };
+    svg.setAttribute("viewBox", `0 0 ${Wd} ${Ht}`); svg.style.aspectRatio = `${Wd} / ${Ht}`;
+    const rows = sel.filter((r) => r.lead === K1V.lead).sort((a, b) => (a.day < b.day ? -1 : 1));
+    if (!rows.length) { svg.innerHTML = `<text x="${Wd / 2}" y="${Ht / 2}" text-anchor="middle">No verified day yet for this choice.</text>`; return; }
+    const t0 = k1vT(rows[0].day), t1 = k1vT(rows[rows.length - 1].day);
+    const x = (d) => (t1 === t0 ? (m.l + Wd - m.r) / 2 : m.l + (k1vT(d) - t0) / (t1 - t0) * (Wd - m.l - m.r));
+    let hi = Math.max(...rows.map((r) => r.rmse)), lo = Math.min(0, ...rows.map((r) => r.bias));
+    const st = k1vStep((hi - lo) / 4); hi = Math.ceil((hi * 1.04) / st) * st; lo = Math.floor(lo / st) * st;
+    const y = (v) => m.t + (hi - v) / (hi - lo) * (Ht - m.t - m.b);
+    let s = `<text x="${m.l - 30}" y="${m.t - 6}">µg/m³</text>`;
+    for (let v = lo; v <= hi + st / 2; v += st) s += `<line class="ax" x1="${m.l}" x2="${Wd - m.r}" y1="${y(v).toFixed(1)}" y2="${y(v).toFixed(1)}"/><text x="${m.l - 5}" y="${(y(v) + 3.5).toFixed(1)}" text-anchor="end">${+v.toFixed(1)}</text>`;
+    if (lo < 0) s += `<line class="zero" x1="${m.l}" x2="${Wd - m.r}" y1="${y(0).toFixed(1)}" y2="${y(0).toFixed(1)}"/>`;
+    const sys = h.systems || {}, iss = Object.keys(sys).sort();
+    for (let i = 1; i < iss.length; i++) if (sys[iss[i]] !== sys[iss[i - 1]]) {
+      const vd = k1vAdd(iss[i], K1V.lead - 1);
+      if (k1vT(vd) >= t0 && k1vT(vd) <= t1) s += `<line class="sys" x1="${x(vd).toFixed(1)}" x2="${x(vd).toFixed(1)}" y1="${m.t}" y2="${Ht - m.b}"/><text x="${(x(vd) + 4).toFixed(1)}" y="${m.t + 8}">new 1 km model</text>`;
+    }
+    const pl = (k) => rows.map((r) => `${x(r.day).toFixed(1)},${y(r[k]).toFixed(1)}`).join(" ");
+    if (rows.length > 1) s += `<polyline class="bias" points="${pl("bias")}"/><polyline class="rmse" points="${pl("rmse")}"/>`;
+    s += rows.map((r) => `<circle class="${r.final ? "fin" : "prov"}" cx="${x(r.day).toFixed(1)}" cy="${y(r.rmse).toFixed(1)}" r="3.2"><title>${k1vDay(r.day)}: RMSE ${f1(r.rmse)}, bias ${sg(r.bias)} µg/m³, ${r.n.toLocaleString("en")} monitors${r.final ? "" : " (provisional)"}</title></circle>`).join("");
+    const nl = Math.min(rows.length, Math.max(2, Math.min(7, Math.floor(Wd / 110))));
+    for (let i = 0; i < nl; i++) { const r = rows[Math.round((i * (rows.length - 1)) / Math.max(nl - 1, 1))];
+      const an = nl === 1 ? "middle" : i === 0 ? "start" : i === nl - 1 ? "end" : "middle"; s += `<text x="${x(r.day).toFixed(1)}" y="${Ht - 8}" text-anchor="${an}">${k1vDay(r.day)}</text>`; }
+    svg.innerHTML = s;
+  }
+  fetch(OWN + "verif/history.json", { cache: "no-cache" }).then((r) => { if (!r.ok) throw 0; return r.json(); }).then((h) => {
+    K1V.h = h;
+    const have = new Set(h.rows.map((r) => r.region));
+    $("k1v-region").innerHTML = (h.regions || ["all"]).filter((g) => have.has(g)).map((g) => `<option value="${g}">${K1V_REG[g] || g}</option>`).join("");
+    const days = [...new Set(h.rows.map((r) => r.day))].sort();
+    if (days.length) $("k1v-note").textContent = `Verified days: ${k1vDay(days[0])} to ${k1vDay(days[days.length - 1])} ${days[days.length - 1].slice(0, 4)}; updated ${(h.updated || "").slice(0, 16).replace("T", " ")} UTC.`;
+    k1vDraw();
+  }).catch(() => { document.querySelector("#k1v-table tbody").innerHTML = `<tr><td colspan="7" class="small">The verification file could not be loaded.</td></tr>`; });
+  $("k1v-lead").addEventListener("click", (e) => { const b = e.target.closest("button[data-l]"); if (!b) return; K1V.lead = +b.dataset.l; k1vDraw(); });
+  $("k1v-region").addEventListener("change", (e) => { K1V.region = e.target.value; k1vDraw(); });
+  let k1vRz = 0; window.addEventListener("resize", () => { clearTimeout(k1vRz); k1vRz = setTimeout(k1vDraw, 200); });
 
   // ---- cities: the published table (0.4°, 3 x 3 cells), the cities added here, and today's 1 km value at each city centre
   let MY = []; try { MY = JSON.parse(ls.get("otso-mycities") || "[]").map((x) => ({ ...x, name: pol(x.name) })); } catch (e) {}

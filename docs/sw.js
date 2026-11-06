@@ -4,7 +4,7 @@
    - static assets (style, gazetteer, coastlines, icons) are served from the cache and refreshed in the background
    - the live forecast (raw.githubusercontent.com) is network first; the last successful copy is kept for offline use
    - the 1 km tiles (live1km branch, thousands, new every day) are not stored by the worker; the basemap (tiles.openfreemap.org) neither */
-const VERSION = "otso-2.0-20261105b";
+const VERSION = "otso-2.0-20261106a";
 const SHELL = ["./", "./index.html", "./assets/style.css?v=20261012o", "./lines.json", "./gazetteer.json", "./manifest.webmanifest", "./vendor/maplibre-gl.js", "./vendor/maplibre-gl.css",
                "./icon-192.png", "./icon-512.png", "./assets/logo_mark.svg", "./assets/favicon.png", "./qr.svg", "./labels.json", "./i18n/en.json", "./assets/amc_logo_full.png", "./assets/lumi_logo.png", "./assets/csc_logo.svg"];
 self.addEventListener("install", (ev) => { ev.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())); });
