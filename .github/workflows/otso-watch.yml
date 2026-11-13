@@ -1,0 +1,54 @@
+# Otso daily check, independent of the machine that computes Otso (CRITIQUE major 'monitoring'): a scheduled GitHub Action
+# that reads the PUBLIC products and opens an issue when they are late (GitHub e-mails the repository owner).
+# REQUIRED before the switch (aac6/README.md step 7; 'otso switch' checks that it is on main). The owner adds this file as
+# .github/workflows/otso-watch.yml on the default branch (main) of AmmarKheder/Otso (web UI: Add file -> Create new file),
+# commit message "Add daily check", then runs it once by hand (Actions -> otso-watch -> Run workflow).
+# v1.1 thresholds: one day of delay is tolerated (GFAS-fallback days publish the 0.4 deg ~12:30 and the 1 km ~13:30-14:00
+# UTC; during an AMD event window the 1 km starts after the window, e.g. 16:00 UTC). An issue is opened only if:
+#   * live or live1km holds a day older than yesterday (more than one day late), or is unreadable;
+#   * verif/history.json was not updated for more than 50 h;
+#   * status/status.json reports alarms, or was not updated for more than 30 h (nothing ran on the cluster for a day:
+#     outage, purge of the queued jobs).
+name: otso-watch
+on:
+  schedule:
+    - cron: "10 15 * * *"          # 15:10 UTC: a normal day is complete by ~11:40, a GFAS-fallback day by ~14:00
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the published branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -u
+          raw="https://raw.githubusercontent.com/$REPO"
+          today=$(date -u +%F); yday=$(date -u -d "$today -1 day" +%F); now=$(date -u +%s); p=""
+          age_h() { echo $(( (now - $(date -u -d "$1" +%s 2>/dev/null || echo 0)) / 3600 )); }
+          late() { ! [[ $1 =~ ^20[0-9]{2}-[0-9]{2}-[0-9]{2}$ ]] || [[ $1 < $yday ]]; }   # older than yesterday, or unreadable
+          l=$(curl -fsS "$raw/live/latest.json" | jq -r .latest 2>/dev/null); l=${l:-unreadable}
+          late "$l" && p="$p- live (0.4 deg): latest day $l, expected $today (one day late is tolerated)"$'\n'
+          k=$(curl -fsS "$raw/live1km/latest.json" | jq -r .latest 2>/dev/null); k=${k:-unreadable}
+          late "$k" && p="$p- live1km (1 km): latest day $k, expected $today (one day late is tolerated)"$'\n'
+          u=$(curl -fsS "$raw/verif/history.json" | jq -r .updated 2>/dev/null) || u=""
+          [ -n "$u" ] && [ "$(age_h "$u")" -le 50 ] || p="$p- verif: history updated ${u:-never} (more than 50 h ago)"$'\n'
+          s=$(curl -fsS "$raw/status/status.json" 2>/dev/null) || s=""
+          if [ -n "$s" ]; then
+            su=$(jq -r .updated <<<"$s"); [ "$(age_h "$su")" -le 30 ] || p="$p- status: last update $su (more than 30 h ago: nothing ran on the cluster)"$'\n'
+            al=$(jq -r '.alarms // [] | .[]' <<<"$s"); [ -z "$al" ] || p="$p- status alarms:"$'\n'"$al"$'\n'
+          else
+            p="$p- status: status/status.json unreadable"$'\n'
+          fi
+          if [ -n "$p" ]; then
+            t="Otso daily check $today"
+            if [ -z "$(gh issue list --repo "$REPO" --state open --search "$t in:title" --json number --jq '.[].number')" ]; then
+              gh issue create --repo "$REPO" --title "$t" --body "Automatic check at $(date -u +%H:%MZ):"$'\n\n'"$p"
+            fi
+            echo "$p"; exit 1
+          fi
+          echo "all products are published (live $l, live1km $k, verif updated $u, status without alarm)"
