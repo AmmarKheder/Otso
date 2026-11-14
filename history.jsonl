@@ -1,0 +1,19 @@
+{"t": "2026-11-13T10:16:56Z", "day": "2026-11-13", "stage": "repair", "state": "warn", "job": "61515", "dur_s": 1007, "note": "inputs of 2026-11-12 could not be rebuilt: the 1 km of 2026-11-13 will lack day-1 (prep.complete)"}
+{"t": "2026-11-13T13:00:21Z", "day": "2026-11-13", "stage": "fetch", "state": "interrupted", "job": "61515", "dur_s": 9804, "note": "SIGTERM during fetch (scancel, preemption or node shutdown); no retry: mode off"}
+{"t": "2026-11-13T13:03:28Z", "day": "2026-11-13", "stage": "repair", "state": "ok", "job": "61598", "dur_s": 89, "note": "inputs of 2026-11-12 rebuilt (GFAS fallback 2026-11-10)"}
+{"t": "2026-11-13T13:04:13Z", "day": "2026-11-13", "stage": "fetch", "state": "ok", "job": "61598", "dur_s": 42, "note": "GFAS 2026-11-10 (fallback, age 2 d)"}
+{"t": "2026-11-13T13:05:03Z", "day": "2026-11-13", "stage": "build", "state": "ok", "job": "61598", "dur_s": 48, "note": ""}
+{"t": "2026-11-13T13:16:27Z", "day": "2026-11-13", "stage": "g04", "state": "ok", "job": "61599", "dur_s": 676, "note": "pred.npy written"}
+{"t": "2026-11-13T13:17:09Z", "day": "2026-11-13", "stage": "publish04", "state": "ok", "job": "61599", "dur_s": 40, "note": "live: published (attempt 1)"}
+{"t": "2026-11-13T13:32:45Z", "day": "2026-11-13", "stage": "g1k", "state": "ok", "job": "61600", "dur_s": 926, "note": "pmG_final_P3T3"}
+{"t": "2026-11-13T13:38:18Z", "day": "2026-11-13", "stage": "w1k", "state": "ok", "job": "61601", "dur_s": 312, "note": "live1km: 30538 tiles, 203.7 MB, published (attempt 1) (repo 227236 KB, zmax mean:7,7,6,6,6/prob15:6)"}
+{"t": "2026-11-13T13:38:41Z", "day": "2026-11-13", "stage": "verif", "state": "ok", "job": "61602", "dur_s": 333, "note": "snapshot 2026-11-13; 297 rows, last lead-1 day 2026-11-09: n 5177, RMSE 31.5; verif: published (attempt 1)"}
+{"t": "2026-11-13T13:39:38Z", "day": "2026-11-13", "stage": "st", "state": "ok", "job": "61603", "dur_s": 51, "note": "camsfc ok; housekeeping done"}
+{"t": "2026-11-14T12:00:59Z", "day": "2026-11-14", "stage": "fetch", "state": "ok", "job": "61516", "dur_s": 7206, "note": "GFAS 2026-11-10 (fallback, age 3 d)"}
+{"t": "2026-11-14T12:01:50Z", "day": "2026-11-14", "stage": "build", "state": "ok", "job": "61516", "dur_s": 49, "note": ""}
+{"t": "2026-11-14T12:13:22Z", "day": "2026-11-14", "stage": "g04", "state": "ok", "job": "61758", "dur_s": 682, "note": "pred.npy written"}
+{"t": "2026-11-14T12:14:01Z", "day": "2026-11-14", "stage": "publish04", "state": "ok", "job": "61758", "dur_s": 35, "note": "live: published (attempt 1)"}
+{"t": "2026-11-14T12:29:41Z", "day": "2026-11-14", "stage": "g1k", "state": "ok", "job": "61759", "dur_s": 929, "note": "pmG_final_P3T3"}
+{"t": "2026-11-14T12:34:40Z", "day": "2026-11-14", "stage": "w1k", "state": "ok", "job": "61760", "dur_s": 281, "note": "live1km: 30538 tiles, 203.6 MB, published (attempt 1) (repo 228884 KB, zmax mean:7,7,6,6,6/prob15:6)"}
+{"t": "2026-11-14T12:34:52Z", "day": "2026-11-14", "stage": "verif", "state": "ok", "job": "61761", "dur_s": 295, "note": "snapshot 2026-11-14; 347 rows, last lead-1 day 2026-11-10: n 5428, RMSE 27.6; verif: published (attempt 1)"}
+{"t": "2026-11-14T13:05:03Z", "day": "2026-11-14", "stage": "st", "state": "ok", "job": "61762", "dur_s": 1804, "note": "camsfc TIMED OUT after 30 min (the verification of 2026-11-14's issues lacks the CAMS forecast); housekeeping done"}

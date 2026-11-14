@@ -1,0 +1,236 @@
+{
+ "chain": "otso",
+ "updated": "2026-11-14T13:05:04Z",
+ "mode": "prod",
+ "armed": true,
+ "switch_day": "2026-11-13",
+ "release": "v1.2",
+ "day": "2026-11-14",
+ "stages": {
+  "fetch": {
+   "state": "ok",
+   "t0": "2026-11-14T10:00:53Z",
+   "t1": "2026-11-14T12:00:59Z",
+   "dur_s": 7206,
+   "job": "61516",
+   "note": "GFAS 2026-11-10 (fallback, age 3 d)",
+   "steps": {
+    "fetch_s": 7205
+   },
+   "attempt": 1
+  },
+  "build": {
+   "state": "ok",
+   "t0": "2026-11-14T12:01:01Z",
+   "t1": "2026-11-14T12:01:50Z",
+   "dur_s": 49,
+   "job": "61516",
+   "steps": {
+    "build_s": 47
+   },
+   "attempt": 1
+  },
+  "g04": {
+   "state": "ok",
+   "t0": "2026-11-14T12:02:00Z",
+   "t1": "2026-11-14T12:13:22Z",
+   "dur_s": 682,
+   "job": "61758",
+   "note": "pred.npy written",
+   "steps": {
+    "flexgreen_s": 521,
+    "predict_s": 150
+   },
+   "attempt": 1
+  },
+  "publish04": {
+   "state": "ok",
+   "t0": "2026-11-14T12:13:26Z",
+   "t1": "2026-11-14T12:14:01Z",
+   "dur_s": 35,
+   "job": "61758",
+   "note": "live: published (attempt 1)",
+   "steps": {
+    "products_s": 14,
+    "verify_s": 4,
+    "publish_s": 14
+   },
+   "attempt": 1
+  },
+  "g1k": {
+   "state": "ok",
+   "t0": "2026-11-14T12:14:12Z",
+   "t1": "2026-11-14T12:29:41Z",
+   "dur_s": 929,
+   "job": "61759",
+   "note": "pmG_final_P3T3",
+   "steps": {
+    "prep_s": 49,
+    "channels_s": 38,
+    "infer_s": 819,
+    "quicklook_s": 14
+   },
+   "attempt": 1
+  },
+  "w1k": {
+   "state": "ok",
+   "t0": "2026-11-14T12:29:59Z",
+   "t1": "2026-11-14T12:34:40Z",
+   "dur_s": 281,
+   "job": "61760",
+   "note": "live1km: 30538 tiles, 203.6 MB, published (attempt 1) (repo 228884 KB, zmax mean:7,7,6,6,6/prob15:6)",
+   "steps": {
+    "tiles_s": 255,
+    "publish_s": 26
+   },
+   "attempt": 1
+  },
+  "verif": {
+   "state": "ok",
+   "t0": "2026-11-14T12:29:57Z",
+   "t1": "2026-11-14T12:34:52Z",
+   "dur_s": 295,
+   "job": "61761",
+   "note": "snapshot 2026-11-14; 347 rows, last lead-1 day 2026-11-10: n 5428, RMSE 27.6; verif: published (attempt 1)",
+   "steps": {
+    "snapshot_s": 44,
+    "obs_s": 246,
+    "score_s": 1,
+    "publish_s": 2
+   },
+   "attempt": 1
+  },
+  "st": {
+   "state": "ok",
+   "t0": "2026-11-14T12:34:59Z",
+   "t1": "2026-11-14T13:05:03Z",
+   "dur_s": 1804,
+   "job": "61762",
+   "note": "camsfc TIMED OUT after 30 min (the verification of 2026-11-14's issues lacks the CAMS forecast); housekeeping done",
+   "steps": {
+    "camsfc_s": 1801,
+    "compare_s": 0
+   },
+   "attempt": 1
+  }
+ },
+ "inputs": {
+  "gfas_day": "2026-11-10",
+  "gfas_expected_day": "2026-11-13",
+  "gfas_fallback": true,
+  "gfas_age_days": 3,
+  "fires_source": "GFAS 2026-11-10",
+  "gfas_version": "v1.4.2",
+  "fire_injection_variable": "injh",
+  "ifs_source": "storage.googleapis.com",
+  "sha256": {
+   "cams.npy": "1d7a308f64d1a45a201aa76f217cb9e3210e1fca62bd7c9b9efd15da16d179de",
+   "hres_B.npy": "b747c6c11f7226eb5820067c865102b377dd5fc05e5250caedc34b3556e64e29",
+   "fires.npy": "ce25e718771829c58fd6912f481df69ee6d7b52068f567c16d81aeb4f40e3701"
+  }
+ },
+ "numbers": {
+  "pm_land_mean_12h": 8.44,
+  "pm_land_mean_120h": 9.4,
+  "tiles": 30538,
+  "tiles_mb": 203.6,
+  "tiles_tag": "pmG_final_P3T3",
+  "verif_rows": 347,
+  "verif_updated": "2026-11-14T12:34",
+  "verif_last_lead1": {
+   "day": "2026-11-10",
+   "n": 5428,
+   "rmse": 27.574,
+   "bias": -2.633,
+   "final": false
+  },
+  "scores_rows": 494,
+  "rmse_land_24h_30d": 10.04
+ },
+ "days": {
+  "2026-11-13": {
+   "repair": "ok",
+   "fetch": "ok",
+   "build": "ok",
+   "g04": "ok",
+   "publish04": "ok",
+   "g1k": "ok",
+   "w1k": "ok",
+   "verif": "ok",
+   "st": "ok"
+  },
+  "2026-11-14": {
+   "fetch": "ok",
+   "build": "ok",
+   "g04": "ok",
+   "publish04": "ok",
+   "g1k": "ok",
+   "w1k": "ok",
+   "verif": "ok",
+   "st": "ok"
+  }
+ },
+ "next_runs": [
+  {
+   "day": "2026-11-16",
+   "job": "61735",
+   "begin": "2026-11-16T10:00:00"
+  },
+  {
+   "day": "2026-11-15",
+   "job": "61585",
+   "begin": "2026-11-15T10:00:00"
+  }
+ ],
+ "queue": [
+  {
+   "job": "61735",
+   "name": "otso_day_2026-11-16",
+   "state": "PENDING",
+   "reason": "BeginTime"
+  },
+  {
+   "job": "61585",
+   "name": "otso_day_2026-11-15",
+   "state": "PENDING",
+   "reason": "BeginTime"
+  },
+  {
+   "job": "61762",
+   "name": "otso_st_2026-11-14",
+   "state": "RUNNING",
+   "reason": null
+  }
+ ],
+ "disk": {
+  "free_TB": 24.97,
+  "free_inodes_M": 119.99,
+  "used_pct": 65.9
+ },
+ "versions": {
+  "release": {
+   "release": "v1",
+   "t": "2026-11-12T20:36:44Z"
+  },
+  "gpu": {
+   "torch": "2.14.1a0+git5c48869",
+   "hip": "7.2.53211",
+   "numpy": "2.5.4",
+   "gpus": 4,
+   "python": "3.12.3",
+   "light_store": "<otso>/static/light_store",
+   "tz": "UTC",
+   "blas": "_BlasBackend.Cublaslt",
+   "modules": "hipblaslt/patched rocm/7.2.4 openmpi/5.0.10-ucc1.6.0-ucx1.19.1-xpmem-2.7.4 openblas/0.3.33 magma/2.10.0 pytorch/2.14.1",
+   "t": "2026-11-14T12:15:10Z"
+  }
+ },
+ "selftest": {
+  "t": "2026-11-12T20:45:37Z",
+  "pass": true,
+  "failed": []
+ },
+ "compare": null,
+ "alarms": [],
+ "error_tail": null
+}
