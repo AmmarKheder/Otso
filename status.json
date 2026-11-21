@@ -1,0 +1,285 @@
+{
+ "chain": "otso",
+ "updated": "2026-11-21T11:17:44Z",
+ "mode": "prod",
+ "armed": true,
+ "switch_day": "2026-11-13",
+ "release": "v1.2",
+ "day": "2026-11-21",
+ "stages": {
+  "fetch": {
+   "state": "ok",
+   "t0": "2026-11-21T10:00:36Z",
+   "t1": "2026-11-21T10:43:14Z",
+   "dur_s": 2558,
+   "job": "62034",
+   "note": "GFAS 2026-11-20 (fetched)",
+   "steps": {
+    "fetch_s": 2556
+   },
+   "attempt": 1
+  },
+  "build": {
+   "state": "ok",
+   "t0": "2026-11-21T10:43:16Z",
+   "t1": "2026-11-21T10:44:07Z",
+   "dur_s": 51,
+   "job": "62034",
+   "steps": {
+    "build_s": 49
+   },
+   "attempt": 1
+  },
+  "g04": {
+   "state": "ok",
+   "t0": "2026-11-21T10:44:13Z",
+   "t1": "2026-11-21T10:55:36Z",
+   "dur_s": 683,
+   "job": "62095",
+   "note": "pred.npy written",
+   "steps": {
+    "flexgreen_s": 522,
+    "predict_s": 151
+   },
+   "attempt": 1
+  },
+  "publish04": {
+   "state": "ok",
+   "t0": "2026-11-21T10:55:37Z",
+   "t1": "2026-11-21T10:56:12Z",
+   "dur_s": 35,
+   "job": "62095",
+   "note": "live: published (attempt 1)",
+   "steps": {
+    "products_s": 14,
+    "verify_s": 5,
+    "publish_s": 14
+   },
+   "attempt": 1
+  },
+  "g1k": {
+   "state": "ok",
+   "t0": "2026-11-21T10:56:21Z",
+   "t1": "2026-11-21T11:11:47Z",
+   "dur_s": 926,
+   "job": "62096",
+   "note": "pmG_final_P3T3",
+   "steps": {
+    "prep_s": 43,
+    "channels_s": 38,
+    "infer_s": 820,
+    "quicklook_s": 15
+   },
+   "attempt": 1
+  },
+  "w1k": {
+   "state": "ok",
+   "t0": "2026-11-21T11:12:06Z",
+   "t1": "2026-11-21T11:16:54Z",
+   "dur_s": 288,
+   "job": "62097",
+   "note": "live1km: 30538 tiles, 206.9 MB, published (attempt 1) (repo 230248 KB, zmax mean:7,7,6,6,6/prob15:6)",
+   "steps": {
+    "tiles_s": 260,
+    "publish_s": 27
+   },
+   "attempt": 1
+  },
+  "verif": {
+   "state": "ok",
+   "t0": "2026-11-21T11:12:05Z",
+   "t1": "2026-11-21T11:16:57Z",
+   "dur_s": 292,
+   "job": "62098",
+   "note": "snapshot 2026-11-21; 617 rows, last lead-1 day 2026-11-17: n 5148, RMSE 19.8; verif: published (attempt 1)",
+   "steps": {
+    "snapshot_s": 45,
+    "obs_s": 243,
+    "score_s": 1,
+    "publish_s": 2
+   },
+   "attempt": 1
+  },
+  "st": {
+   "state": "ok",
+   "t0": "2026-11-21T11:17:03Z",
+   "t1": "2026-11-21T11:17:44Z",
+   "dur_s": 41,
+   "job": "62099",
+   "note": "camsfc ok; housekeeping done",
+   "steps": {
+    "camsfc_s": 37,
+    "compare_s": 0
+   },
+   "attempt": 1
+  }
+ },
+ "inputs": {
+  "gfas_day": "2026-11-20",
+  "gfas_expected_day": "2026-11-20",
+  "gfas_fallback": false,
+  "gfas_age_days": 0,
+  "fires_source": "GFAS 2026-11-20",
+  "gfas_version": "v1.4.2",
+  "fire_injection_variable": "injh",
+  "ifs_source": "storage.googleapis.com",
+  "sha256": {
+   "cams.npy": "011a9c50d2de1d0902b342f1e04cddba61238595180d0034c605ac15699c005b",
+   "hres_B.npy": "6f593f55c6b2b42791d938832efcf106c56012f0895ba737759c5b82e942fde2",
+   "fires.npy": "5dad5717db904e7e33864e0b8ae66916eee3c1c726b0eabb6d9edf7d6e1668b2"
+  }
+ },
+ "numbers": {
+  "pm_land_mean_12h": 8.49,
+  "pm_land_mean_120h": 9.88,
+  "tiles": 30538,
+  "tiles_mb": 206.9,
+  "tiles_tag": "pmG_final_P3T3",
+  "verif_rows": 617,
+  "verif_updated": "2026-11-21T11:16",
+  "verif_last_lead1": {
+   "day": "2026-11-17",
+   "n": 5148,
+   "rmse": 19.826,
+   "bias": -1.442,
+   "final": false
+  },
+  "scores_rows": 558,
+  "rmse_land_24h_30d": 9.32
+ },
+ "days": {
+  "2026-11-15": {
+   "fetch": "ok",
+   "build": "ok",
+   "g04": "ok",
+   "publish04": "ok",
+   "g1k": "ok",
+   "w1k": "ok",
+   "verif": "ok",
+   "st": "ok"
+  },
+  "2026-11-16": {
+   "fetch": "ok",
+   "build": "ok",
+   "g04": "ok",
+   "publish04": "ok",
+   "g1k": "ok",
+   "w1k": "ok",
+   "verif": "ok",
+   "st": "ok"
+  },
+  "2026-11-17": {
+   "fetch": "ok",
+   "build": "ok",
+   "g04": "ok",
+   "publish04": "ok",
+   "g1k": "ok",
+   "w1k": "ok",
+   "verif": "ok",
+   "st": "ok"
+  },
+  "2026-11-18": {
+   "fetch": "ok",
+   "build": "ok",
+   "g04": "ok",
+   "publish04": "ok",
+   "g1k": "ok",
+   "w1k": "ok",
+   "verif": "ok",
+   "st": "ok"
+  },
+  "2026-11-19": {
+   "fetch": "ok",
+   "build": "ok",
+   "g04": "ok",
+   "publish04": "ok",
+   "g1k": "ok",
+   "w1k": "ok",
+   "verif": "ok",
+   "st": "ok"
+  },
+  "2026-11-20": {
+   "fetch": "ok",
+   "build": "ok",
+   "g04": "ok",
+   "publish04": "ok",
+   "g1k": "ok",
+   "w1k": "ok",
+   "verif": "ok",
+   "st": "ok"
+  },
+  "2026-11-21": {
+   "fetch": "ok",
+   "build": "ok",
+   "g04": "ok",
+   "publish04": "ok",
+   "g1k": "ok",
+   "w1k": "ok",
+   "verif": "ok",
+   "st": "ok"
+  }
+ },
+ "next_runs": [
+  {
+   "day": "2026-11-23",
+   "job": "62094",
+   "begin": "2026-11-23T10:00:00"
+  },
+  {
+   "day": "2026-11-22",
+   "job": "62078",
+   "begin": "2026-11-22T10:00:00"
+  }
+ ],
+ "queue": [
+  {
+   "job": "62094",
+   "name": "otso_day_2026-11-23",
+   "state": "PENDING",
+   "reason": "BeginTime"
+  },
+  {
+   "job": "62078",
+   "name": "otso_day_2026-11-22",
+   "state": "PENDING",
+   "reason": "BeginTime"
+  },
+  {
+   "job": "62099",
+   "name": "otso_st_2026-11-21",
+   "state": "RUNNING",
+   "reason": null
+  }
+ ],
+ "disk": {
+  "free_TB": 25.13,
+  "free_inodes_M": 120.19,
+  "used_pct": 65.6
+ },
+ "versions": {
+  "release": {
+   "release": "v1",
+   "t": "2026-11-12T20:36:44Z"
+  },
+  "gpu": {
+   "torch": "2.14.1a0+git5c48869",
+   "hip": "7.2.53211",
+   "numpy": "2.5.4",
+   "gpus": 4,
+   "python": "3.12.3",
+   "light_store": "<otso>/static/light_store",
+   "tz": "UTC",
+   "blas": "_BlasBackend.Cublaslt",
+   "modules": "hipblaslt/patched rocm/7.2.4 openmpi/5.0.10-ucc1.6.0-ucx1.19.1-xpmem-2.7.4 openblas/0.3.33 magma/2.10.0 pytorch/2.14.1",
+   "t": "2026-11-21T10:57:14Z"
+  }
+ },
+ "selftest": {
+  "t": "2026-11-12T20:45:37Z",
+  "pass": true,
+  "failed": []
+ },
+ "compare": null,
+ "alarms": [],
+ "error_tail": null
+}

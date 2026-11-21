@@ -1,0 +1,60 @@
+{"t": "2026-11-14T12:34:40Z", "day": "2026-11-14", "stage": "w1k", "state": "ok", "job": "61760", "dur_s": 281, "note": "live1km: 30538 tiles, 203.6 MB, published (attempt 1) (repo 228884 KB, zmax mean:7,7,6,6,6/prob15:6)"}
+{"t": "2026-11-14T12:34:52Z", "day": "2026-11-14", "stage": "verif", "state": "ok", "job": "61761", "dur_s": 295, "note": "snapshot 2026-11-14; 347 rows, last lead-1 day 2026-11-10: n 5428, RMSE 27.6; verif: published (attempt 1)"}
+{"t": "2026-11-14T13:05:03Z", "day": "2026-11-14", "stage": "st", "state": "ok", "job": "61762", "dur_s": 1804, "note": "camsfc TIMED OUT after 30 min (the verification of 2026-11-14's issues lacks the CAMS forecast); housekeeping done"}
+{"t": "2026-11-15T16:50:09Z", "day": "2026-11-15", "stage": "fetch", "state": "failed", "job": "61585", "dur_s": 24560, "note": "the job reached its time limit during fetch; retry 1/3 = job 61874 at 18:50Z"}
+{"t": "2026-11-15T18:51:09Z", "day": "2026-11-15", "stage": "fetch", "state": "ok", "job": "61874", "dur_s": 36, "note": "GFAS 2026-11-10 (fallback, age 4 d)"}
+{"t": "2026-11-15T18:51:58Z", "day": "2026-11-15", "stage": "build", "state": "ok", "job": "61874", "dur_s": 47, "note": ""}
+{"t": "2026-11-15T19:03:27Z", "day": "2026-11-15", "stage": "g04", "state": "ok", "job": "61878", "dur_s": 683, "note": "pred.npy written"}
+{"t": "2026-11-15T19:04:05Z", "day": "2026-11-15", "stage": "publish04", "state": "ok", "job": "61878", "dur_s": 36, "note": "live: published (attempt 1)"}
+{"t": "2026-11-15T19:19:49Z", "day": "2026-11-15", "stage": "g1k", "state": "ok", "job": "61879", "dur_s": 934, "note": "pmG_final_P3T3"}
+{"t": "2026-11-15T19:25:11Z", "day": "2026-11-15", "stage": "verif", "state": "ok", "job": "61881", "dur_s": 302, "note": "snapshot 2026-11-15; 408 rows, last lead-1 day 2026-11-11: n 7946, RMSE 23.9; verif: published (attempt 1)"}
+{"t": "2026-11-15T19:25:26Z", "day": "2026-11-15", "stage": "w1k", "state": "ok", "job": "61880", "dur_s": 316, "note": "live1km: 30538 tiles, 204.0 MB, published (attempt 1) (repo 228770 KB, zmax mean:7,7,6,6,6/prob15:6)"}
+{"t": "2026-11-15T19:26:17Z", "day": "2026-11-15", "stage": "st", "state": "ok", "job": "61882", "dur_s": 46, "note": "camsfc ok; housekeeping done"}
+{"t": "2026-11-16T12:00:28Z", "day": "2026-11-16", "stage": "fetch", "state": "ok", "job": "61735", "dur_s": 7165, "note": "GFAS 2026-11-10 (fallback, age 5 d)"}
+{"t": "2026-11-16T12:01:24Z", "day": "2026-11-16", "stage": "build", "state": "ok", "job": "61735", "dur_s": 51, "note": ""}
+{"t": "2026-11-16T12:12:58Z", "day": "2026-11-16", "stage": "g04", "state": "ok", "job": "61906", "dur_s": 675, "note": "pred.npy written"}
+{"t": "2026-11-16T12:13:33Z", "day": "2026-11-16", "stage": "publish04", "state": "ok", "job": "61906", "dur_s": 33, "note": "live: published (attempt 1)"}
+{"t": "2026-11-16T12:29:01Z", "day": "2026-11-16", "stage": "g1k", "state": "ok", "job": "61907", "dur_s": 917, "note": "pmG_final_P3T3"}
+{"t": "2026-11-16T12:34:15Z", "day": "2026-11-16", "stage": "verif", "state": "ok", "job": "61909", "dur_s": 293, "note": "snapshot 2026-11-16; 428 rows, last lead-1 day 2026-11-11: n 7954, RMSE 23.9; verif: published (attempt 1)"}
+{"t": "2026-11-16T12:34:32Z", "day": "2026-11-16", "stage": "w1k", "state": "ok", "job": "61908", "dur_s": 311, "note": "live1km: 30538 tiles, 204.1 MB, published (attempt 1) (repo 229118 KB, zmax mean:7,7,6,6,6/prob15:6)"}
+{"t": "2026-11-16T12:35:29Z", "day": "2026-11-16", "stage": "st", "state": "ok", "job": "61910", "dur_s": 52, "note": "camsfc ok; housekeeping done"}
+{"t": "2026-11-17T10:05:51Z", "day": "2026-11-17", "stage": "fetch", "state": "ok", "job": "61869", "dur_s": 318, "note": "GFAS 2026-11-16 (fetched)"}
+{"t": "2026-11-17T10:06:41Z", "day": "2026-11-17", "stage": "build", "state": "ok", "job": "61869", "dur_s": 48, "note": ""}
+{"t": "2026-11-17T10:18:06Z", "day": "2026-11-17", "stage": "g04", "state": "ok", "job": "61976", "dur_s": 678, "note": "pred.npy written"}
+{"t": "2026-11-17T10:18:42Z", "day": "2026-11-17", "stage": "publish04", "state": "ok", "job": "61976", "dur_s": 34, "note": "live: published (attempt 1)"}
+{"t": "2026-11-17T10:34:05Z", "day": "2026-11-17", "stage": "g1k", "state": "ok", "job": "61977", "dur_s": 914, "note": "pmG_final_P3T3"}
+{"t": "2026-11-17T10:39:09Z", "day": "2026-11-17", "stage": "w1k", "state": "ok", "job": "61978", "dur_s": 288, "note": "live1km: 30538 tiles, 203.8 MB, published (attempt 1) (repo 229073 KB, zmax mean:7,7,6,6,6/prob15:6)"}
+{"t": "2026-11-17T10:39:14Z", "day": "2026-11-17", "stage": "verif", "state": "ok", "job": "61979", "dur_s": 294, "note": "snapshot 2026-11-17; 460 rows, last lead-1 day 2026-11-13: n 4888, RMSE 23.6; verif: published (attempt 1)"}
+{"t": "2026-11-17T10:39:59Z", "day": "2026-11-17", "stage": "st", "state": "ok", "job": "61980", "dur_s": 39, "note": "camsfc ok; housekeeping done"}
+{"t": "2026-11-18T10:26:43Z", "day": "2026-11-18", "stage": "fetch", "state": "ok", "job": "61895", "dur_s": 1512, "note": "GFAS 2026-11-17 (fetched)"}
+{"t": "2026-11-18T10:27:27Z", "day": "2026-11-18", "stage": "build", "state": "ok", "job": "61895", "dur_s": 42, "note": ""}
+{"t": "2026-11-18T10:37:47Z", "day": "2026-11-18", "stage": "g04", "state": "ok", "job": "62014", "dur_s": 614, "note": "pred.npy written"}
+{"t": "2026-11-18T10:38:13Z", "day": "2026-11-18", "stage": "publish04", "state": "ok", "job": "62014", "dur_s": 24, "note": "live: published (attempt 1)"}
+{"t": "2026-11-18T10:50:37Z", "day": "2026-11-18", "stage": "g1k", "state": "ok", "job": "62015", "dur_s": 734, "note": "pmG_final_P3T3"}
+{"t": "2026-11-18T10:55:19Z", "day": "2026-11-18", "stage": "verif", "state": "ok", "job": "62017", "dur_s": 264, "note": "snapshot 2026-11-18; 500 rows, last lead-1 day 2026-11-14: n 5501, RMSE 20.3; verif: published (attempt 1)"}
+{"t": "2026-11-18T10:55:27Z", "day": "2026-11-18", "stage": "w1k", "state": "ok", "job": "62016", "dur_s": 273, "note": "live1km: 30538 tiles, 203.4 MB, published (attempt 1) (repo 228703 KB, zmax mean:7,7,6,6,6/prob15:6)"}
+{"t": "2026-11-18T10:56:21Z", "day": "2026-11-18", "stage": "st", "state": "ok", "job": "62018", "dur_s": 49, "note": "camsfc ok; housekeeping done"}
+{"t": "2026-11-19T10:43:40Z", "day": "2026-11-19", "stage": "fetch", "state": "ok", "job": "61973", "dur_s": 2600, "note": "GFAS 2026-11-18 (fetched)"}
+{"t": "2026-11-19T10:44:24Z", "day": "2026-11-19", "stage": "build", "state": "ok", "job": "61973", "dur_s": 42, "note": ""}
+{"t": "2026-11-19T10:54:43Z", "day": "2026-11-19", "stage": "g04", "state": "ok", "job": "62035", "dur_s": 612, "note": "pred.npy written"}
+{"t": "2026-11-19T10:55:09Z", "day": "2026-11-19", "stage": "publish04", "state": "ok", "job": "62035", "dur_s": 24, "note": "live: published (attempt 1)"}
+{"t": "2026-11-19T11:07:33Z", "day": "2026-11-19", "stage": "g1k", "state": "ok", "job": "62036", "dur_s": 734, "note": "pmG_final_P3T3"}
+{"t": "2026-11-19T11:12:06Z", "day": "2026-11-19", "stage": "w1k", "state": "ok", "job": "62037", "dur_s": 255, "note": "live1km: 30538 tiles, 203.8 MB, published (attempt 1) (repo 228189 KB, zmax mean:7,7,6,6,6/prob15:6)"}
+{"t": "2026-11-19T11:12:13Z", "day": "2026-11-19", "stage": "verif", "state": "ok", "job": "62038", "dur_s": 264, "note": "snapshot 2026-11-19; 536 rows, last lead-1 day 2026-11-15: n 4521, RMSE 23.3; verif: published (attempt 1)"}
+{"t": "2026-11-19T11:12:57Z", "day": "2026-11-19", "stage": "st", "state": "ok", "job": "62039", "dur_s": 37, "note": "camsfc ok; housekeeping done"}
+{"t": "2026-11-20T10:16:36Z", "day": "2026-11-20", "stage": "fetch", "state": "ok", "job": "62013", "dur_s": 958, "note": "GFAS 2026-11-19 (fetched)"}
+{"t": "2026-11-20T10:17:28Z", "day": "2026-11-20", "stage": "build", "state": "ok", "job": "62013", "dur_s": 48, "note": ""}
+{"t": "2026-11-20T10:28:52Z", "day": "2026-11-20", "stage": "g04", "state": "ok", "job": "62079", "dur_s": 677, "note": "pred.npy written"}
+{"t": "2026-11-20T10:29:31Z", "day": "2026-11-20", "stage": "publish04", "state": "ok", "job": "62079", "dur_s": 37, "note": "live: published (attempt 1)"}
+{"t": "2026-11-20T10:45:02Z", "day": "2026-11-20", "stage": "g1k", "state": "ok", "job": "62080", "dur_s": 921, "note": "pmG_final_P3T3"}
+{"t": "2026-11-20T10:50:07Z", "day": "2026-11-20", "stage": "w1k", "state": "ok", "job": "62081", "dur_s": 286, "note": "live1km: 30538 tiles, 205.4 MB, published (attempt 1) (repo 228569 KB, zmax mean:7,7,6,6,6/prob15:6)"}
+{"t": "2026-11-20T10:50:13Z", "day": "2026-11-20", "stage": "verif", "state": "ok", "job": "62082", "dur_s": 293, "note": "snapshot 2026-11-20; 572 rows, last lead-1 day 2026-11-16: n 5639, RMSE 20.4; verif: published (attempt 1)"}
+{"t": "2026-11-20T10:51:09Z", "day": "2026-11-20", "stage": "st", "state": "ok", "job": "62083", "dur_s": 49, "note": "camsfc ok; housekeeping done"}
+{"t": "2026-11-21T10:43:14Z", "day": "2026-11-21", "stage": "fetch", "state": "ok", "job": "62034", "dur_s": 2558, "note": "GFAS 2026-11-20 (fetched)"}
+{"t": "2026-11-21T10:44:07Z", "day": "2026-11-21", "stage": "build", "state": "ok", "job": "62034", "dur_s": 51, "note": ""}
+{"t": "2026-11-21T10:55:36Z", "day": "2026-11-21", "stage": "g04", "state": "ok", "job": "62095", "dur_s": 683, "note": "pred.npy written"}
+{"t": "2026-11-21T10:56:12Z", "day": "2026-11-21", "stage": "publish04", "state": "ok", "job": "62095", "dur_s": 35, "note": "live: published (attempt 1)"}
+{"t": "2026-11-21T11:11:47Z", "day": "2026-11-21", "stage": "g1k", "state": "ok", "job": "62096", "dur_s": 926, "note": "pmG_final_P3T3"}
+{"t": "2026-11-21T11:16:54Z", "day": "2026-11-21", "stage": "w1k", "state": "ok", "job": "62097", "dur_s": 288, "note": "live1km: 30538 tiles, 206.9 MB, published (attempt 1) (repo 230248 KB, zmax mean:7,7,6,6,6/prob15:6)"}
+{"t": "2026-11-21T11:16:57Z", "day": "2026-11-21", "stage": "verif", "state": "ok", "job": "62098", "dur_s": 292, "note": "snapshot 2026-11-21; 617 rows, last lead-1 day 2026-11-17: n 5148, RMSE 19.8; verif: published (attempt 1)"}
+{"t": "2026-11-21T11:17:44Z", "day": "2026-11-21", "stage": "st", "state": "ok", "job": "62099", "dur_s": 41, "note": "camsfc ok; housekeeping done"}
