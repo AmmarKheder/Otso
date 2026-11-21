@@ -1,0 +1,21 @@
+{
+ "latest": "2026-11-21",
+ "updated": "2026-11-21T11:16Z",
+ "tag": "pmG_final_P3T3",
+ "leads": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "valid": {
+  "1": "2026-11-21",
+  "2": "2026-11-22",
+  "3": "2026-11-23",
+  "4": "2026-11-24",
+  "5": "2026-11-25"
+ },
+ "tiles_json": "2026-11-21/tiles.json",
+ "disclaimer": "Research forecast, not an official alert: it does not replace the air-quality forecasts and alerts of your national or local authorities. / Pr\u00e9vision de recherche, ne remplace pas les alertes officielles."
+}
