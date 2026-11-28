@@ -1,0 +1,135 @@
+{
+ "chain": "otso",
+ "updated": "2026-11-28T10:16:33Z",
+ "mode": "prod",
+ "armed": true,
+ "switch_day": "2026-11-13",
+ "release": "v1.2",
+ "day": "2026-11-28",
+ "stages": {
+  "repair": {
+   "state": "warn",
+   "t0": "2026-11-28T10:01:02Z",
+   "t1": "2026-11-28T10:16:31Z",
+   "dur_s": 929,
+   "job": "62303",
+   "note": "inputs of 2026-11-27 could not be rebuilt: the 1 km of 2026-11-28 will lack day-1 (prep.complete)",
+   "attempt": 1
+  },
+  "fetch": {
+   "state": "running",
+   "t0": "2026-11-28T10:16:33Z",
+   "job": "62303",
+   "note": "attempt 1",
+   "attempt": 1
+  }
+ },
+ "inputs": {},
+ "numbers": {
+  "verif_rows": 617,
+  "verif_updated": "2026-11-21T11:16",
+  "verif_last_lead1": {
+   "day": "2026-11-17",
+   "n": 5148,
+   "rmse": 19.826,
+   "bias": -1.442,
+   "final": false
+  },
+  "scores_rows": 558,
+  "rmse_land_24h_30d": 9.32
+ },
+ "days": {
+  "2026-11-22": {
+   "fetch": "failed"
+  },
+  "2026-11-23": {
+   "repair": "warn",
+   "fetch": "failed"
+  },
+  "2026-11-24": {
+   "repair": "warn",
+   "fetch": "failed"
+  },
+  "2026-11-25": {
+   "repair": "warn",
+   "fetch": "failed"
+  },
+  "2026-11-26": {
+   "repair": "warn",
+   "fetch": "failed"
+  },
+  "2026-11-27": {
+   "repair": "warn",
+   "fetch": "failed"
+  },
+  "2026-11-28": {
+   "repair": "warn",
+   "fetch": "running"
+  }
+ },
+ "next_runs": [
+  {
+   "day": "2026-11-30",
+   "job": "62347",
+   "begin": "2026-11-30T10:00:00"
+  },
+  {
+   "day": "2026-11-29",
+   "job": "62334",
+   "begin": "2026-11-29T10:00:00"
+  }
+ ],
+ "queue": [
+  {
+   "job": "62347",
+   "name": "otso_day_2026-11-30",
+   "state": "PENDING",
+   "reason": "BeginTime"
+  },
+  {
+   "job": "62334",
+   "name": "otso_day_2026-11-29",
+   "state": "PENDING",
+   "reason": "BeginTime"
+  },
+  {
+   "job": "62303",
+   "name": "otso_day_2026-11-28",
+   "state": "RUNNING",
+   "reason": null
+  }
+ ],
+ "disk": {
+  "free_TB": 24.9,
+  "free_inodes_M": 119.81,
+  "used_pct": 66.0
+ },
+ "versions": {
+  "release": {
+   "release": "v1",
+   "t": "2026-11-12T20:36:44Z"
+  },
+  "gpu": {
+   "torch": "2.14.1a0+git5c48869",
+   "hip": "7.2.53211",
+   "numpy": "2.5.4",
+   "gpus": 4,
+   "python": "3.12.3",
+   "light_store": "<otso>/static/light_store",
+   "tz": "UTC",
+   "blas": "_BlasBackend.Cublaslt",
+   "modules": "hipblaslt/patched rocm/7.2.4 openmpi/5.0.10-ucc1.6.0-ucx1.19.1-xpmem-2.7.4 openblas/0.3.33 magma/2.10.0 pytorch/2.14.1",
+   "t": "2026-11-21T10:57:14Z"
+  }
+ },
+ "selftest": {
+  "t": "2026-11-12T20:45:37Z",
+  "pass": true,
+  "failed": []
+ },
+ "compare": null,
+ "alarms": [
+  "2026-11-27 fetch failed: missing at 04:18Z: gfas - RuntimeError('GFAS of 2026-11-26 missing and no GFAS within 7 days on disk'); no retry left (3 of 3)"
+ ],
+ "error_tail": null
+}
